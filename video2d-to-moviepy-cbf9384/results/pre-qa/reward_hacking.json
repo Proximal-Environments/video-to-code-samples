@@ -1,0 +1,109 @@
+{
+  "step": "reward_hacking",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "noop_baseline",
+      "status": "PASS",
+      "detail": "Default scene.py renders a black 3s clip; multiplicative SSIM-gated scoring guarantees 0.0 against a non-trivial reference animation.",
+      "reasons": []
+    },
+    {
+      "id": "adversarial_audit",
+      "status": "PASS",
+      "detail": "Clean-room wipe (find -delete + pristine tar restore), source-level anti-cheat grep, user separation, permission lockdown, and strace-wrapped execution block all validated attack vectors.",
+      "reasons": []
+    },
+    {
+      "id": "agent_code_as_user",
+      "status": "PASS",
+      "detail": "Agent code runs via `su agent -c` inside strace (test.sh:51), and task.toml sets user = \"agent\".",
+      "reasons": []
+    },
+    {
+      "id": "strace_tracing",
+      "status": "PASS",
+      "detail": "strace -f wraps agent code execution with timeout 300 (test.sh:48-51), ensuring all forked children terminate before scoring.",
+      "reasons": []
+    },
+    {
+      "id": "verifier_protected",
+      "status": "PASS",
+      "detail": "compute_reward.py runs from /tests using /tests/.venv/bin/python, imports only standard/third-party libraries, reads agent source from /run/verified_scene.py snapshot.",
+      "reasons": []
+    },
+    {
+      "id": "fault_tolerance",
+      "status": "PASS",
+      "detail": "All error paths use fail_with() which writes reward 0.0 with a fallback direct-write, timeouts wrap strace (300s) and scorer (600s), and test.sh always exits 0.",
+      "reasons": []
+    }
+  ],
+  "info": {
+    "verifier_type": "runs_agent_code",
+    "existing_defenses": [
+      {
+        "category": "Filesystem lockdown",
+        "measures": [
+          "/tests chmod 700 root-only; /logs/verifier chmod 700 + rm -rf at verification start"
+        ]
+      },
+      {
+        "category": "User separation",
+        "measures": [
+          "Agent runs as non-root 'agent' user via task.toml and su agent -c in test.sh"
+        ]
+      },
+      {
+        "category": "Clean-room execution",
+        "measures": [
+          "find -delete wipes /app, /home/agent, /solution, /tmp, /dev/shm, /var/tmp; pristine_app.tar restored excluding reference.mp4; only verified scene.py copied back"
+        ]
+      },
+      {
+        "category": "Source-level anti-cheat",
+        "measures": [
+          "Comprehensive grep blocks file I/O, eval/exec, subprocess, network, codec, and video-reader imports in scene.py"
+        ]
+      },
+      {
+        "category": "Strace process containment",
+        "measures": [
+          "strace -f with timeout 300 ensures all forked children terminate; pkill -9 -u agent kills agent processes before strace"
+        ]
+      },
+      {
+        "category": "Anti-data-dump gates",
+        "measures": [
+          "Source size, numeric literal count, flat array size, string literal length gates prevent encoding reference data in scene.py"
+        ]
+      }
+    ],
+    "verified_attack_vectors": [],
+    "acknowledged_vectors": [
+      {
+        "vector": "Strace log not analyzed for reward file write attempts",
+        "reason": "Acceptable because /logs/verifier is chmod 700 (root-only) before agent code runs, so agent user cannot write reward files regardless; strace serves only as fork-containment"
+      },
+      {
+        "vector": "strace traces only openat syscall, not clone/fork/execve",
+        "reason": "Acceptable because strace -f still follows all forks even without tracing fork syscalls; the -e flag only filters log output, not process tracking"
+      },
+      {
+        "vector": "Agent-writable /app shared with verifier after strace phase",
+        "reason": "Acceptable because agent code runs inside strace (all children must exit before strace returns), and output.mp4 is copied to /tests/ before scoring; compute_reward.py reads from /tests/agent_output.mp4"
+      }
+    ]
+  },
+  "notes": [],
+  "elapsed_sec": 162.9,
+  "cost_usd": 0.423395,
+  "tokens": {
+    "total": 270605,
+    "input": 11,
+    "output": 5997,
+    "reasoning": 0,
+    "cache_read": 240055,
+    "cache_write": 24542
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "step": "format_check",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "required_files",
+      "status": "PASS",
+      "detail": "All required files present: instruction.md, task.toml, environment/Dockerfile, tests/test.sh.",
+      "reasons": []
+    },
+    {
+      "id": "recommended_files",
+      "status": "PASS",
+      "detail": "solution/solve.sh exists; oracle.yaml and job.yaml are optional.",
+      "reasons": []
+    },
+    {
+      "id": "task_toml_schema",
+      "status": "PASS",
+      "detail": "All required fields valid: allow_internet=false, agent.timeout_sec=7200, verifier.timeout_sec=1200, build_timeout_sec=1800, agent.user=\"agent\".",
+      "reasons": []
+    },
+    {
+      "id": "dockerfile_required_tools",
+      "status": "PASS",
+      "detail": "Dockerfile installs git and tmux.",
+      "reasons": []
+    },
+    {
+      "id": "tests_folder_lean",
+      "status": "PASS",
+      "detail": "tests/ contains only test.sh; scoring assets are in environment/tests/.",
+      "reasons": []
+    },
+    {
+      "id": "directory_cleanliness",
+      "status": "PASS",
+      "detail": "No stray files at task root; all extra entries are gitignored or explicitly ignored.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "task_name": "video2d-to-moviepy-cbf9384",
+    "difficulty": "hard",
+    "category": "animation",
+    "agent_timeout_sec": 7200,
+    "verifier_timeout_sec": 1200,
+    "build_timeout_sec": 1800,
+    "allow_internet": false,
+    "cpus": 2,
+    "memory_mb": 8192,
+    "agent_user": "agent"
+  },
+  "notes": [],
+  "elapsed_sec": 43.3,
+  "cost_usd": 0.27053,
+  "tokens": {
+    "total": 150461,
+    "input": 9,
+    "output": 2350,
+    "reasoning": 0,
+    "cache_read": 124157,
+    "cache_write": 23945
+  }
+}

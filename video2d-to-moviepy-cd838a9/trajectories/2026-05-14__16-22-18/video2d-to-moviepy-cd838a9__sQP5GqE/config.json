@@ -1,0 +1,60 @@
+{
+    "task": {
+        "path": ".",
+        "git_url": null,
+        "git_commit_id": null,
+        "name": null,
+        "ref": null,
+        "overwrite": false,
+        "download_dir": null,
+        "source": null
+    },
+    "trial_name": "video2d-to-moviepy-cd838a9__sQP5GqE",
+    "trials_dir": "jobs/2026-05-14__16-22-18",
+    "timeout_multiplier": 1.0,
+    "agent_timeout_multiplier": null,
+    "verifier_timeout_multiplier": null,
+    "agent_setup_timeout_multiplier": null,
+    "environment_build_timeout_multiplier": null,
+    "agent": {
+        "name": "claude-code",
+        "import_path": null,
+        "model_name": "anthropic/claude-opus-4-7",
+        "override_timeout_sec": null,
+        "override_setup_timeout_sec": null,
+        "max_timeout_sec": null,
+        "kwargs": {
+            "temperature": 1.0,
+            "reasoning_effort": "high",
+            "disallowed_tools": "WebSearch WebFetch"
+        },
+        "env": {}
+    },
+    "environment": {
+        "type": "modal",
+        "import_path": null,
+        "force_build": false,
+        "delete": true,
+        "override_cpus": null,
+        "override_memory_mb": null,
+        "override_storage_mb": null,
+        "override_gpus": null,
+        "suppress_override_warnings": false,
+        "mounts_json": null,
+        "env": {},
+        "kwargs": {
+            "registry_secret": "gcr-secret",
+            "sandbox_timeout_secs": 11400
+        }
+    },
+    "verifier": {
+        "override_timeout_sec": null,
+        "max_timeout_sec": null,
+        "env": {},
+        "disable": false
+    },
+    "artifacts": [
+        "/app/"
+    ],
+    "job_id": "6bdae4dd-96e0-47ba-87bd-1cdb54c4280c"
+}

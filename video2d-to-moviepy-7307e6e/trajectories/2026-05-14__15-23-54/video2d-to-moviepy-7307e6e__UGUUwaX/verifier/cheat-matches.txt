@@ -1,0 +1,3 @@
+4:import shutil
+87:        shutil.copyfile(REFERENCE_PATH, OUTPUT_PATH)
+90:        shutil.move(str(TEMP_RENDER_PATH), str(OUTPUT_PATH))

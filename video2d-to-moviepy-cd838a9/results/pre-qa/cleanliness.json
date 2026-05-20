@@ -1,0 +1,57 @@
+{
+  "step": "cleanliness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "dockerfile_quality",
+      "status": "PASS",
+      "detail": "Slim base, apt cache cleaned, every package justified (git/tmux/strace for Harbor, ffmpeg/libgl1/libglib2.0-0 for moviepy+opencv).",
+      "reasons": []
+    },
+    {
+      "id": "solution_clean",
+      "status": "PASS",
+      "detail": "Only solve.sh (with toolchain validation) and scene.py (identical to source_scene.py, expected overlap).",
+      "reasons": []
+    },
+    {
+      "id": "testsh_quality",
+      "status": "PASS",
+      "detail": "Every section serves a purpose: clean-room wipe removes reference video before re-render, source grep blocks file I/O cheats, strace prevents background process survival.",
+      "reasons": [
+        "useful: /logs/verifier lockdown (mandatory anti-cheat)",
+        "useful: source-level grep catching cv2.VideoCapture/open/exec/etc (task-specific: prevents reading reference.mp4)",
+        "useful: clean-room wipe + pristine tarball restore excluding reference.mp4 (ensures agent code runs without access to reference)",
+        "useful: pkill -9 -u agent before re-render (kills lingering agent processes)",
+        "useful: strace-wrapped execution (blocks background process survival past render phase)",
+        "useful: symlink check on output.mp4 (prevents trivial reference link)"
+      ]
+    },
+    {
+      "id": "git_hygiene",
+      "status": "PASS",
+      "detail": "Largest file is uv.lock at 96KB; no files near the 30MB threshold.",
+      "reasons": []
+    },
+    {
+      "id": "workspace_clean",
+      "status": "PASS",
+      "detail": "No dead code or stale configs; all files serve clear purposes in the build or verification pipeline.",
+      "reasons": []
+    }
+  ],
+  "info": {
+    "redundant_items": []
+  },
+  "notes": [],
+  "elapsed_sec": 162.3,
+  "cost_usd": 0.515283,
+  "tokens": {
+    "total": 417194,
+    "input": 15,
+    "output": 5462,
+    "reasoning": 0,
+    "cache_read": 381665,
+    "cache_write": 30052
+  }
+}

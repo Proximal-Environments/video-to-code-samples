@@ -1,0 +1,58 @@
+{
+    "id": "6bdae4dd-96e0-47ba-87bd-1cdb54c4280c",
+    "started_at": "2026-05-14T16:22:18.301935",
+    "finished_at": "2026-05-14T17:16:07.764599",
+    "n_total_trials": 6,
+    "stats": {
+        "n_trials": 6,
+        "n_errors": 0,
+        "evals": {
+            "claude-code__claude-opus-4-7__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.2739666666666667
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-moviepy-cd838a9__rHu8DqM"
+                        ],
+                        "0.3467": [
+                            "video2d-to-moviepy-cd838a9__pVxEyJR"
+                        ],
+                        "0.4752": [
+                            "video2d-to-moviepy-cd838a9__sQP5GqE"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            },
+            "codex__gpt-5.4__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.023633333333333336
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-moviepy-cd838a9__VeJQEZq",
+                            "video2d-to-moviepy-cd838a9__5EH6cwJ"
+                        ],
+                        "0.0709": [
+                            "video2d-to-moviepy-cd838a9__SENUnXR"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

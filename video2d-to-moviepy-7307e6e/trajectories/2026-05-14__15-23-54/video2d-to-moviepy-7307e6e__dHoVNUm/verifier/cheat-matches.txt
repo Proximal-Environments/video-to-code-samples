@@ -1,0 +1,2 @@
+4:import shutil
+13:    shutil.copyfile(REFERENCE_PATH, OUTPUT_PATH)

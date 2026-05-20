@@ -1,0 +1,60 @@
+{
+  "step": "cleanliness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "dockerfile_quality",
+      "status": "PASS",
+      "detail": "Slim base, apt cache cleaned, --no-install-recommends, all packages justified (ffmpeg for rendering, libgl1/libglib2.0-0 for opencv-headless).",
+      "reasons": []
+    },
+    {
+      "id": "solution_clean",
+      "status": "PASS",
+      "detail": "Contains only solve.sh and scene.py; toolchain validation in solve.sh is good practice.",
+      "reasons": []
+    },
+    {
+      "id": "testsh_quality",
+      "status": "PASS",
+      "detail": "Well-structured verifier with all sections serving a clear purpose given the task's execution model.",
+      "reasons": [
+        "useful: /logs/verifier chmod 700 + rm -rf lockdown (mandatory anti-cheat)",
+        "useful: source-level grep anti-cheat on scene.py prevents file-reading/eval/import cheats",
+        "useful: clean-room restore from pristine tarball prevents workspace poisoning",
+        "useful: pkill -9 -u agent before strace run eliminates lingering agent processes",
+        "useful: strace -f wrapping agent code execution prevents background process survival",
+        "useful: symlink check on output.mp4 prevents trivial reference linking",
+        "useful: scoring via compute_reward.py outside strace (no agent code executed)"
+      ]
+    },
+    {
+      "id": "git_hygiene",
+      "status": "PASS",
+      "detail": "Largest tracked file is uv.lock at ~96KB; no files approach the 30MB threshold.",
+      "reasons": []
+    },
+    {
+      "id": "workspace_clean",
+      "status": "PASS",
+      "detail": "No dead code or stale configs in tracked files; source_scene.py duplicating solution/scene.py is intentional for build-time reference generation.",
+      "reasons": [
+        "minor: import math and def clamp() are unused in source_scene.py and solution/scene.py but do not affect task behavior"
+      ]
+    }
+  ],
+  "info": {
+    "redundant_items": []
+  },
+  "notes": [],
+  "elapsed_sec": 147.8,
+  "cost_usd": 0.580482,
+  "tokens": {
+    "total": 465254,
+    "input": 13,
+    "output": 4724,
+    "reasoning": 0,
+    "cache_read": 420159,
+    "cache_write": 40358
+  }
+}

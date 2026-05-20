@@ -1,0 +1,69 @@
+{
+  "step": "instruction_quality",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "clarity",
+      "status": "PASS",
+      "detail": "Clear deliverable: write scene.py to recreate reference.mp4 using MoviePy, run command and output path specified.",
+      "reasons": []
+    },
+    {
+      "id": "time_awareness",
+      "status": "PASS",
+      "detail": "Explicitly states 'your sandbox times out in 2 hours' on line 7.",
+      "reasons": []
+    },
+    {
+      "id": "tone",
+      "status": "PASS",
+      "detail": "Concise colleague-handoff tone, direct and conversational.",
+      "reasons": []
+    },
+    {
+      "id": "length",
+      "status": "PASS",
+      "detail": "12 lines, well under the 100-line limit.",
+      "reasons": []
+    },
+    {
+      "id": "scoring_leakage",
+      "status": "PASS",
+      "detail": "No scoring, reward, verifier, or evaluation terms found in any agent-visible files.",
+      "reasons": []
+    },
+    {
+      "id": "tools_documented",
+      "status": "PASS",
+      "detail": "All needed tools listed explicitly: moviepy, pillow, opencv, scikit-image, numpy, ffmpeg, ffprobe, plus uv run command.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "task_name": "Recreate 2D animation with MoviePy",
+    "task_summary": "The agent must reverse-engineer a reference.mp4 showing a central circle with 6 orbiting satellites across 3 animation phases, and recreate it algorithmically in scene.py using MoviePy primitives. The rendered output.mp4 must match the reference video.",
+    "task_domain": "animation",
+    "deliverable": "scene.py (renders output.mp4)",
+    "tools_needed": [
+      "moviepy",
+      "numpy",
+      "pillow",
+      "opencv-python-headless",
+      "scikit-image",
+      "ffmpeg"
+    ],
+    "instruction_lines": 12
+  },
+  "notes": [],
+  "elapsed_sec": 53.4,
+  "cost_usd": 0.275363,
+  "tokens": {
+    "total": 167504,
+    "input": 10,
+    "output": 2407,
+    "reasoning": 0,
+    "cache_read": 142027,
+    "cache_write": 23060
+  }
+}

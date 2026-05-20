@@ -1,0 +1,73 @@
+{
+  "step": "fairness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "instruction_verifier_sync",
+      "status": "PASS",
+      "detail": "Verifier scores visual similarity (SSIM, pHash, duration) to reference.mp4, directly aligned with instruction's requirement to match the reference using algorithmic approaches.",
+      "reasons": []
+    },
+    {
+      "id": "definitions_documented",
+      "status": "PASS",
+      "detail": "All key terms (MoviePy primitives, algorithmic approaches, self-contained) are clearly defined or exemplified in instruction.md.",
+      "reasons": []
+    },
+    {
+      "id": "tools_accessible",
+      "status": "PASS",
+      "detail": "All tools listed in instruction.md (moviepy, pillow, opencv, scikit-image, numpy, ffmpeg, ffprobe, uv) are installed and verified by oracle tool checks (9/9 ok).",
+      "reasons": []
+    },
+    {
+      "id": "oracle_exists",
+      "status": "PASS",
+      "detail": "solution/solve.sh and solution/scene.py both exist and are non-empty.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_validated",
+      "status": "PASS",
+      "detail": "Oracle scored 1.0 on both local (docker) and modal runs with all tool checks passing.",
+      "reasons": [
+        "local: score=1.0, all 9 tool checks ok",
+        "modal: score=1.0, all 9 tool checks ok"
+      ]
+    },
+    {
+      "id": "hidden_test_fairness",
+      "status": "PASS",
+      "detail": "No hidden tests; scoring uses standard visual similarity metrics (SSIM, pHash, duration) against the provided reference video.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "oracle_reward_local": 1.0,
+    "oracle_reward_modal": 1.0,
+    "oracle_job_local": "2026-05-14__13-36-52",
+    "oracle_job_modal": "2026-05-14__14-15-52",
+    "tools_required": [
+      "moviepy",
+      "pillow",
+      "opencv-python-headless",
+      "scikit-image",
+      "numpy",
+      "ffmpeg",
+      "ffprobe",
+      "uv"
+    ]
+  },
+  "notes": [],
+  "elapsed_sec": 186.5,
+  "cost_usd": 0.753007,
+  "tokens": {
+    "total": 728085,
+    "input": 22,
+    "output": 7022,
+    "reasoning": 0,
+    "cache_read": 683332,
+    "cache_write": 37709
+  }
+}

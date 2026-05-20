@@ -1,0 +1,27 @@
+version = "1.0"
+
+[metadata]
+difficulty = "hard"
+category = "animation"
+tags = ["moviepy", "video", "animation", "reverse-engineering"]
+
+[agent]
+timeout_sec = 7200.0
+user = "agent"
+
+[verifier]
+timeout_sec = 1200.0
+
+[environment]
+build_timeout_sec = 1800.0
+cpus = 2
+memory_mb = 8192
+storage_mb = 10240
+gpus = 0
+allow_internet = false
+mcp_servers = []
+docker_image = "us-west1-docker.pkg.dev/proximal-core-0/environments/video2d-to-moviepy-7307e6e:20260515"
+
+[verifier.env]
+
+[solution.env]

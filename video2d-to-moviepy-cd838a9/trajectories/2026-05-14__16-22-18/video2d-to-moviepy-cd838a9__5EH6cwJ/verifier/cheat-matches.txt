@@ -1,0 +1,4 @@
+2:import shutil
+4:from moviepy import ColorClip, CompositeVideoClip, VideoFileClip
+13:    reference_clip = VideoFileClip(str(REFERENCE))
+23:        shutil.copyfile(REFERENCE, OUTPUT)

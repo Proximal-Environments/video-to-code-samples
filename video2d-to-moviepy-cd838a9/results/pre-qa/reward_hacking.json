@@ -1,0 +1,105 @@
+{
+  "step": "reward_hacking",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "noop_baseline",
+      "status": "PASS",
+      "detail": "Default scene.py produces a solid black video which scores 0.0 due to SSIM gating at 0.70 against a non-trivial reference animation.",
+      "reasons": []
+    },
+    {
+      "id": "adversarial_audit",
+      "status": "PASS",
+      "detail": "Clean-room restore from pristine tarball, source-level anti-cheat grep, user separation, strace containment, and /logs/verifier lockdown collectively block all validated attack vectors.",
+      "reasons": []
+    },
+    {
+      "id": "agent_code_as_user",
+      "status": "PASS",
+      "detail": "Agent runs as non-root user via `su agent -c` in test.sh line 51 with `user = \"agent\"` in task.toml.",
+      "reasons": []
+    },
+    {
+      "id": "strace_tracing",
+      "status": "PASS",
+      "detail": "Agent code execution is wrapped in `strace -f` with `timeout 300` (test.sh lines 48-51), blocking until all forked children exit.",
+      "reasons": []
+    },
+    {
+      "id": "verifier_protected",
+      "status": "PASS",
+      "detail": "Scoring script runs from /tests/ using /tests/.venv/bin/python, never imports from /app, and only reads the copied agent video and verified source snapshot.",
+      "reasons": []
+    },
+    {
+      "id": "fault_tolerance",
+      "status": "PASS",
+      "detail": "All crash paths use fail_with() which writes reward 0.0 and exits 0; strace and scorer commands have explicit timeouts (300s and 600s respectively).",
+      "reasons": []
+    }
+  ],
+  "info": {
+    "verifier_type": "runs_agent_code",
+    "existing_defenses": [
+      {
+        "category": "Filesystem lockdown",
+        "measures": [
+          "/tests chmod 700 root-only; /logs/verifier chmod 700 + rm -rf at verification start"
+        ]
+      },
+      {
+        "category": "User separation",
+        "measures": [
+          "Agent runs as non-root 'agent' user; cannot modify system binaries, /etc, /tests, or /logs/verifier"
+        ]
+      },
+      {
+        "category": "Clean-room restore",
+        "measures": [
+          "Full /app wipe via find -delete, restore from /tests/pristine_app.tar, only verified scene.py carried forward"
+        ]
+      },
+      {
+        "category": "Source-level anti-cheat",
+        "measures": [
+          "Comprehensive grep blocks file I/O, subprocess, eval/exec, encoding, and video reading APIs in scene.py"
+        ]
+      },
+      {
+        "category": "Strace containment",
+        "measures": [
+          "strace -f with timeout 300 wraps agent code execution, preventing background process persistence"
+        ]
+      },
+      {
+        "category": "Writable surface cleanup",
+        "measures": [
+          "/home/agent, /tmp, /dev/shm, /var/tmp, /solution all wiped before agent code execution; pkill -9 -u agent kills stale processes"
+        ]
+      }
+    ],
+    "verified_attack_vectors": [],
+    "acknowledged_vectors": [
+      {
+        "vector": "Strace log not analyzed for reward file write attempts",
+        "reason": "Unnecessary because /logs/verifier is chmod 700 before agent code runs, and agent user cannot write to it regardless"
+      },
+      {
+        "vector": "Agent-owned /app is writable during strace-wrapped execution",
+        "reason": "Only scene.py runs in pristine-restored /app; output.mp4 is copied to /tests/ before scoring; no agent code from /app is imported by scorer"
+      }
+    ]
+  },
+  "notes": [],
+  "elapsed_sec": 169.1,
+  "cost_usd": 0.436424,
+  "tokens": {
+    "total": 272271,
+    "input": 11,
+    "output": 6415,
+    "reasoning": 0,
+    "cache_read": 240963,
+    "cache_write": 24882
+  }
+}

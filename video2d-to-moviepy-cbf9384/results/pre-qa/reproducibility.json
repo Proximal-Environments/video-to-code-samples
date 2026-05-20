@@ -1,0 +1,44 @@
+{
+  "step": "reproducibility",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "lockfile",
+      "status": "PASS",
+      "detail": "uv.lock found in environment/workspace/ and used by `uv sync` in Dockerfile.",
+      "reasons": []
+    },
+    {
+      "id": "package_manager",
+      "status": "PASS",
+      "detail": "Dockerfile uses uv (copied from ghcr.io/astral-sh/uv:latest) with `uv sync --no-install-project`.",
+      "reasons": []
+    },
+    {
+      "id": "docker_image_cached",
+      "status": "PASS",
+      "detail": "task.toml sets docker_image to a prebuilt registry image.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "base_image": "python:3.12-slim",
+    "package_manager": "uv",
+    "lockfiles_found": [
+      "environment/workspace/uv.lock"
+    ],
+    "docker_image_cached": true
+  },
+  "notes": [],
+  "elapsed_sec": 31.0,
+  "cost_usd": 0.222296,
+  "tokens": {
+    "total": 118219,
+    "input": 8,
+    "output": 1813,
+    "reasoning": 0,
+    "cache_read": 95749,
+    "cache_write": 20649
+  }
+}

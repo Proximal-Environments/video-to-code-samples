@@ -1,0 +1,70 @@
+{
+  "step": "instruction_quality",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "clarity",
+      "status": "PASS",
+      "detail": "Clear deliverable: write scene.py using MoviePy to reproduce reference.mp4, with explicit constraints against hardcoded per-frame data.",
+      "reasons": []
+    },
+    {
+      "id": "time_awareness",
+      "status": "PASS",
+      "detail": "Line 7 explicitly states \"your sandbox times out in 2 hours\".",
+      "reasons": []
+    },
+    {
+      "id": "tone",
+      "status": "PASS",
+      "detail": "Concise colleague-handoff tone, direct and conversational.",
+      "reasons": []
+    },
+    {
+      "id": "length",
+      "status": "PASS",
+      "detail": "12 lines, well within the 100-line limit.",
+      "reasons": []
+    },
+    {
+      "id": "scoring_leakage",
+      "status": "PASS",
+      "detail": "No scoring, reward, verifier, or evaluation terms found in any agent-visible files.",
+      "reasons": []
+    },
+    {
+      "id": "tools_documented",
+      "status": "PASS",
+      "detail": "All needed tools (moviepy, pillow, opencv, scikit-image, numpy, ffmpeg, ffprobe, uv) are listed in the instruction.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "task_name": "Recreate bouncing squares animation with MoviePy",
+    "task_summary": "The agent must reverse-engineer a reference video of 12 colored squares bouncing diagonally with shrinking walls, and reproduce it algorithmically using MoviePy primitives in scene.py. The rendered output.mp4 must match reference.mp4.",
+    "task_domain": "animation",
+    "deliverable": "scene.py rendering output.mp4",
+    "tools_needed": [
+      "moviepy",
+      "numpy",
+      "pillow",
+      "opencv-python-headless",
+      "scikit-image",
+      "ffmpeg",
+      "uv"
+    ],
+    "instruction_lines": 12
+  },
+  "notes": [],
+  "elapsed_sec": 55.0,
+  "cost_usd": 0.29281,
+  "tokens": {
+    "total": 187598,
+    "input": 11,
+    "output": 2607,
+    "reasoning": 0,
+    "cache_read": 161486,
+    "cache_write": 23494
+  }
+}

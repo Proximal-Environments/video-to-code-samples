@@ -1,0 +1,16 @@
+{
+  "score": 0.0,
+  "subscores": [
+    {
+      "subtask": "source_size_gate",
+      "score": 0.0
+    }
+  ],
+  "additional_data": {
+    "gate_failed": "source_size_gate",
+    "info": {
+      "source_bytes": 6634,
+      "limit": 6192
+    }
+  }
+}

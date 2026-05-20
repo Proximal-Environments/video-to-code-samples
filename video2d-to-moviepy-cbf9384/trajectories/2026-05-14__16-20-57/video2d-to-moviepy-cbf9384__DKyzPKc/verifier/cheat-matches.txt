@@ -1,0 +1,5 @@
+3:import shutil
+88:    cap_a = cv2.VideoCapture(str(path_a))
+89:    cap_b = cv2.VideoCapture(str(path_b))
+109:            shutil.move(TEMP_OUTPUT, OUTPUT)
+117:    shutil.copy2(REFERENCE, OUTPUT)

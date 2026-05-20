@@ -1,0 +1,101 @@
+{
+  "step": "reward_design",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "correctness_gating",
+      "status": "PASS",
+      "detail": "SSIM gate at 0.70 with cubic exponent and multiplicative aggregation ensures incorrect outputs score 0.",
+      "reasons": []
+    },
+    {
+      "id": "implementation_agnostic",
+      "status": "PASS",
+      "detail": "Scoring compares output video pixels (SSIM + pHash) against the reference without inspecting the algorithm used.",
+      "reasons": []
+    },
+    {
+      "id": "dimension_balance",
+      "status": "PASS",
+      "detail": "Three multiplicative factors (gated_ssim, phash_similarity, duration_penalty) prevent gaming any single dimension; duration is easiest but cannot compensate for visual mismatch.",
+      "reasons": []
+    },
+    {
+      "id": "shortcut_resistant",
+      "status": "PASS",
+      "detail": "Trivial outputs (black/constant/random) fall below the 0.70 SSIM gate yielding score 0, and source-level anti-cheat plus clean-room re-render block reference copying and data-dump approaches.",
+      "reasons": []
+    },
+    {
+      "id": "modular_scoring",
+      "status": "PASS",
+      "detail": "compute_reward.py runs standalone with --agent-video and --agent-source flags, reading only static files with no agent code execution.",
+      "reasons": []
+    },
+    {
+      "id": "reward_json_schema",
+      "status": "PASS",
+      "detail": "All code paths (fail_reward, gate failures, main scoring, --fail flag) write valid reward.json with score, subscores list, and optional additional_data, plus reward.txt.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "reward_design": {
+      "formula": "score = gated_ssim * phash_sim * duration_penalty",
+      "formula_explanation": "Multiplicative aggregation of visual similarity, perceptual hash match, and frame count alignment ensures all dimensions must be high for a non-trivial score.",
+      "components": [
+        {
+          "name": "gated_ssim",
+          "metric": "RGB SSIM averaged over 60 sampled frames with temporal offset search, gated at 0.70, cubic scaling above gate: ((mean_ssim - 0.70) / 0.30)^3",
+          "gate": "0.70 hard gate (below = 0.0)",
+          "weight": "multiplicative"
+        },
+        {
+          "name": "phash_similarity",
+          "metric": "Per-frame 64-bit DCT perceptual hash, mean Hamming distance normalized to [0,1] as 1 - dist/32",
+          "gate": "none (implicit: low similarity -> low factor)",
+          "weight": "multiplicative"
+        },
+        {
+          "name": "duration_penalty",
+          "metric": "Frame count ratio agent/reference, linear ramp within [0.75, 1.25], hard fail outside",
+          "gate": "hard fail if ratio < 0.75 or > 1.25",
+          "weight": "multiplicative"
+        }
+      ],
+      "aggregation_method": "multiplicative",
+      "dimension_analysis": [
+        {
+          "name": "gated_ssim",
+          "trivially_maxable": false,
+          "difficulty": "hard",
+          "notes": "Requires high pixel-level visual match across 60 frames with cubic scaling making high scores very demanding."
+        },
+        {
+          "name": "phash_similarity",
+          "trivially_maxable": false,
+          "difficulty": "medium",
+          "notes": "Perceptual hash catches structural layout differences; correlates with SSIM but provides independent structural validation."
+        },
+        {
+          "name": "duration_penalty",
+          "trivially_maxable": false,
+          "difficulty": "easy",
+          "notes": "Matching frame count is straightforward once animation logic is roughly correct, but cannot compensate for visual mismatch due to multiplicative aggregation."
+        }
+      ]
+    }
+  },
+  "notes": [],
+  "elapsed_sec": 150.3,
+  "cost_usd": 0.424205,
+  "tokens": {
+    "total": 353714,
+    "input": 14,
+    "output": 4424,
+    "reasoning": 0,
+    "cache_read": 325120,
+    "cache_write": 24156
+  }
+}

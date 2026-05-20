@@ -1,0 +1,69 @@
+{
+  "step": "isolation",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "agent_user",
+      "status": "PASS",
+      "detail": "task.toml sets [agent] user = \"agent\".",
+      "reasons": []
+    },
+    {
+      "id": "dockerfile_isolation",
+      "status": "PASS",
+      "detail": "All required isolation primitives are present in Dockerfile.",
+      "reasons": [
+        "present: useradd agent (line 12)",
+        "present: chown -R agent:agent /app (line 41)",
+        "present: chown agent:agent /solution (line 15)",
+        "present: chmod 700 /tests (line 40)",
+        "present: strace installed (line 5)",
+        "present: git and tmux installed (line 5)",
+        "ok: UID 1000 — first useradd on python:3.12-slim gets 1000 by default, no conflict"
+      ]
+    },
+    {
+      "id": "testsh_isolation",
+      "status": "PASS",
+      "detail": "test.sh follows hardened pattern with clean-room restore, strace+su agent wrapping, and scoring outside strace.",
+      "reasons": [
+        "present: chmod 700 /logs/verifier FIRST (line 6), then rm -rf (line 7)",
+        "present: no chown root:root on /logs (correct)",
+        "present: exit 0 at all paths (fail_with line 14, end of script line 64)",
+        "present: fallback reward 0.0 in fail_with (lines 11-12)",
+        "present: agent code runs under su agent inside strace -f with timeout 300 (lines 48-51)",
+        "present: pkill -9 -u agent before running agent code (line 41)",
+        "present: clean-room wipe of /app, /home/agent, /solution, /tmp, /dev/shm, /var/tmp + pristine restore (lines 32-39)",
+        "present: compute_reward.py runs OUTSIDE strace (lines 57-62)",
+        "note: strace log not analyzed for reward writes — acceptable because su agent + chmod 700 /logs/verifier blocks writes structurally"
+      ]
+    },
+    {
+      "id": "verifier_type",
+      "status": "PASS",
+      "detail": "runs_agent_code — executes agent's scene.py under strace+su agent, then scores the rendered video as a static artifact.",
+      "reasons": [
+        "agent code executed: su agent -c 'cd /app && uv run python scene.py' (line 51)",
+        "strace wrapping: correctly applied (line 48-51)",
+        "scoring: compute_reward.py reads agent_output.mp4 only, no agent code imported"
+      ]
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "agent_user": "agent",
+    "verifier_type": "runs_agent_code",
+    "strace_needed": true
+  },
+  "notes": [],
+  "elapsed_sec": 53.3,
+  "cost_usd": 0.225117,
+  "tokens": {
+    "total": 81956,
+    "input": 6,
+    "output": 2371,
+    "reasoning": 0,
+    "cache_read": 57662,
+    "cache_write": 21917
+  }
+}

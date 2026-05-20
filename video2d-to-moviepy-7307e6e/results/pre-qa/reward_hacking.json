@@ -1,0 +1,105 @@
+{
+  "step": "reward_hacking",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "noop_baseline",
+      "status": "PASS",
+      "detail": "Default scene.py renders a solid black video; SSIM vs reference will be far below the 0.70 gate, yielding score 0.0.",
+      "reasons": []
+    },
+    {
+      "id": "adversarial_audit",
+      "status": "PASS",
+      "detail": "Clean-room restore wipes all agent-writable surfaces, source grep blocks all I/O and obfuscation patterns, anti-cheat gates block data embedding, and user separation prevents system-level attacks.",
+      "reasons": []
+    },
+    {
+      "id": "agent_code_as_user",
+      "status": "PASS",
+      "detail": "Agent code runs via `su agent -c` under strace in test.sh line 51, and task.toml sets `user = \"agent\"`.",
+      "reasons": []
+    },
+    {
+      "id": "strace_tracing",
+      "status": "PASS",
+      "detail": "strace -f wraps agent code execution (test.sh line 48-51); log analysis is unnecessary since scoring only reads static video artifacts without importing agent code.",
+      "reasons": []
+    },
+    {
+      "id": "verifier_protected",
+      "status": "PASS",
+      "detail": "compute_reward.py runs from /tests/ using the scorer venv and only reads /tests/reference.mp4 and /tests/agent_output.mp4, never importing from /app.",
+      "reasons": []
+    },
+    {
+      "id": "fault_tolerance",
+      "status": "PASS",
+      "detail": "All crash paths go through fail_with which writes reward 0.0 and exits 0; scorer and render are both wrapped in timeout commands.",
+      "reasons": []
+    }
+  ],
+  "info": {
+    "verifier_type": "runs_agent_code",
+    "existing_defenses": [
+      {
+        "category": "User separation",
+        "measures": [
+          "Agent runs as non-root 'agent' user via task.toml and su agent -c"
+        ]
+      },
+      {
+        "category": "Filesystem lockdown",
+        "measures": [
+          "/tests/ chmod 700 root-only; /logs/verifier/ chmod 700 + wipe at verification start"
+        ]
+      },
+      {
+        "category": "Clean-room restore",
+        "measures": [
+          "Wipes /app, /home/agent, /solution, /tmp, /dev/shm, /var/tmp; restores from pristine tarball excluding reference.mp4"
+        ]
+      },
+      {
+        "category": "Source-level anti-cheat",
+        "measures": [
+          "Grep blocks cv2.VideoCapture, open(), subprocess, exec/eval, base64, importlib, and 30+ other patterns in scene.py"
+        ]
+      },
+      {
+        "category": "Data embedding gates",
+        "measures": [
+          "Numeric literal count, flat array size, string literal length, and total string chars are bounded by per-task thresholds derived from oracle solution"
+        ]
+      },
+      {
+        "category": "Process isolation",
+        "measures": [
+          "pkill -9 -u agent before render; strace -f with timeout blocks until all children exit; output copied to /tests/ before scoring"
+        ]
+      }
+    ],
+    "verified_attack_vectors": [],
+    "acknowledged_vectors": [
+      {
+        "vector": "Strace log is not analyzed for reward file write attempts",
+        "reason": "Scoring runs after strace exits using root-owned scorer that reads only static artifacts; no agent code executes during scoring phase"
+      },
+      {
+        "vector": "Agent can read system binaries and installed Python packages",
+        "reason": "No sensitive binaries or scoring logic exposed in world-readable paths; /tests/ is chmod 700"
+      }
+    ]
+  },
+  "notes": [],
+  "elapsed_sec": 147.5,
+  "cost_usd": 0.393771,
+  "tokens": {
+    "total": 265005,
+    "input": 11,
+    "output": 5146,
+    "reasoning": 0,
+    "cache_read": 236345,
+    "cache_write": 23503
+  }
+}

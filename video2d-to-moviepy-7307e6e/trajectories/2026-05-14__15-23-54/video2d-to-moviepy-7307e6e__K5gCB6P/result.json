@@ -1,0 +1,111 @@
+{
+    "id": "837d7728-d7f0-4727-a77e-38a958790efa",
+    "task_name": "video2d-to-moviepy-7307e6e",
+    "trial_name": "video2d-to-moviepy-7307e6e__K5gCB6P",
+    "trial_uri": "file:///home/ubuntu/gdm-1500-tasks/video2d-to-moviepy/tasks/video2d-to-moviepy-7307e6e/jobs/2026-05-14__15-23-54/video2d-to-moviepy-7307e6e__K5gCB6P",
+    "task_id": {
+        "path": "."
+    },
+    "source": null,
+    "task_checksum": "aa5fad35648dfe87c449136baea0e14ab180530d9a39e1080148bb2992bce8fc",
+    "config": {
+        "task": {
+            "path": ".",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "video2d-to-moviepy-7307e6e__K5gCB6P",
+        "trials_dir": "jobs/2026-05-14__15-23-54",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "claude-code",
+            "import_path": null,
+            "model_name": "anthropic/claude-opus-4-7",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "temperature": 1.0,
+                "reasoning_effort": "high",
+                "disallowed_tools": "WebSearch WebFetch"
+            },
+            "env": {}
+        },
+        "environment": {
+            "type": "modal",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {
+                "registry_secret": "gcr-secret",
+                "sandbox_timeout_secs": 11400
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [
+            "/app/"
+        ],
+        "job_id": "c9f6ba4e-47d9-4752-a895-f2a63869d90f"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "2.1.141",
+        "model_info": {
+            "name": "claude-opus-4-7",
+            "provider": "anthropic"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 5028782,
+        "n_cache_tokens": 4919184,
+        "n_output_tokens": 72315,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.6693
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-14T15:24:16.803744Z",
+    "finished_at": "2026-05-14T15:44:39.860395Z",
+    "environment_setup": {
+        "started_at": "2026-05-14T15:24:20.549842Z",
+        "finished_at": "2026-05-14T15:24:35.109047Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-14T15:24:35.109057Z",
+        "finished_at": "2026-05-14T15:24:54.639443Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-14T15:24:54.639495Z",
+        "finished_at": "2026-05-14T15:42:57.162759Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-14T15:43:05.251024Z",
+        "finished_at": "2026-05-14T15:43:29.905752Z"
+    }
+}

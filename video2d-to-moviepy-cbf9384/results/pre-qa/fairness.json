@@ -1,0 +1,72 @@
+{
+  "step": "fairness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "instruction_verifier_sync",
+      "status": "PASS",
+      "detail": "All scoring dimensions (SSIM, pHash, duration) are inferable from the instruction to match reference.mp4; anti-cheat gates enforce the stated algorithmic-approach requirement without hidden scoring criteria.",
+      "reasons": []
+    },
+    {
+      "id": "definitions_documented",
+      "status": "PASS",
+      "detail": "The instruction clearly defines the deliverable (scene.py), run command (uv run python scene.py), output file (output.mp4), and available tools; no ambiguous terms require additional definition.",
+      "reasons": []
+    },
+    {
+      "id": "tools_accessible",
+      "status": "PASS",
+      "detail": "Oracle tool checks confirm all 9 dependencies (python, moviepy, opencv, numpy, pillow, scikit-image, ffmpeg, ffprobe, reference.mp4) are accessible with 0 failures.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_exists",
+      "status": "PASS",
+      "detail": "solution/solve.sh exists and copies solution/scene.py to /app then runs it.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_validated",
+      "status": "PASS",
+      "detail": "Oracle scored 1.0 on both local (Docker) and remote (Modal) runs with all tool checks passing.",
+      "reasons": [
+        "local: score=1.0, job=2026-05-14__13-36-57, tools=9/9 ok",
+        "modal: score=1.0, job=2026-05-14__14-03-59, tools=9/9 ok"
+      ]
+    },
+    {
+      "id": "hidden_test_fairness",
+      "status": "N/A",
+      "detail": "No hidden tests; scoring is purely visual similarity comparison against the reference video.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "oracle_reward_local": 1.0,
+    "oracle_reward_modal": 1.0,
+    "oracle_job_local": "2026-05-14__13-36-57",
+    "oracle_job_modal": "2026-05-14__14-03-59",
+    "tools_required": [
+      "moviepy",
+      "opencv-python-headless",
+      "scikit-image",
+      "numpy",
+      "Pillow",
+      "ffmpeg",
+      "ffprobe"
+    ]
+  },
+  "notes": [],
+  "elapsed_sec": 178.7,
+  "cost_usd": 0.763071,
+  "tokens": {
+    "total": 766711,
+    "input": 22,
+    "output": 6272,
+    "reasoning": 0,
+    "cache_read": 721121,
+    "cache_write": 39296
+  }
+}

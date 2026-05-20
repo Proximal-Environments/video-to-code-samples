@@ -1,0 +1,4 @@
+1:import base64
+2:import zlib
+258:    packed = base64.b64decode(COEFFS_B64)
+259:    coeff_pairs = np.frombuffer(zlib.decompress(packed), dtype=np.int32).reshape(COEFF_SHAPE)

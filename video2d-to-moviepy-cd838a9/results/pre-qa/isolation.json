@@ -1,0 +1,68 @@
+{
+  "step": "isolation",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "agent_user",
+      "status": "PASS",
+      "detail": "task.toml sets [agent] user = \"agent\".",
+      "reasons": []
+    },
+    {
+      "id": "dockerfile_isolation",
+      "status": "PASS",
+      "detail": "All required isolation directives are present.",
+      "reasons": [
+        "present: useradd agent (line 12)",
+        "present: chown -R agent:agent /app (line 41)",
+        "present: chown agent:agent /solution (line 15)",
+        "present: chmod 700 /tests (line 40)",
+        "present: strace installed (line 5)",
+        "present: git and tmux installed (line 5)",
+        "present: implicit UID 1000 via first useradd on debian-slim"
+      ]
+    },
+    {
+      "id": "testsh_isolation",
+      "status": "PASS",
+      "detail": "Verifier locks /logs/verifier first, runs agent code under strace+su agent with timeout, scores outside strace.",
+      "reasons": [
+        "present: chmod 700 /logs/verifier as first action (line 6)",
+        "present: rm -rf /logs/verifier/* immediately after (line 7)",
+        "present: no chown root:root on /logs",
+        "present: exit 0 at end (line 64) and in fail_with (line 14)",
+        "present: fail_with emits reward 0.0 as fallback (lines 10-12)",
+        "present: strace -f wrapping agent code execution (line 48)",
+        "present: su agent -c inside strace (line 51)",
+        "present: timeout 300 inside strace (line 50)",
+        "present: compute_reward.py runs outside strace as root (line 57)",
+        "present: clean-room restore from pristine tarball before agent code execution (lines 32-39)",
+        "present: pkill -9 -u agent before strace (line 41)",
+        "present: no set -euo pipefail"
+      ]
+    },
+    {
+      "id": "verifier_type",
+      "status": "PASS",
+      "detail": "runs_agent_code — test.sh executes agent's scene.py under strace+su agent; scoring reads only static artifacts.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "agent_user": "agent",
+    "verifier_type": "runs_agent_code",
+    "strace_needed": true
+  },
+  "notes": [],
+  "elapsed_sec": 55.2,
+  "cost_usd": 0.280702,
+  "tokens": {
+    "total": 115674,
+    "input": 7,
+    "output": 2410,
+    "reasoning": 0,
+    "cache_read": 84772,
+    "cache_write": 28485
+  }
+}

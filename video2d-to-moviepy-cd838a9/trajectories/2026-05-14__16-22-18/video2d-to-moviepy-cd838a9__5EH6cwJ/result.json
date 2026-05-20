@@ -1,0 +1,110 @@
+{
+    "id": "ff4431d3-881f-4915-bdae-662e4e80d4c3",
+    "task_name": "video2d-to-moviepy-cd838a9",
+    "trial_name": "video2d-to-moviepy-cd838a9__5EH6cwJ",
+    "trial_uri": "file:///home/ubuntu/gdm-1500-tasks/video2d-to-moviepy/tasks/video2d-to-moviepy-cd838a9/jobs/2026-05-14__16-22-18/video2d-to-moviepy-cd838a9__5EH6cwJ",
+    "task_id": {
+        "path": "."
+    },
+    "source": null,
+    "task_checksum": "84ba3a4ecb67843463de86038e2f6d9b810e931f459c6874eb0c6b7521a725c0",
+    "config": {
+        "task": {
+            "path": ".",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "video2d-to-moviepy-cd838a9__5EH6cwJ",
+        "trials_dir": "jobs/2026-05-14__16-22-18",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "codex",
+            "import_path": null,
+            "model_name": "openai/gpt-5.4",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "reasoning_effort": "high",
+                "web_search": "disabled"
+            },
+            "env": {}
+        },
+        "environment": {
+            "type": "modal",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {
+                "registry_secret": "gcr-secret",
+                "sandbox_timeout_secs": 11400
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [
+            "/app/"
+        ],
+        "job_id": "6bdae4dd-96e0-47ba-87bd-1cdb54c4280c"
+    },
+    "agent_info": {
+        "name": "codex",
+        "version": "0.130.0",
+        "model_info": {
+            "name": "gpt-5.4",
+            "provider": "openai"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 761707,
+        "n_cache_tokens": 706816,
+        "n_output_tokens": 15583,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-14T16:22:20.800719Z",
+    "finished_at": "2026-05-14T16:29:14.759068Z",
+    "environment_setup": {
+        "started_at": "2026-05-14T16:22:21.026269Z",
+        "finished_at": "2026-05-14T16:22:25.721332Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-14T16:22:25.721342Z",
+        "finished_at": "2026-05-14T16:22:49.835647Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-14T16:22:49.835705Z",
+        "finished_at": "2026-05-14T16:27:55.500209Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-14T16:28:06.719526Z",
+        "finished_at": "2026-05-14T16:28:11.570952Z"
+    }
+}

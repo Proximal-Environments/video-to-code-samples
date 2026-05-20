@@ -1,0 +1,57 @@
+{
+  "step": "cleanliness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "dockerfile_quality",
+      "status": "PASS",
+      "detail": "Slim base, all packages justified (git/tmux/strace required by Harbor, ffmpeg/libgl1/libglib2.0-0 by opencv+moviepy), apt cache cleaned, build-time reference generation avoids large files in git.",
+      "reasons": []
+    },
+    {
+      "id": "solution_clean",
+      "status": "PASS",
+      "detail": "Contains only solve.sh (with toolchain validation) and scene.py; scene.py matches source_scene.py as expected for the oracle.",
+      "reasons": []
+    },
+    {
+      "id": "testsh_quality",
+      "status": "PASS",
+      "detail": "Every section serves a clear purpose: mandatory lockdown, source-level anti-cheat grep, clean-room restore from pristine tarball, strace-wrapped agent-user execution, and scorer invocation outside strace.",
+      "reasons": [
+        "useful: /logs/verifier chmod+wipe (mandatory Harbor pattern)",
+        "useful: source grep for file-reading/subprocess patterns (task-specific — agent must write algorithmic code, not extract frames)",
+        "useful: clean-room wipe+restore from pristine tarball (prevents any agent artifacts from influencing scorer re-run)",
+        "useful: pkill -9 -u agent before strace (kills lingering background processes)",
+        "useful: strace -f wrapping agent execution (prevents background processes from outliving the render)",
+        "useful: symlink check on output.mp4 (prevents agent from symlinking to reference)"
+      ]
+    },
+    {
+      "id": "git_hygiene",
+      "status": "PASS",
+      "detail": "No files exceed 30MB; reference.mp4 is generated at Docker build time from source_scene.py, keeping the repo lean.",
+      "reasons": []
+    },
+    {
+      "id": "workspace_clean",
+      "status": "PASS",
+      "detail": "All files serve clear purposes with no dead code or stale configs; workspace stub, pyproject.toml, and uv.lock are minimal and necessary.",
+      "reasons": []
+    }
+  ],
+  "info": {
+    "redundant_items": []
+  },
+  "notes": [],
+  "elapsed_sec": 155.1,
+  "cost_usd": 0.465762,
+  "tokens": {
+    "total": 348934,
+    "input": 13,
+    "output": 5201,
+    "reasoning": 0,
+    "cache_read": 315231,
+    "cache_write": 28489
+  }
+}

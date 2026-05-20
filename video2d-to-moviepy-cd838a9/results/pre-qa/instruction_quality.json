@@ -1,0 +1,69 @@
+{
+  "step": "instruction_quality",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "clarity",
+      "status": "PASS",
+      "detail": "Clear deliverable (output.mp4 via scene.py), explicit constraints (algorithmic MoviePy, no hardcoded per-frame data), and unambiguous success criterion.",
+      "reasons": []
+    },
+    {
+      "id": "time_awareness",
+      "status": "PASS",
+      "detail": "Line 7 explicitly states 'your sandbox times out in 2 hours'.",
+      "reasons": []
+    },
+    {
+      "id": "tone",
+      "status": "PASS",
+      "detail": "Conversational colleague-handoff tone, concise and direct.",
+      "reasons": []
+    },
+    {
+      "id": "length",
+      "status": "PASS",
+      "detail": "12 lines, well under the 100-line limit.",
+      "reasons": []
+    },
+    {
+      "id": "scoring_leakage",
+      "status": "PASS",
+      "detail": "No scoring, reward, verifier, or evaluation terms found in any agent-visible files.",
+      "reasons": []
+    },
+    {
+      "id": "tools_documented",
+      "status": "PASS",
+      "detail": "Pre-installed tools listed, run command documented, and starter scene.py provides working skeleton.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "task_name": "Recreate 2D animation with MoviePy",
+    "task_summary": "The agent must reverse-engineer a reference MP4 animation showing 4 shapes morphing (circle to square to diamond) and reproduce it algorithmically using MoviePy primitives in scene.py. The rendered output.mp4 must match the reference video.",
+    "task_domain": "animation",
+    "deliverable": "output.mp4",
+    "tools_needed": [
+      "moviepy",
+      "numpy",
+      "pillow",
+      "opencv-python-headless",
+      "scikit-image",
+      "ffmpeg"
+    ],
+    "instruction_lines": 12
+  },
+  "notes": [],
+  "elapsed_sec": 50.5,
+  "cost_usd": 0.26112,
+  "tokens": {
+    "total": 143444,
+    "input": 9,
+    "output": 2445,
+    "reasoning": 0,
+    "cache_read": 118476,
+    "cache_write": 22514
+  }
+}

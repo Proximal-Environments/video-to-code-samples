@@ -1,0 +1,44 @@
+{
+  "step": "reproducibility",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "lockfile",
+      "status": "PASS",
+      "detail": "uv.lock found in environment/workspace/.",
+      "reasons": []
+    },
+    {
+      "id": "package_manager",
+      "status": "PASS",
+      "detail": "Dockerfile uses uv sync with uv.lock and pyproject.toml.",
+      "reasons": []
+    },
+    {
+      "id": "docker_image_cached",
+      "status": "PASS",
+      "detail": "task.toml sets docker_image to a prebuilt registry image.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "base_image": "python:3.12-slim",
+    "package_manager": "uv",
+    "lockfiles_found": [
+      "environment/workspace/uv.lock"
+    ],
+    "docker_image_cached": true
+  },
+  "notes": [],
+  "elapsed_sec": 32.4,
+  "cost_usd": 0.216917,
+  "tokens": {
+    "total": 117338,
+    "input": 8,
+    "output": 1653,
+    "reasoning": 0,
+    "cache_read": 95205,
+    "cache_write": 20472
+  }
+}
