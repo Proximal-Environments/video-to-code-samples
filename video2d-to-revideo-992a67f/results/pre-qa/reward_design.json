@@ -1,0 +1,101 @@
+{
+  "step": "reward_design",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "correctness_gating",
+      "status": "PASS",
+      "detail": "SSIM gate at 0.70 with cubic exponent zeros out visually dissimilar outputs, and duration hard-fails outside [0.75, 1.25]; incorrect solutions score 0.",
+      "reasons": []
+    },
+    {
+      "id": "implementation_agnostic",
+      "status": "PASS",
+      "detail": "Scoring uses only output video quality metrics (SSIM, pHash, duration) with no code-structure checks beyond anti-cheat gates, so any valid algorithmic approach scores equally.",
+      "reasons": []
+    },
+    {
+      "id": "dimension_balance",
+      "status": "PASS",
+      "detail": "Multiplicative aggregation of three dimensions ensures no single easy dimension can be gamed; pHash and duration are easier but multiply to zero if SSIM (the hard dimension) fails its 0.70 gate.",
+      "reasons": []
+    },
+    {
+      "id": "shortcut_resistant",
+      "status": "PASS",
+      "detail": "Empty/black/random videos fail the 0.70 SSIM gate yielding score 0, source anti-cheat gates block data extraction and reference copying, and pHash has no high floor for trivial inputs.",
+      "reasons": []
+    },
+    {
+      "id": "modular_scoring",
+      "status": "PASS",
+      "detail": "compute_reward.py reads only static files (agent video + source), never imports agent code, runs outside strace, and can be re-invoked independently.",
+      "reasons": []
+    },
+    {
+      "id": "reward_json_schema",
+      "status": "PASS",
+      "detail": "All code paths (fail_reward, gate failures, normal scoring, test.sh fallback) produce valid reward.json with score, subscores list, and additional_data, plus reward.txt.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "reward_design": {
+      "formula": "score = gated_ssim * phash_sim * duration_penalty",
+      "formula_explanation": "Multiplicative gating ensures all three visual fidelity factors must be high for a non-trivial score, with SSIM cubic scaling above a 0.70 gate as the dominant quality signal.",
+      "components": [
+        {
+          "name": "gated_ssim",
+          "metric": "RGB SSIM averaged over 60 sampled frames with temporal offset search (best of 7 shifts), cubic scaling above 0.70 gate",
+          "gate": "0.70 (below = 0.0)",
+          "weight": "multiplicative"
+        },
+        {
+          "name": "phash_similarity",
+          "metric": "Per-frame perceptual hash (pHash) hamming distance normalized to [0,1]",
+          "gate": "none (continuous)",
+          "weight": "multiplicative"
+        },
+        {
+          "name": "duration_penalty",
+          "metric": "Frame count ratio penalty, linear ramp within [0.75, 1.25], hard zero outside",
+          "gate": "0.75-1.25 ratio (outside = 0.0)",
+          "weight": "multiplicative"
+        }
+      ],
+      "aggregation_method": "multiplicative",
+      "dimension_analysis": [
+        {
+          "name": "gated_ssim",
+          "trivially_maxable": false,
+          "difficulty": "hard",
+          "notes": "Requires pixel-level visual fidelity across 60 sampled frames; cubic exponent above 0.70 gate makes high scores very demanding"
+        },
+        {
+          "name": "phash_similarity",
+          "trivially_maxable": false,
+          "difficulty": "medium",
+          "notes": "Perceptual hash is more forgiving than SSIM but still requires correct shapes and layout; blank/random inputs score near 0"
+        },
+        {
+          "name": "duration_penalty",
+          "trivially_maxable": false,
+          "difficulty": "easy",
+          "notes": "Correct duration is straightforward if the agent reads the reference metadata, but cannot compensate for bad visual quality due to multiplicative aggregation"
+        }
+      ]
+    }
+  },
+  "notes": [],
+  "elapsed_sec": 126.9,
+  "cost_usd": 0.367109,
+  "tokens": {
+    "total": 314528,
+    "input": 10,
+    "output": 3561,
+    "reasoning": 0,
+    "cache_read": 289643,
+    "cache_write": 21314
+  }
+}

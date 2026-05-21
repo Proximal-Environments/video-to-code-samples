@@ -1,0 +1,68 @@
+{
+  "step": "isolation",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "agent_user",
+      "status": "PASS",
+      "detail": "task.toml declares [agent] user = \"agent\".",
+      "reasons": []
+    },
+    {
+      "id": "dockerfile_isolation",
+      "status": "PASS",
+      "detail": "All required isolation primitives are present in the Dockerfile.",
+      "reasons": [
+        "present: useradd --create-home --shell /bin/bash agent",
+        "present: chown -R agent:agent /app (line 69)",
+        "present: chown agent:agent /solution (line 37)",
+        "present: chmod 700 /tests (lines 36, 68)",
+        "present: strace installed via apt-get",
+        "present: uid 1000 occupied by node user, agent gets 1001 — no collision"
+      ]
+    },
+    {
+      "id": "testsh_isolation",
+      "status": "PASS",
+      "detail": "All hardened isolation patterns are correctly implemented.",
+      "reasons": [
+        "present: chmod 700 /logs/verifier FIRST (line 6), then rm -rf (line 7)",
+        "present: no chown root:root on /logs",
+        "present: exit 0 at end and in fail_with",
+        "present: fallback reward 0.0 in fail_with",
+        "present: su agent -c inside strace -f with timeout 600 (lines 47-50)",
+        "present: strace log analysis for reward file writes (lines 53-55)",
+        "present: scoring (compute_reward.py) runs OUTSIDE strace (line 61)",
+        "present: pkill -9 -u agent before render (line 43)",
+        "present: clean-room restore from pristine tarball (lines 32-41)",
+        "present: source-level anti-cheat grep (line 22)",
+        "present: symlink check on output video (line 58)"
+      ]
+    },
+    {
+      "id": "verifier_type",
+      "status": "PASS",
+      "detail": "runs_agent_code — verifier executes npm run render as agent user under strace.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "agent_user": "agent",
+    "verifier_type": "runs_agent_code",
+    "strace_needed": true
+  },
+  "notes": [
+    "allow_internet = true in task.toml — verify this is intentional policy for this task (AGENTS.md states shared constraint of no internet)"
+  ],
+  "elapsed_sec": 49.6,
+  "cost_usd": 0.325151,
+  "tokens": {
+    "total": 136697,
+    "input": 6,
+    "output": 2141,
+    "reasoning": 0,
+    "cache_read": 99016,
+    "cache_write": 35534
+  }
+}

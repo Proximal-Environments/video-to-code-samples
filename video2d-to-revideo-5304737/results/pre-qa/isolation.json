@@ -1,0 +1,67 @@
+{
+  "step": "isolation",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "agent_user",
+      "status": "PASS",
+      "detail": "task.toml sets [agent] user = \"agent\".",
+      "reasons": []
+    },
+    {
+      "id": "dockerfile_isolation",
+      "status": "PASS",
+      "detail": "All required isolation primitives are present.",
+      "reasons": [
+        "present: useradd agent (line 23)",
+        "present: chown -R agent:agent /app (line 69)",
+        "present: chown agent:agent /solution (line 37)",
+        "present: chmod 700 /tests (lines 36, 68)",
+        "present: strace installed (line 9)",
+        "present: git and tmux installed (line 9)",
+        "present: uid 1000 occupied by node user, agent gets 1001 — no conflict"
+      ]
+    },
+    {
+      "id": "testsh_isolation",
+      "status": "PASS",
+      "detail": "Verifier locks /logs/verifier first, runs agent code under strace+su agent, scores outside strace.",
+      "reasons": [
+        "present: chmod 700 /logs/verifier FIRST (line 6), then rm -rf (line 7)",
+        "present: no chown root:root on /logs",
+        "present: exit 0 in fail_with (line 14) and at end (line 68)",
+        "present: fallback reward 0.0 via fail_with writing reward.txt",
+        "present: su agent inside strace with timeout 600 (lines 47-50)",
+        "present: scoring via compute_reward.py outside strace (line 61)",
+        "present: pkill -9 -u agent before render (line 43)",
+        "present: clean-room restore from pristine tarball (lines 32-41)",
+        "present: strace log audit for reward file writes (lines 53-55)"
+      ]
+    },
+    {
+      "id": "verifier_type",
+      "status": "PASS",
+      "detail": "runs_agent_code — executes npm run render (agent-authored project.tsx) under strace+su agent.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "agent_user": "agent",
+    "verifier_type": "runs_agent_code",
+    "strace_needed": true
+  },
+  "notes": [
+    "allow_internet = true in task.toml — verify this is intentional (pre-built docker_image may make it moot for agent runtime, but differs from the standard allow_internet = false rule)."
+  ],
+  "elapsed_sec": 48.2,
+  "cost_usd": 0.325676,
+  "tokens": {
+    "total": 136742,
+    "input": 6,
+    "output": 2158,
+    "reasoning": 0,
+    "cache_read": 99029,
+    "cache_write": 35549
+  }
+}

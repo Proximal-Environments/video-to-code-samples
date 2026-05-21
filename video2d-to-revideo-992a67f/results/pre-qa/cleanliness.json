@@ -1,0 +1,65 @@
+{
+  "step": "cleanliness",
+  "status": "WARN",
+  "checks": [
+    {
+      "id": "dockerfile_quality",
+      "status": "PASS",
+      "detail": "Slim base (node:22-slim), apt cache cleaned, all packages justified (git/tmux/strace for Harbor, chromium/ffmpeg for Revideo, python3+pip for verifier scoring).",
+      "reasons": []
+    },
+    {
+      "id": "solution_clean",
+      "status": "PASS",
+      "detail": "solution/ contains only solve.sh and project.tsx; solve.sh includes useful toolchain validation before copying the reference solution.",
+      "reasons": []
+    },
+    {
+      "id": "testsh_quality",
+      "status": "PASS",
+      "detail": "Well-structured two-layer verifier with clean-room restore, strace wrapping, source-level anti-cheat, and reward-file audit — all sections serve a purpose.",
+      "reasons": [
+        "useful: chmod 700 + rm -rf /logs/verifier/* lockdown before any agent code runs",
+        "useful: source-level grep for banned APIs (fs, child_process, exec, eval, spawn, etc.)",
+        "useful: clean-room wipe + pristine tarball restore eliminates planted files, modified node_modules, poisoned configs",
+        "useful: pkill -9 -u agent kills lingering background processes before render",
+        "useful: strace -f wrapping of render catches forked child processes",
+        "useful: strace log grep for openat reward file writes",
+        "useful: symlink check on output video prevents trivial reference copy",
+        "useful: snapshot project.tsx to /run/ before wipe so agent source survives clean-room"
+      ]
+    },
+    {
+      "id": "git_hygiene",
+      "status": "PASS",
+      "detail": "No individual files exceed 30MB; largest is package-lock.json at 144KB.",
+      "reasons": []
+    },
+    {
+      "id": "workspace_clean",
+      "status": "WARN",
+      "detail": "README.md contains embedded rollout results and detailed anti-cheat analysis that could be split out, but is not dead code per se.",
+      "reasons": [
+        "environment/source_scene.tsx, environment/solution_project.tsx, and solution/project.tsx are byte-identical — intentional per pipeline design (documented in README) but adds 10KB of duplication",
+        "environment/solve.sh and solution/solve.sh are byte-identical — same intentional duplication for Docker COPY reliability",
+        "qa.toml is a QA artifact that serves ongoing documentation purposes — acceptable"
+      ]
+    }
+  ],
+  "info": {
+    "redundant_items": []
+  },
+  "notes": [
+    "Three identical copies of the solution scene (source_scene.tsx, solution_project.tsx, solution/project.tsx) exist by design — source_scene renders reference.mp4 at build time, solution_project is baked into /solution/ in the image, solution/project.tsx is for Harbor's docker-cp upload. Any future edits must update all three."
+  ],
+  "elapsed_sec": 139.8,
+  "cost_usd": 0.551002,
+  "tokens": {
+    "total": 410215,
+    "input": 10,
+    "output": 4484,
+    "reasoning": 0,
+    "cache_read": 364679,
+    "cache_write": 41042
+  }
+}

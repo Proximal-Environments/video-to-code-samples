@@ -1,0 +1,44 @@
+{
+  "step": "reproducibility",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "lockfile",
+      "status": "PASS",
+      "detail": "package-lock.json (4177 lines) present in environment/workspace/ and consumed by `npm ci` in Dockerfile.",
+      "reasons": []
+    },
+    {
+      "id": "package_manager",
+      "status": "PASS",
+      "detail": "Node project uses npm with `npm ci` (lockfile-based deterministic install); Python deps are pinned to exact versions in the Dockerfile RUN pip3 install.",
+      "reasons": []
+    },
+    {
+      "id": "docker_image_cached",
+      "status": "PASS",
+      "detail": "task.toml sets docker_image to us-west1-docker.pkg.dev/proximal-core-0/environments/video2d-to-revideo-orbiting-satellites:20260520.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "base_image": "node:22-slim",
+    "package_manager": "npm",
+    "lockfiles_found": [
+      "package-lock.json"
+    ],
+    "docker_image_cached": true
+  },
+  "notes": [],
+  "elapsed_sec": 35.9,
+  "cost_usd": 0.3329,
+  "tokens": {
+    "total": 199121,
+    "input": 8,
+    "output": 1470,
+    "reasoning": 0,
+    "cache_read": 163332,
+    "cache_write": 34311
+  }
+}

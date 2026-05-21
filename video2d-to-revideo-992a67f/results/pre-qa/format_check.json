@@ -1,0 +1,76 @@
+{
+  "step": "format_check",
+  "status": "FAIL",
+  "checks": [
+    {
+      "id": "required_files",
+      "status": "PASS",
+      "detail": "All required files present: instruction.md, task.toml, environment/Dockerfile, tests/test.sh.",
+      "reasons": []
+    },
+    {
+      "id": "recommended_files",
+      "status": "PASS",
+      "detail": "solution/solve.sh, oracle.yaml, and job.yaml all present.",
+      "reasons": []
+    },
+    {
+      "id": "task_toml_schema",
+      "status": "FAIL",
+      "detail": "allow_internet is true but must be false.",
+      "reasons": [
+        "allow_internet = true violates the mandatory allow_internet = false constraint"
+      ]
+    },
+    {
+      "id": "dockerfile_required_tools",
+      "status": "PASS",
+      "detail": "git and tmux are installed via apt-get.",
+      "reasons": []
+    },
+    {
+      "id": "tests_folder_lean",
+      "status": "WARN",
+      "detail": "tests/ contains compute_reward.py in addition to test.sh; it should be in environment/tests/ instead.",
+      "reasons": [
+        "compute_reward.py found in tests/ — should be moved to environment/tests/ and bundled into the Docker image at build time"
+      ]
+    },
+    {
+      "id": "directory_cleanliness",
+      "status": "WARN",
+      "detail": "Unexpected file qa.toml at task root.",
+      "reasons": [
+        "qa.toml is not a standard Harbor task file and is not gitignored"
+      ]
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "task_name": "video2d-to-revideo-bouncing-squares",
+    "difficulty": "hard",
+    "category": "animation",
+    "agent_timeout_sec": 7200,
+    "verifier_timeout_sec": 1200,
+    "build_timeout_sec": 1800,
+    "allow_internet": true,
+    "cpus": 8,
+    "memory_mb": 32768,
+    "agent_user": "agent"
+  },
+  "notes": [
+    "Set allow_internet = false in task.toml — this is a hard requirement.",
+    "Move compute_reward.py from tests/ to environment/tests/ so it is baked into the Docker image via COPY rather than uploaded at verification time.",
+    "Remove or gitignore qa.toml if it is not needed at task root."
+  ],
+  "elapsed_sec": 42.9,
+  "cost_usd": 0.355442,
+  "tokens": {
+    "total": 176805,
+    "input": 7,
+    "output": 2224,
+    "reasoning": 0,
+    "cache_read": 137614,
+    "cache_write": 36960
+  }
+}

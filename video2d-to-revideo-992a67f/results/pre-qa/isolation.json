@@ -1,0 +1,69 @@
+{
+  "step": "isolation",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "agent_user",
+      "status": "PASS",
+      "detail": "task.toml sets [agent] user = \"agent\".",
+      "reasons": []
+    },
+    {
+      "id": "dockerfile_isolation",
+      "status": "PASS",
+      "detail": "All required isolation primitives are present.",
+      "reasons": [
+        "present: useradd --create-home --shell /bin/bash agent",
+        "present: chown -R agent:agent /app (line 69)",
+        "present: chown agent:agent /solution (line 37)",
+        "present: chmod 700 /tests (lines 36, 68)",
+        "present: strace installed (apt-get install strace)",
+        "present: git and tmux installed",
+        "present: uid 1000 occupied by node user; agent gets 1001 — no conflict"
+      ]
+    },
+    {
+      "id": "testsh_isolation",
+      "status": "PASS",
+      "detail": "Hardened verifier with clean-room restore, strace-wrapped agent execution, and scoring outside strace.",
+      "reasons": [
+        "present: chmod 700 /logs/verifier FIRST (line 6), then rm -rf (line 7)",
+        "present: no chown root:root on /logs",
+        "present: exit 0 in fail_with and at end of script",
+        "present: fallback reward 0.0 in fail_with",
+        "present: su agent -c inside strace -f with timeout 600 (lines 47-50)",
+        "present: strace log analysis for reward file writes (lines 53-55)",
+        "present: compute_reward.py runs outside strace as root (lines 61-66)",
+        "present: clean-room restore from pristine tarball before render (lines 32-41)",
+        "present: pkill -9 -u agent before render (line 43)",
+        "present: symlink check on output video (line 58)",
+        "present: source-level anti-cheat grep on project.tsx (lines 22-26)"
+      ]
+    },
+    {
+      "id": "verifier_type",
+      "status": "PASS",
+      "detail": "runs_agent_code — executes npm run render (agent's project.tsx) under strace, then scores static video artifact.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "agent_user": "agent",
+    "verifier_type": "runs_agent_code",
+    "strace_needed": true
+  },
+  "notes": [
+    "allow_internet = true in task.toml; verify this is intentional (AGENTS.md specifies allow_internet = false as mandatory for Harbor tasks)."
+  ],
+  "elapsed_sec": 46.6,
+  "cost_usd": 0.325951,
+  "tokens": {
+    "total": 136693,
+    "input": 6,
+    "output": 2174,
+    "reasoning": 0,
+    "cache_read": 98980,
+    "cache_write": 35533
+  }
+}

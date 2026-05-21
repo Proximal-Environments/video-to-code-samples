@@ -1,0 +1,64 @@
+{
+  "step": "cleanliness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "dockerfile_quality",
+      "status": "PASS",
+      "detail": "node:22-slim base, apt cache cleaned, pip --no-cache-dir, all packages justified (git/tmux/strace for Harbor, chromium+deps for Puppeteer, python3+opencv+scikit-image for verifier scoring).",
+      "reasons": []
+    },
+    {
+      "id": "solution_clean",
+      "status": "PASS",
+      "detail": "Only solve.sh (toolchain sanity + cp + render) and project.tsx (106-line oracle implementation) — no extra files.",
+      "reasons": []
+    },
+    {
+      "id": "testsh_quality",
+      "status": "PASS",
+      "detail": "All sections serve clear purposes given the single-container execution model; no redundant logic found.",
+      "reasons": [
+        "useful: /logs/verifier lockdown (chmod 700 + rm -rf) — mandatory Harbor pattern",
+        "useful: source anti-cheat regex — blocks file I/O, exec, subprocess, video reading APIs",
+        "useful: snapshot to /run/verified_project.tsx — preserves source before clean-room wipe",
+        "useful: clean-room wipe + pristine tarball restore — eliminates planted helpers, modified configs, .pth files",
+        "useful: pkill -9 -u agent — kills lingering agent background processes before render",
+        "useful: strace -f wrapping render — blocks until all forks exit, enables syscall audit",
+        "useful: strace log grep for reward file writes — detects reward manipulation attempts",
+        "useful: symlink check on output — prevents linking to reference video",
+        "useful: copy output to /tests/ — scorer reads from root-owned path, not agent-writable /app"
+      ]
+    },
+    {
+      "id": "git_hygiene",
+      "status": "PASS",
+      "detail": "No files exceed 30MB; largest is package-lock.json at 147KB.",
+      "reasons": []
+    },
+    {
+      "id": "workspace_clean",
+      "status": "PASS",
+      "detail": "No dead code or stale configs; environment/ duplicates of solution files are intentional (baked into Docker image at build time).",
+      "reasons": [
+        "compute_reward.py lives in tests/ rather than environment/tests/ — functional but deviates from recommended pattern of keeping only test.sh in tests/"
+      ]
+    }
+  ],
+  "info": {
+    "redundant_items": []
+  },
+  "notes": [
+    "compute_reward.py (14KB) in tests/ could be moved to environment/tests/ per Harbor best practice (only test.sh in task-root tests/), but current placement works correctly via docker-compose cp merge semantics."
+  ],
+  "elapsed_sec": 160.3,
+  "cost_usd": 0.632065,
+  "tokens": {
+    "total": 525395,
+    "input": 12,
+    "output": 5633,
+    "reasoning": 0,
+    "cache_read": 479523,
+    "cache_write": 40227
+  }
+}

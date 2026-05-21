@@ -1,0 +1,58 @@
+{
+  "step": "cleanliness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "dockerfile_quality",
+      "status": "PASS",
+      "detail": "Slim base (node:22-slim), apt cache cleaned, every package justified (git/tmux/strace=Harbor, chromium+libs=Puppeteer, ffmpeg=render, python3=verifier).",
+      "reasons": []
+    },
+    {
+      "id": "solution_clean",
+      "status": "PASS",
+      "detail": "Solution contains exactly solve.sh and project.tsx; solve.sh includes toolchain validation which is good practice.",
+      "reasons": []
+    },
+    {
+      "id": "testsh_quality",
+      "status": "PASS",
+      "detail": "Every section serves a clear purpose; no redundant bloat given the single-container isolation model.",
+      "reasons": [
+        "useful: /logs/verifier lockdown (chmod 700 + rm -rf) — mandatory first step",
+        "useful: source-level anti-cheat grep — blocks file I/O, exec, video reading in agent code",
+        "useful: clean-room restore from pristine tarball — prevents workspace contamination affecting scoring",
+        "useful: pkill -9 -u agent — kills lingering agent processes before render",
+        "useful: strace-wrapped render — blocks forked children from surviving into scoring",
+        "useful: strace log grep for reward file writes — detects manipulation attempts",
+        "useful: symlink check on output — prevents agent pointing output at reference"
+      ]
+    },
+    {
+      "id": "git_hygiene",
+      "status": "PASS",
+      "detail": "No files exceed 30MB; largest tracked file is package-lock.json at 143KB.",
+      "reasons": []
+    },
+    {
+      "id": "workspace_clean",
+      "status": "PASS",
+      "detail": "No dead code or stale configs; source_scene.tsx and solution_project.tsx are intentionally identical (source generates reference, solution reproduces it).",
+      "reasons": []
+    }
+  ],
+  "info": {
+    "redundant_items": []
+  },
+  "notes": [],
+  "elapsed_sec": 155.8,
+  "cost_usd": 0.566397,
+  "tokens": {
+    "total": 431007,
+    "input": 10,
+    "output": 4880,
+    "reasoning": 0,
+    "cache_read": 385893,
+    "cache_write": 40224
+  }
+}

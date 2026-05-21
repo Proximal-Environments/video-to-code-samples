@@ -1,0 +1,109 @@
+{
+  "step": "reward_hacking",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "noop_baseline",
+      "status": "PASS",
+      "detail": "Default project.tsx renders ~1s black video; duration ratio ~0.05 is below 0.75 minimum, so score = 0.0.",
+      "reasons": []
+    },
+    {
+      "id": "adversarial_audit",
+      "status": "PASS",
+      "detail": "Clean-room wipe + pristine restore + pkill + strace + chmod 700 lockdowns leave no validated attack vector.",
+      "reasons": []
+    },
+    {
+      "id": "agent_code_as_user",
+      "status": "PASS",
+      "detail": "Render runs via `su agent -c` (line 50) and task.toml sets `user = \"agent\"`.",
+      "reasons": []
+    },
+    {
+      "id": "strace_tracing",
+      "status": "PASS",
+      "detail": "strace -f wraps agent render (line 47), log audited for reward file openat writes before scoring (line 53).",
+      "reasons": []
+    },
+    {
+      "id": "verifier_protected",
+      "status": "PASS",
+      "detail": "compute_reward.py reads only /run/verified_project.tsx and /tests/agent_output.mp4; never imports from /app.",
+      "reasons": []
+    },
+    {
+      "id": "fault_tolerance",
+      "status": "PASS",
+      "detail": "All crash paths call fail_with (writes 0.0, exits 0); scorer wrapped in timeout 600; script ends with exit 0.",
+      "reasons": []
+    }
+  ],
+  "info": {
+    "verifier_type": "runs_agent_code",
+    "existing_defenses": [
+      {
+        "category": "Filesystem lockdown",
+        "measures": [
+          "/tests chmod 700 root-only; /logs/verifier chmod 700 + rm -rf at verification start"
+        ]
+      },
+      {
+        "category": "User separation",
+        "measures": [
+          "Agent runs as non-root 'agent' user; task.toml user=agent; render via su agent -c"
+        ]
+      },
+      {
+        "category": "Clean-room restoration",
+        "measures": [
+          "Wipes /app, /home/agent, /solution, /tmp, /dev/shm, /var/tmp; restores from /tests/pristine_app.tar + node_modules_backup"
+        ]
+      },
+      {
+        "category": "Process isolation",
+        "measures": [
+          "pkill -9 -u agent before render; strace -f blocks until all children exit"
+        ]
+      },
+      {
+        "category": "Strace auditing",
+        "measures": [
+          "strace -f -e trace=openat wraps render; log checked for reward file write attempts"
+        ]
+      },
+      {
+        "category": "Source-level anti-cheat",
+        "measures": [
+          "Grep blocks fs/child_process/exec/eval/spawn/fork/ffmpeg/base64 in project.tsx; compute_reward.py gates on source size, literal counts, array sizes, string lengths, non-nice floats"
+        ]
+      }
+    ],
+    "verified_attack_vectors": [],
+    "acknowledged_vectors": [
+      {
+        "vector": "Strace only checks O_WRONLY, not O_RDWR, in reward file audit",
+        "reason": "/logs/verifier is chmod 700 root-owned when agent render runs, so openat with any flags gets EACCES"
+      },
+      {
+        "vector": "Strace traces only openat, not clone/fork/execve",
+        "reason": "Clean-room wipe + pkill + strace -f blocking on children + permission lockdown make fork-based attacks non-exploitable"
+      },
+      {
+        "vector": "allow_internet=true permits network access during agent run",
+        "reason": "Network access doesn't bypass filesystem permissions; clean-room wipe removes downloaded artifacts; anti-cheat gates catch data dumps"
+      }
+    ]
+  },
+  "notes": [],
+  "elapsed_sec": 121.2,
+  "cost_usd": 0.341492,
+  "tokens": {
+    "total": 243669,
+    "input": 8,
+    "output": 3818,
+    "reasoning": 0,
+    "cache_read": 217916,
+    "cache_write": 21927
+  }
+}

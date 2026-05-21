@@ -1,0 +1,101 @@
+{
+  "step": "reward_design",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "correctness_gating",
+      "status": "PASS",
+      "detail": "SSIM gate at 0.70 with cubic exponent zeros out poor solutions; multiplicative aggregation means any factor at 0 kills the score; missing/broken renders fail via test.sh before scoring.",
+      "reasons": []
+    },
+    {
+      "id": "implementation_agnostic",
+      "status": "PASS",
+      "detail": "All three metrics (SSIM, pHash, duration) measure output video quality only; no code-structure or algorithm-specific checks beyond anti-cheat gates.",
+      "reasons": []
+    },
+    {
+      "id": "dimension_balance",
+      "status": "PASS",
+      "detail": "Multiplicative aggregation of 3 dimensions prevents gaming any single factor; duration is the easiest but cannot compensate for low SSIM (gated at 0.70 with cubic scaling).",
+      "reasons": []
+    },
+    {
+      "id": "shortcut_resistant",
+      "status": "PASS",
+      "detail": "Empty/random/constant outputs fail the 0.70 SSIM gate; data-dump approaches are blocked by 6 anti-cheat gates (literals, arrays, strings, floats, source size); clean-room re-render from source prevents reference-copy attacks.",
+      "reasons": []
+    },
+    {
+      "id": "modular_scoring",
+      "status": "PASS",
+      "detail": "compute_reward.py reads static video files and source via CLI args, never imports or executes agent code, and can re-run independently.",
+      "reasons": []
+    },
+    {
+      "id": "reward_json_schema",
+      "status": "PASS",
+      "detail": "All code paths (success, gate failure, hard failure, test.sh fallback) produce valid reward.json with score float, subscores list, and optional additional_data dict.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "reward_design": {
+      "formula": "score = gated_ssim * phash_sim * duration_penalty",
+      "formula_explanation": "Multiplicative gating ensures all three visual-quality and timing factors must be high for a non-trivial score.",
+      "components": [
+        {
+          "name": "gated_ssim",
+          "metric": "Mean RGB SSIM over 60 sampled frames with temporal offset search (+-5 frames)",
+          "gate": "Hard gate at 0.70; below returns 0.0",
+          "weight": "Cubic scaling above gate: ((mean_ssim - 0.70) / 0.30) ^ 3"
+        },
+        {
+          "name": "phash_similarity",
+          "metric": "Per-frame perceptual hash (8x8 DCT) Hamming distance, averaged",
+          "gate": "None (implicit: unrelated content scores ~0.5-0.7)",
+          "weight": "Linear: 1 - mean_hamming / 32"
+        },
+        {
+          "name": "duration_penalty",
+          "metric": "Frame count ratio (agent / reference)",
+          "gate": "Hard fail outside [0.75, 1.25]",
+          "weight": "Linear ramp 0->1 within [0.75, 1.0] and 1->0 within [1.0, 1.25]"
+        }
+      ],
+      "aggregation_method": "multiplicative",
+      "dimension_analysis": [
+        {
+          "name": "gated_ssim",
+          "trivially_maxable": false,
+          "difficulty": "hard",
+          "notes": "Cubic exponent makes this very demanding: 0.85 raw SSIM yields only 0.125 gated score"
+        },
+        {
+          "name": "phash_similarity",
+          "trivially_maxable": false,
+          "difficulty": "medium",
+          "notes": "Coarser than SSIM but still requires structural similarity; random content scores low"
+        },
+        {
+          "name": "duration_penalty",
+          "trivially_maxable": true,
+          "difficulty": "easy",
+          "notes": "Matching frame count/duration is trivial, but multiplicative aggregation prevents gaming this alone"
+        }
+      ]
+    }
+  },
+  "notes": [],
+  "elapsed_sec": 136.2,
+  "cost_usd": 0.348659,
+  "tokens": {
+    "total": 271544,
+    "input": 9,
+    "output": 3890,
+    "reasoning": 0,
+    "cache_read": 247203,
+    "cache_write": 20442
+  }
+}

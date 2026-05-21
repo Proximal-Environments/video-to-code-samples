@@ -1,0 +1,17 @@
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+.idea/
+.vscode/
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+.cargo-cache/
+**/target/
+node_modules/

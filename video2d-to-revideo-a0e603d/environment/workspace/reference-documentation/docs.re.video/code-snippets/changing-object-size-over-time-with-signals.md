@@ -1,0 +1,19 @@
+# Changing Object Sizes with Signals
+
+You can use signals to change values in your animation over time. Below you can find an example that uses signals to change the size of a circle over time.
+
+```typescript
+import ...
+export default makeScene2D(function* (view) {
+  const circleSize = createSignal(50); // initial size of 50
+  yield view.add(
+    <>
+      <Circle fill={'green'} size={circleSize} />
+      <Txt fontSize={40} x={-300}>
+        {() => `size: ${circleSize().toFixed(1)}`}
+      </Txt>
+    </>,
+  );
+  yield* circleSize(200, 2); // change size to 200 over two seconds
+});
+```

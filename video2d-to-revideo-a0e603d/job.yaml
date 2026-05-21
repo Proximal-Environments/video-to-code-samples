@@ -1,0 +1,28 @@
+jobs_dir: ./jobs
+n_attempts: 3
+
+orchestrator:
+  n_concurrent_trials: 18
+
+environment:
+  type: modal
+  kwargs:
+    sandbox_timeout_secs: 9000
+    registry_secret: gcr-secret
+
+agents:
+  - name: terminus-2
+    model_name: anthropic/claude-opus-4-7
+    override_timeout_sec: 7200
+  - name: terminus-2
+    model_name: openai/gpt-5.4
+    override_timeout_sec: 7200
+    kwargs:
+      use_responses_api: true
+      reasoning_effort: high
+
+tasks:
+  - path: .
+
+artifacts:
+  - /app/

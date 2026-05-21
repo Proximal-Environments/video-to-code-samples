@@ -1,0 +1,76 @@
+{
+  "step": "fairness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "instruction_verifier_sync",
+      "status": "PASS",
+      "detail": "Instruction asks agent to match reference.mp4 using algorithmic approaches; verifier scores via SSIM+pHash+duration similarity with anti-cheat gates that align with the 'no hardcoded data' instruction.",
+      "reasons": []
+    },
+    {
+      "id": "definitions_documented",
+      "status": "PASS",
+      "detail": "All agent-facing terms (canvas size, FPS, render command, algorithmic constraint) are documented in instruction.md or are standard domain knowledge.",
+      "reasons": []
+    },
+    {
+      "id": "tools_accessible",
+      "status": "PASS",
+      "detail": "Dockerfile installs node 22, chromium, ffmpeg/ffprobe, git, tmux, strace; workspace has pre-installed revideo packages, scaffold files, and reference.mp4; solve.sh validates all tools.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_exists",
+      "status": "PASS",
+      "detail": "solution/solve.sh exists (33 lines) with toolchain validation and reference solution that copies solution project.tsx and renders.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_validated",
+      "status": "PASS",
+      "detail": "Oracle scored 1.0 on all 3 local (docker) runs; no Modal oracle run data available but agent rollouts on Modal confirm verifier pipeline works.",
+      "reasons": [
+        "local: score=1.0 (3/3 runs, jobs 14-53-25, 15-17-31, 15-30-05)",
+        "modal: no oracle data (recommend running oracle on Modal before production rollouts)"
+      ]
+    },
+    {
+      "id": "hidden_test_fairness",
+      "status": "PASS",
+      "detail": "No hidden tests; scoring is purely frame-level visual similarity comparison against the reference video.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "oracle_reward_local": 1.0,
+    "oracle_reward_modal": null,
+    "oracle_job_local": "2026-05-20__15-17-31",
+    "oracle_job_modal": null,
+    "tools_required": [
+      "node",
+      "typescript",
+      "chromium",
+      "ffmpeg",
+      "ffprobe",
+      "@revideo/core",
+      "@revideo/2d",
+      "@revideo/renderer"
+    ]
+  },
+  "notes": [
+    "No Modal oracle run found — recommend running oracle on Modal to confirm cross-platform compatibility before large-scale rollouts.",
+    "allow_internet=true in task.toml — agents have network access, which is non-standard but intentional for this task (npm/revideo may need it)."
+  ],
+  "elapsed_sec": 164.7,
+  "cost_usd": 0.759101,
+  "tokens": {
+    "total": 646366,
+    "input": 12,
+    "output": 5230,
+    "reasoning": 0,
+    "cache_read": 587606,
+    "cache_write": 53518
+  }
+}

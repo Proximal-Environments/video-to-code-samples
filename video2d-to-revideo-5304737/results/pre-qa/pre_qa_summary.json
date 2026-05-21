@@ -1,0 +1,908 @@
+{
+  "task_name": "video2d-to-revideo-orbiting-satellites",
+  "task_dir": "/home/ubuntu/workspace/video2code-assembly/video2code_revideo/tasks/video2d-to-revideo-orbiting-satellites",
+  "timestamp": "2026-05-21T02:07:33.513160+00:00",
+  "model": "anthropic/claude-opus-4-6",
+  "elapsed_sec": 196.0,
+  "cost": {
+    "total_usd": 4.06955,
+    "tokens": {
+      "total": 3095462,
+      "input": 79,
+      "output": 31254,
+      "reasoning": 0,
+      "cache_read": 2758783,
+      "cache_write": 305346
+    }
+  },
+  "overall_status": "FAIL",
+  "fail_count": 2,
+  "warn_count": 3,
+  "pass_count": 37,
+  "blocking_failures": [
+    "format_check.task_toml_schema",
+    "reward_hacking.adversarial_audit"
+  ],
+  "steps": {
+    "format_check": {
+      "status": "FAIL",
+      "checks": [
+        {
+          "id": "required_files",
+          "status": "PASS",
+          "detail": "All required files present: instruction.md, task.toml, environment/Dockerfile, tests/test.sh.",
+          "reasons": []
+        },
+        {
+          "id": "recommended_files",
+          "status": "PASS",
+          "detail": "solution/solve.sh, oracle.yaml, and job.yaml all present.",
+          "reasons": []
+        },
+        {
+          "id": "task_toml_schema",
+          "status": "FAIL",
+          "detail": "allow_internet is true but must be false.",
+          "reasons": [
+            "allow_internet = true violates the mandatory allow_internet = false requirement"
+          ]
+        },
+        {
+          "id": "dockerfile_required_tools",
+          "status": "PASS",
+          "detail": "git and tmux are installed via apt-get.",
+          "reasons": []
+        },
+        {
+          "id": "tests_folder_lean",
+          "status": "WARN",
+          "detail": "tests/ contains compute_reward.py in addition to test.sh; it should be moved to environment/tests/.",
+          "reasons": [
+            "compute_reward.py found in tests/ — should be in environment/tests/ and bundled into the Docker image via COPY"
+          ]
+        },
+        {
+          "id": "directory_cleanliness",
+          "status": "WARN",
+          "detail": "Stray file qa.toml found at task root.",
+          "reasons": [
+            "qa.toml is not a recognized task file and is not gitignored"
+          ]
+        }
+      ],
+      "elapsed_sec": 51.5,
+      "cost_usd": 0.399032,
+      "notes": [
+        "Set allow_internet = false in task.toml to comply with Harbor's mandatory isolation requirement.",
+        "Move compute_reward.py from tests/ to environment/tests/ and add a COPY directive in the Dockerfile to bundle it into /tests/.",
+        "Remove or gitignore qa.toml from the task root."
+      ]
+    },
+    "isolation": {
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "agent_user",
+          "status": "PASS",
+          "detail": "task.toml sets [agent] user = \"agent\".",
+          "reasons": []
+        },
+        {
+          "id": "dockerfile_isolation",
+          "status": "PASS",
+          "detail": "All required isolation primitives are present.",
+          "reasons": [
+            "present: useradd agent (line 23)",
+            "present: chown -R agent:agent /app (line 69)",
+            "present: chown agent:agent /solution (line 37)",
+            "present: chmod 700 /tests (lines 36, 68)",
+            "present: strace installed (line 9)",
+            "present: git and tmux installed (line 9)",
+            "present: uid 1000 occupied by node user, agent gets 1001 — no conflict"
+          ]
+        },
+        {
+          "id": "testsh_isolation",
+          "status": "PASS",
+          "detail": "Verifier locks /logs/verifier first, runs agent code under strace+su agent, scores outside strace.",
+          "reasons": [
+            "present: chmod 700 /logs/verifier FIRST (line 6), then rm -rf (line 7)",
+            "present: no chown root:root on /logs",
+            "present: exit 0 in fail_with (line 14) and at end (line 68)",
+            "present: fallback reward 0.0 via fail_with writing reward.txt",
+            "present: su agent inside strace with timeout 600 (lines 47-50)",
+            "present: scoring via compute_reward.py outside strace (line 61)",
+            "present: pkill -9 -u agent before render (line 43)",
+            "present: clean-room restore from pristine tarball (lines 32-41)",
+            "present: strace log audit for reward file writes (lines 53-55)"
+          ]
+        },
+        {
+          "id": "verifier_type",
+          "status": "PASS",
+          "detail": "runs_agent_code — executes npm run render (agent-authored project.tsx) under strace+su agent.",
+          "reasons": []
+        }
+      ],
+      "elapsed_sec": 48.2,
+      "cost_usd": 0.325676,
+      "notes": [
+        "allow_internet = true in task.toml — verify this is intentional (pre-built docker_image may make it moot for agent runtime, but differs from the standard allow_internet = false rule)."
+      ]
+    },
+    "reproducibility": {
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "lockfile",
+          "status": "PASS",
+          "detail": "package-lock.json (4177 lines) present in environment/workspace/ and consumed by `npm ci` in Dockerfile.",
+          "reasons": []
+        },
+        {
+          "id": "package_manager",
+          "status": "PASS",
+          "detail": "Node project uses npm with `npm ci` (lockfile-based deterministic install); Python deps are pinned to exact versions in the Dockerfile RUN pip3 install.",
+          "reasons": []
+        },
+        {
+          "id": "docker_image_cached",
+          "status": "PASS",
+          "detail": "task.toml sets docker_image to us-west1-docker.pkg.dev/proximal-core-0/environments/video2d-to-revideo-orbiting-satellites:20260520.",
+          "reasons": []
+        }
+      ],
+      "elapsed_sec": 35.9,
+      "cost_usd": 0.3329
+    },
+    "instruction_quality": {
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "clarity",
+          "status": "PASS",
+          "detail": "Unambiguous deliverable: write src/project.tsx, render with npm run render, output must match reference.mp4.",
+          "reasons": []
+        },
+        {
+          "id": "time_awareness",
+          "status": "PASS",
+          "detail": "Explicitly states 'your sandbox times out in 2 hours'.",
+          "reasons": []
+        },
+        {
+          "id": "tone",
+          "status": "PASS",
+          "detail": "Conversational colleague-handoff tone, short and crisp.",
+          "reasons": []
+        },
+        {
+          "id": "length",
+          "status": "PASS",
+          "detail": "13 lines, well under the 100-line limit.",
+          "reasons": []
+        },
+        {
+          "id": "scoring_leakage",
+          "status": "PASS",
+          "detail": "No scorer/verifier/reward/evaluation terms found in any agent-visible files.",
+          "reasons": []
+        },
+        {
+          "id": "tools_documented",
+          "status": "PASS",
+          "detail": "Lists npm run render, pre-installed packages, and workspace includes extensive reference-documentation/ with Revideo docs.",
+          "reasons": []
+        }
+      ],
+      "elapsed_sec": 59.1,
+      "cost_usd": 0.439671
+    },
+    "reward_hacking": {
+      "status": "FAIL",
+      "checks": [
+        {
+          "id": "noop_baseline",
+          "status": "PASS",
+          "detail": "Stub renders a 1-second black video; duration ratio ~0.067 is far below the 0.75 floor, so duration_penalty=0.0 and final score=0.0.",
+          "reasons": []
+        },
+        {
+          "id": "adversarial_audit",
+          "status": "FAIL",
+          "detail": "node_modules survives clean-room restore and is never re-verified, allowing the agent to poison the rendering toolchain and embed a copy of reference.mp4 inside it.",
+          "reasons": [
+            "find /app -mindepth 1 -not -path '*/node_modules/*' -delete preserves agent-modified node_modules; backup restore only fires when the directory is entirely missing"
+          ]
+        },
+        {
+          "id": "agent_code_as_user",
+          "status": "PASS",
+          "detail": "Rendering runs via `su agent -c` (test.sh line 50), and agent user is created in Dockerfile with useradd.",
+          "reasons": []
+        },
+        {
+          "id": "strace_tracing",
+          "status": "PASS",
+          "detail": "strace -f wraps the render command with openat tracing, log is analyzed for reward file writes before scoring (lines 47-55).",
+          "reasons": []
+        },
+        {
+          "id": "verifier_protected",
+          "status": "PASS",
+          "detail": "compute_reward.py only reads /tests/reference.mp4 and the copied agent_output.mp4; it never imports from /app and runs from /tests.",
+          "reasons": []
+        },
+        {
+          "id": "fault_tolerance",
+          "status": "PASS",
+          "detail": "All failure paths call fail_with which writes reward 0.0 and exits 0; compute_reward.py is wrapped in timeout 600 with a fail_with fallback.",
+          "reasons": []
+        }
+      ],
+      "elapsed_sec": 152.4,
+      "cost_usd": 0.423235,
+      "notes": [
+        "CRITICAL FIX: Line 38 of test.sh must unconditionally restore node_modules: replace `[ ! -d /app/node_modules ] && cp -a /tests/node_modules_backup /app/node_modules` with `rm -rf /app/node_modules && cp -a /tests/node_modules_backup /app/node_modules`, and remove the node_modules exemption from the find-delete on line 32."
+      ]
+    },
+    "reward_design": {
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "correctness_gating",
+          "status": "PASS",
+          "detail": "SSIM gate at 0.70 with cubic exponent zeros out any solution not closely matching the reference, and the baseline stub (1s black screen vs 15s animation) fails both SSIM and duration gates.",
+          "reasons": []
+        },
+        {
+          "id": "implementation_agnostic",
+          "status": "PASS",
+          "detail": "Scoring uses pixel-level SSIM and perceptual hashing on the rendered video output only, with no dependence on specific API calls or algorithmic approach.",
+          "reasons": []
+        },
+        {
+          "id": "dimension_balance",
+          "status": "PASS",
+          "detail": "Multiplicative aggregation prevents ignoring any dimension; duration is trivially maxable but harmless since the cubic-gated SSIM is the binding constraint (SSIM=0.80 yields only 0.037 gated).",
+          "reasons": []
+        },
+        {
+          "id": "shortcut_resistant",
+          "status": "PASS",
+          "detail": "Empty/random/constant outputs fail the 0.70 SSIM gate, data-dump approaches are blocked by six anti-cheat gates (literal count, array size, string length, non-nice floats, source size).",
+          "reasons": []
+        },
+        {
+          "id": "modular_scoring",
+          "status": "PASS",
+          "detail": "compute_reward.py accepts --agent-video and --agent-source paths and reads pre-rendered artifacts with no re-execution of agent code.",
+          "reasons": []
+        },
+        {
+          "id": "reward_json_schema",
+          "status": "PASS",
+          "detail": "All code paths (success, fail_reward, gate failure, --fail flag) write valid reward.json with score, subscores list, and optional additional_data, plus reward.txt.",
+          "reasons": []
+        }
+      ],
+      "elapsed_sec": 131.1,
+      "cost_usd": 0.393958
+    },
+    "fairness": {
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "instruction_verifier_sync",
+          "status": "PASS",
+          "detail": "Instruction asks to reproduce reference.mp4 algorithmically; verifier scores SSIM+pHash visual match and duration ratio with anti-cheat gates enforcing algorithmic solutions — all scoring dimensions are inferable from instruction.",
+          "reasons": []
+        },
+        {
+          "id": "definitions_documented",
+          "status": "PASS",
+          "detail": "Key terms ('algorithmic approaches', 'match reference.mp4', 'no hardcoded per-frame data') are clear and standard; internal scoring thresholds are not agent-visible by design.",
+          "reasons": []
+        },
+        {
+          "id": "tools_accessible",
+          "status": "PASS",
+          "detail": "solve.sh validates node, typescript, chromium, ffmpeg, ffprobe, reference.mp4, project.tsx, and all three @revideo packages; all are installed in Dockerfile and confirmed by 3 oracle runs scoring 1.0.",
+          "reasons": []
+        },
+        {
+          "id": "oracle_exists",
+          "status": "PASS",
+          "detail": "solution/solve.sh exists with toolchain checks and copies solution/project.tsx into /app/src/project.tsx then runs npm run render.",
+          "reasons": []
+        },
+        {
+          "id": "oracle_validated",
+          "status": "WARN",
+          "detail": "Oracle scores 1.0 on all 3 local Docker runs; no Modal oracle run exists (only agent rollouts on Modal, many with exceptions).",
+          "reasons": [
+            "local: score=1.0 (3/3 runs, jobs 14-56-40, 15-20-46, 15-33-24)",
+            "modal: no oracle data (only terminus-2 agent runs; recommend running oracle on Modal before production rollouts)"
+          ]
+        },
+        {
+          "id": "hidden_test_fairness",
+          "status": "PASS",
+          "detail": "No hidden tests exist; tests/ contains only test.sh and compute_reward.py which perform video comparison scoring.",
+          "reasons": []
+        }
+      ],
+      "elapsed_sec": 196.0,
+      "cost_usd": 1.123013,
+      "notes": [
+        "allow_internet=true is waivered in qa.toml (Puppeteer requires localhost loopback); agents cannot use external internet for task-relevant advantage.",
+        "Many Modal agent rollouts (terminus-2) ended with exceptions — investigate Modal environment stability before production rollouts.",
+        "Run oracle on Modal to confirm cross-platform compatibility."
+      ]
+    },
+    "cleanliness": {
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "dockerfile_quality",
+          "status": "PASS",
+          "detail": "node:22-slim base, apt cache cleaned, pip --no-cache-dir, all packages justified (git/tmux/strace for Harbor, chromium+deps for Puppeteer, python3+opencv+scikit-image for verifier scoring).",
+          "reasons": []
+        },
+        {
+          "id": "solution_clean",
+          "status": "PASS",
+          "detail": "Only solve.sh (toolchain sanity + cp + render) and project.tsx (106-line oracle implementation) — no extra files.",
+          "reasons": []
+        },
+        {
+          "id": "testsh_quality",
+          "status": "PASS",
+          "detail": "All sections serve clear purposes given the single-container execution model; no redundant logic found.",
+          "reasons": [
+            "useful: /logs/verifier lockdown (chmod 700 + rm -rf) — mandatory Harbor pattern",
+            "useful: source anti-cheat regex — blocks file I/O, exec, subprocess, video reading APIs",
+            "useful: snapshot to /run/verified_project.tsx — preserves source before clean-room wipe",
+            "useful: clean-room wipe + pristine tarball restore — eliminates planted helpers, modified configs, .pth files",
+            "useful: pkill -9 -u agent — kills lingering agent background processes before render",
+            "useful: strace -f wrapping render — blocks until all forks exit, enables syscall audit",
+            "useful: strace log grep for reward file writes — detects reward manipulation attempts",
+            "useful: symlink check on output — prevents linking to reference video",
+            "useful: copy output to /tests/ — scorer reads from root-owned path, not agent-writable /app"
+          ]
+        },
+        {
+          "id": "git_hygiene",
+          "status": "PASS",
+          "detail": "No files exceed 30MB; largest is package-lock.json at 147KB.",
+          "reasons": []
+        },
+        {
+          "id": "workspace_clean",
+          "status": "PASS",
+          "detail": "No dead code or stale configs; environment/ duplicates of solution files are intentional (baked into Docker image at build time).",
+          "reasons": [
+            "compute_reward.py lives in tests/ rather than environment/tests/ — functional but deviates from recommended pattern of keeping only test.sh in tests/"
+          ]
+        }
+      ],
+      "elapsed_sec": 160.3,
+      "cost_usd": 0.632065,
+      "notes": [
+        "compute_reward.py (14KB) in tests/ could be moved to environment/tests/ per Harbor best practice (only test.sh in task-root tests/), but current placement works correctly via docker-compose cp merge semantics."
+      ]
+    }
+  },
+  "all_checks": [
+    {
+      "id": "required_files",
+      "status": "PASS",
+      "detail": "All required files present: instruction.md, task.toml, environment/Dockerfile, tests/test.sh.",
+      "reasons": [],
+      "step": "format_check"
+    },
+    {
+      "id": "recommended_files",
+      "status": "PASS",
+      "detail": "solution/solve.sh, oracle.yaml, and job.yaml all present.",
+      "reasons": [],
+      "step": "format_check"
+    },
+    {
+      "id": "task_toml_schema",
+      "status": "FAIL",
+      "detail": "allow_internet is true but must be false.",
+      "reasons": [
+        "allow_internet = true violates the mandatory allow_internet = false requirement"
+      ],
+      "step": "format_check"
+    },
+    {
+      "id": "dockerfile_required_tools",
+      "status": "PASS",
+      "detail": "git and tmux are installed via apt-get.",
+      "reasons": [],
+      "step": "format_check"
+    },
+    {
+      "id": "tests_folder_lean",
+      "status": "WARN",
+      "detail": "tests/ contains compute_reward.py in addition to test.sh; it should be moved to environment/tests/.",
+      "reasons": [
+        "compute_reward.py found in tests/ — should be in environment/tests/ and bundled into the Docker image via COPY"
+      ],
+      "step": "format_check"
+    },
+    {
+      "id": "directory_cleanliness",
+      "status": "WARN",
+      "detail": "Stray file qa.toml found at task root.",
+      "reasons": [
+        "qa.toml is not a recognized task file and is not gitignored"
+      ],
+      "step": "format_check"
+    },
+    {
+      "id": "agent_user",
+      "status": "PASS",
+      "detail": "task.toml sets [agent] user = \"agent\".",
+      "reasons": [],
+      "step": "isolation"
+    },
+    {
+      "id": "dockerfile_isolation",
+      "status": "PASS",
+      "detail": "All required isolation primitives are present.",
+      "reasons": [
+        "present: useradd agent (line 23)",
+        "present: chown -R agent:agent /app (line 69)",
+        "present: chown agent:agent /solution (line 37)",
+        "present: chmod 700 /tests (lines 36, 68)",
+        "present: strace installed (line 9)",
+        "present: git and tmux installed (line 9)",
+        "present: uid 1000 occupied by node user, agent gets 1001 — no conflict"
+      ],
+      "step": "isolation"
+    },
+    {
+      "id": "testsh_isolation",
+      "status": "PASS",
+      "detail": "Verifier locks /logs/verifier first, runs agent code under strace+su agent, scores outside strace.",
+      "reasons": [
+        "present: chmod 700 /logs/verifier FIRST (line 6), then rm -rf (line 7)",
+        "present: no chown root:root on /logs",
+        "present: exit 0 in fail_with (line 14) and at end (line 68)",
+        "present: fallback reward 0.0 via fail_with writing reward.txt",
+        "present: su agent inside strace with timeout 600 (lines 47-50)",
+        "present: scoring via compute_reward.py outside strace (line 61)",
+        "present: pkill -9 -u agent before render (line 43)",
+        "present: clean-room restore from pristine tarball (lines 32-41)",
+        "present: strace log audit for reward file writes (lines 53-55)"
+      ],
+      "step": "isolation"
+    },
+    {
+      "id": "verifier_type",
+      "status": "PASS",
+      "detail": "runs_agent_code — executes npm run render (agent-authored project.tsx) under strace+su agent.",
+      "reasons": [],
+      "step": "isolation"
+    },
+    {
+      "id": "lockfile",
+      "status": "PASS",
+      "detail": "package-lock.json (4177 lines) present in environment/workspace/ and consumed by `npm ci` in Dockerfile.",
+      "reasons": [],
+      "step": "reproducibility"
+    },
+    {
+      "id": "package_manager",
+      "status": "PASS",
+      "detail": "Node project uses npm with `npm ci` (lockfile-based deterministic install); Python deps are pinned to exact versions in the Dockerfile RUN pip3 install.",
+      "reasons": [],
+      "step": "reproducibility"
+    },
+    {
+      "id": "docker_image_cached",
+      "status": "PASS",
+      "detail": "task.toml sets docker_image to us-west1-docker.pkg.dev/proximal-core-0/environments/video2d-to-revideo-orbiting-satellites:20260520.",
+      "reasons": [],
+      "step": "reproducibility"
+    },
+    {
+      "id": "clarity",
+      "status": "PASS",
+      "detail": "Unambiguous deliverable: write src/project.tsx, render with npm run render, output must match reference.mp4.",
+      "reasons": [],
+      "step": "instruction_quality"
+    },
+    {
+      "id": "time_awareness",
+      "status": "PASS",
+      "detail": "Explicitly states 'your sandbox times out in 2 hours'.",
+      "reasons": [],
+      "step": "instruction_quality"
+    },
+    {
+      "id": "tone",
+      "status": "PASS",
+      "detail": "Conversational colleague-handoff tone, short and crisp.",
+      "reasons": [],
+      "step": "instruction_quality"
+    },
+    {
+      "id": "length",
+      "status": "PASS",
+      "detail": "13 lines, well under the 100-line limit.",
+      "reasons": [],
+      "step": "instruction_quality"
+    },
+    {
+      "id": "scoring_leakage",
+      "status": "PASS",
+      "detail": "No scorer/verifier/reward/evaluation terms found in any agent-visible files.",
+      "reasons": [],
+      "step": "instruction_quality"
+    },
+    {
+      "id": "tools_documented",
+      "status": "PASS",
+      "detail": "Lists npm run render, pre-installed packages, and workspace includes extensive reference-documentation/ with Revideo docs.",
+      "reasons": [],
+      "step": "instruction_quality"
+    },
+    {
+      "id": "noop_baseline",
+      "status": "PASS",
+      "detail": "Stub renders a 1-second black video; duration ratio ~0.067 is far below the 0.75 floor, so duration_penalty=0.0 and final score=0.0.",
+      "reasons": [],
+      "step": "reward_hacking"
+    },
+    {
+      "id": "adversarial_audit",
+      "status": "FAIL",
+      "detail": "node_modules survives clean-room restore and is never re-verified, allowing the agent to poison the rendering toolchain and embed a copy of reference.mp4 inside it.",
+      "reasons": [
+        "find /app -mindepth 1 -not -path '*/node_modules/*' -delete preserves agent-modified node_modules; backup restore only fires when the directory is entirely missing"
+      ],
+      "step": "reward_hacking"
+    },
+    {
+      "id": "agent_code_as_user",
+      "status": "PASS",
+      "detail": "Rendering runs via `su agent -c` (test.sh line 50), and agent user is created in Dockerfile with useradd.",
+      "reasons": [],
+      "step": "reward_hacking"
+    },
+    {
+      "id": "strace_tracing",
+      "status": "PASS",
+      "detail": "strace -f wraps the render command with openat tracing, log is analyzed for reward file writes before scoring (lines 47-55).",
+      "reasons": [],
+      "step": "reward_hacking"
+    },
+    {
+      "id": "verifier_protected",
+      "status": "PASS",
+      "detail": "compute_reward.py only reads /tests/reference.mp4 and the copied agent_output.mp4; it never imports from /app and runs from /tests.",
+      "reasons": [],
+      "step": "reward_hacking"
+    },
+    {
+      "id": "fault_tolerance",
+      "status": "PASS",
+      "detail": "All failure paths call fail_with which writes reward 0.0 and exits 0; compute_reward.py is wrapped in timeout 600 with a fail_with fallback.",
+      "reasons": [],
+      "step": "reward_hacking"
+    },
+    {
+      "id": "correctness_gating",
+      "status": "PASS",
+      "detail": "SSIM gate at 0.70 with cubic exponent zeros out any solution not closely matching the reference, and the baseline stub (1s black screen vs 15s animation) fails both SSIM and duration gates.",
+      "reasons": [],
+      "step": "reward_design"
+    },
+    {
+      "id": "implementation_agnostic",
+      "status": "PASS",
+      "detail": "Scoring uses pixel-level SSIM and perceptual hashing on the rendered video output only, with no dependence on specific API calls or algorithmic approach.",
+      "reasons": [],
+      "step": "reward_design"
+    },
+    {
+      "id": "dimension_balance",
+      "status": "PASS",
+      "detail": "Multiplicative aggregation prevents ignoring any dimension; duration is trivially maxable but harmless since the cubic-gated SSIM is the binding constraint (SSIM=0.80 yields only 0.037 gated).",
+      "reasons": [],
+      "step": "reward_design"
+    },
+    {
+      "id": "shortcut_resistant",
+      "status": "PASS",
+      "detail": "Empty/random/constant outputs fail the 0.70 SSIM gate, data-dump approaches are blocked by six anti-cheat gates (literal count, array size, string length, non-nice floats, source size).",
+      "reasons": [],
+      "step": "reward_design"
+    },
+    {
+      "id": "modular_scoring",
+      "status": "PASS",
+      "detail": "compute_reward.py accepts --agent-video and --agent-source paths and reads pre-rendered artifacts with no re-execution of agent code.",
+      "reasons": [],
+      "step": "reward_design"
+    },
+    {
+      "id": "reward_json_schema",
+      "status": "PASS",
+      "detail": "All code paths (success, fail_reward, gate failure, --fail flag) write valid reward.json with score, subscores list, and optional additional_data, plus reward.txt.",
+      "reasons": [],
+      "step": "reward_design"
+    },
+    {
+      "id": "instruction_verifier_sync",
+      "status": "PASS",
+      "detail": "Instruction asks to reproduce reference.mp4 algorithmically; verifier scores SSIM+pHash visual match and duration ratio with anti-cheat gates enforcing algorithmic solutions — all scoring dimensions are inferable from instruction.",
+      "reasons": [],
+      "step": "fairness"
+    },
+    {
+      "id": "definitions_documented",
+      "status": "PASS",
+      "detail": "Key terms ('algorithmic approaches', 'match reference.mp4', 'no hardcoded per-frame data') are clear and standard; internal scoring thresholds are not agent-visible by design.",
+      "reasons": [],
+      "step": "fairness"
+    },
+    {
+      "id": "tools_accessible",
+      "status": "PASS",
+      "detail": "solve.sh validates node, typescript, chromium, ffmpeg, ffprobe, reference.mp4, project.tsx, and all three @revideo packages; all are installed in Dockerfile and confirmed by 3 oracle runs scoring 1.0.",
+      "reasons": [],
+      "step": "fairness"
+    },
+    {
+      "id": "oracle_exists",
+      "status": "PASS",
+      "detail": "solution/solve.sh exists with toolchain checks and copies solution/project.tsx into /app/src/project.tsx then runs npm run render.",
+      "reasons": [],
+      "step": "fairness"
+    },
+    {
+      "id": "oracle_validated",
+      "status": "WARN",
+      "detail": "Oracle scores 1.0 on all 3 local Docker runs; no Modal oracle run exists (only agent rollouts on Modal, many with exceptions).",
+      "reasons": [
+        "local: score=1.0 (3/3 runs, jobs 14-56-40, 15-20-46, 15-33-24)",
+        "modal: no oracle data (only terminus-2 agent runs; recommend running oracle on Modal before production rollouts)"
+      ],
+      "step": "fairness"
+    },
+    {
+      "id": "hidden_test_fairness",
+      "status": "PASS",
+      "detail": "No hidden tests exist; tests/ contains only test.sh and compute_reward.py which perform video comparison scoring.",
+      "reasons": [],
+      "step": "fairness"
+    },
+    {
+      "id": "dockerfile_quality",
+      "status": "PASS",
+      "detail": "node:22-slim base, apt cache cleaned, pip --no-cache-dir, all packages justified (git/tmux/strace for Harbor, chromium+deps for Puppeteer, python3+opencv+scikit-image for verifier scoring).",
+      "reasons": [],
+      "step": "cleanliness"
+    },
+    {
+      "id": "solution_clean",
+      "status": "PASS",
+      "detail": "Only solve.sh (toolchain sanity + cp + render) and project.tsx (106-line oracle implementation) — no extra files.",
+      "reasons": [],
+      "step": "cleanliness"
+    },
+    {
+      "id": "testsh_quality",
+      "status": "PASS",
+      "detail": "All sections serve clear purposes given the single-container execution model; no redundant logic found.",
+      "reasons": [
+        "useful: /logs/verifier lockdown (chmod 700 + rm -rf) — mandatory Harbor pattern",
+        "useful: source anti-cheat regex — blocks file I/O, exec, subprocess, video reading APIs",
+        "useful: snapshot to /run/verified_project.tsx — preserves source before clean-room wipe",
+        "useful: clean-room wipe + pristine tarball restore — eliminates planted helpers, modified configs, .pth files",
+        "useful: pkill -9 -u agent — kills lingering agent background processes before render",
+        "useful: strace -f wrapping render — blocks until all forks exit, enables syscall audit",
+        "useful: strace log grep for reward file writes — detects reward manipulation attempts",
+        "useful: symlink check on output — prevents linking to reference video",
+        "useful: copy output to /tests/ — scorer reads from root-owned path, not agent-writable /app"
+      ],
+      "step": "cleanliness"
+    },
+    {
+      "id": "git_hygiene",
+      "status": "PASS",
+      "detail": "No files exceed 30MB; largest is package-lock.json at 147KB.",
+      "reasons": [],
+      "step": "cleanliness"
+    },
+    {
+      "id": "workspace_clean",
+      "status": "PASS",
+      "detail": "No dead code or stale configs; environment/ duplicates of solution files are intentional (baked into Docker image at build time).",
+      "reasons": [
+        "compute_reward.py lives in tests/ rather than environment/tests/ — functional but deviates from recommended pattern of keeping only test.sh in tests/"
+      ],
+      "step": "cleanliness"
+    }
+  ],
+  "info": {
+    "format_check": {
+      "task_name": "video2d-to-revideo-orbiting-satellites",
+      "difficulty": "hard",
+      "category": "animation",
+      "agent_timeout_sec": 7200,
+      "verifier_timeout_sec": 1200,
+      "build_timeout_sec": 1800,
+      "allow_internet": true,
+      "cpus": 8,
+      "memory_mb": 32768,
+      "agent_user": "agent"
+    },
+    "isolation": {
+      "agent_user": "agent",
+      "verifier_type": "runs_agent_code",
+      "strace_needed": true
+    },
+    "reproducibility": {
+      "base_image": "node:22-slim",
+      "package_manager": "npm",
+      "lockfiles_found": [
+        "package-lock.json"
+      ],
+      "docker_image_cached": true
+    },
+    "instruction_quality": {
+      "task_name": "Orbiting Satellites Revideo Animation",
+      "task_summary": "Reproduce a reference animation of 6 satellites orbiting a central circle through 3 orbital phases with changing radii and direction. Agent writes a Revideo scene in TypeScript that renders to a matching video.",
+      "task_domain": "animation",
+      "deliverable": "output/video.mp4",
+      "tools_needed": [
+        "@revideo/core",
+        "@revideo/2d",
+        "@revideo/renderer",
+        "typescript",
+        "ffmpeg",
+        "chromium"
+      ],
+      "instruction_lines": 13
+    },
+    "reward_hacking": {
+      "verifier_type": "runs_agent_code",
+      "existing_defenses": [
+        {
+          "category": "Filesystem lockdown",
+          "measures": [
+            "/tests chmod 700 root-only; /logs/verifier chmod 700 + wipe at verification start"
+          ]
+        },
+        {
+          "category": "Clean-room restore",
+          "measures": [
+            "Wipes /app (except node_modules), /home/agent, /solution, /tmp, /dev/shm, /var/tmp; restores from pristine tarball"
+          ]
+        },
+        {
+          "category": "Source-level anti-cheat",
+          "measures": [
+            "Grep-based pattern matching blocks fs, child_process, eval, exec, video extraction APIs in project.tsx"
+          ]
+        },
+        {
+          "category": "Process isolation",
+          "measures": [
+            "pkill -9 -u agent before rendering; strace -f blocks until all forked children exit"
+          ]
+        },
+        {
+          "category": "User separation",
+          "measures": [
+            "Agent runs as non-root user 'agent'; system files and /tests are root-owned"
+          ]
+        },
+        {
+          "category": "Strace auditing",
+          "measures": [
+            "strace traces openat calls during rendering; reward file writes detected and scored 0"
+          ]
+        },
+        {
+          "category": "Snapshot verification",
+          "measures": [
+            "project.tsx copied to /run/verified_project.tsx before wipe; anti-cheat gates run on this snapshot in compute_reward.py"
+          ]
+        }
+      ],
+      "verified_attack_vectors": [
+        {
+          "vector": "Agent poisons node_modules (e.g., modifies @revideo/renderer) and embeds a copy of reference.mp4 inside node_modules; clean-room restore preserves the entire node_modules tree because `find -not -path '*/node_modules/*'` exempts it, and the backup restore only triggers when the directory is absent; the poisoned renderer then copies the embedded reference to output/video.mp4 during the strace-wrapped render, producing a perfect-score video without triggering source-level anti-cheat on project.tsx",
+          "severity": "HIGH",
+          "fix": "Replace the node_modules exemption with a full restore: always `rm -rf /app/node_modules && cp -a /tests/node_modules_backup /app/node_modules` instead of conditionally restoring"
+        }
+      ],
+      "acknowledged_vectors": [
+        {
+          "vector": "Agent can read world-readable system binaries and installed npm packages to reverse-engineer scoring thresholds",
+          "reason": "Inherent to single-container model; no secrets in binaries, scoring parameters don't help without a rendering bypass"
+        },
+        {
+          "vector": "BASH_ENV is set globally in the container to a root-owned script; theoretically an env-var injection surface but agent cannot modify the target file or system profiles",
+          "reason": "File is root-owned +r only, /home/agent is wiped before rendering, and su agent -c does not source user profile files"
+        }
+      ]
+    },
+    "reward_design": {
+      "reward_design": {
+        "formula": "score = gated_ssim * phash_sim * duration_penalty",
+        "formula_explanation": "Multiplicative gating ensures all three visual-fidelity factors must be high for a non-trivial score, with cubic SSIM scaling making the pixel-accuracy dimension the binding constraint.",
+        "components": [
+          {
+            "name": "gated_ssim",
+            "metric": "RGB SSIM averaged over 60 sampled frames with temporal offset search (+-5 frames)",
+            "gate": "0.70 threshold; below = 0.0",
+            "weight": "multiplicative, cubic exponent above gate: ((ssim - 0.70) / 0.30) ^ 3"
+          },
+          {
+            "name": "phash_similarity",
+            "metric": "Per-frame perceptual hash (pHash) Hamming distance, normalized to [0,1]",
+            "gate": "none (continuous)",
+            "weight": "multiplicative"
+          },
+          {
+            "name": "duration_penalty",
+            "metric": "Frame count ratio agent/reference",
+            "gate": "Hard fail outside [0.75, 1.25]; linear ramp within band",
+            "weight": "multiplicative"
+          }
+        ],
+        "aggregation_method": "multiplicative",
+        "dimension_analysis": [
+          {
+            "name": "gated_ssim",
+            "trivially_maxable": false,
+            "difficulty": "hard",
+            "notes": "Cubic exponent makes scoring very steep; SSIM=0.80 yields gated=0.037, SSIM=0.90 yields gated=0.296. This is the binding constraint."
+          },
+          {
+            "name": "phash_similarity",
+            "trivially_maxable": false,
+            "difficulty": "medium",
+            "notes": "Requires correct colors and approximate spatial layout per frame; moderately correlated with SSIM so hard to game independently."
+          },
+          {
+            "name": "duration_penalty",
+            "trivially_maxable": true,
+            "difficulty": "easy",
+            "notes": "Any solution rendering at correct FPS and duration gets ~1.0. Harmless since SSIM is the binding constraint in multiplicative formula."
+          }
+        ]
+      }
+    },
+    "fairness": {
+      "oracle_reward_local": 1.0,
+      "oracle_reward_modal": null,
+      "oracle_job_local": "2026-05-20__14-56-40",
+      "oracle_job_modal": null,
+      "tools_required": [
+        "node",
+        "typescript",
+        "chromium",
+        "ffmpeg",
+        "ffprobe",
+        "@revideo/core",
+        "@revideo/2d",
+        "@revideo/renderer",
+        "opencv-python-headless",
+        "scikit-image",
+        "numpy"
+      ]
+    },
+    "cleanliness": {
+      "redundant_items": []
+    }
+  }
+}

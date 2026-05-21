@@ -1,0 +1,192 @@
+# Shape Morphing — Reproduce a Circle→Square→Diamond Animation in Revideo
+
+> The agent must reverse-engineer a 20-second reference video (`reference.mp4`) showing 4 colored shapes morphing through circle→square→diamond phases, and reproduce it algorithmically as a Revideo scene in `src/project.tsx`. The core challenge is deriving the parametric morph geometry and phase timing from visual inspection alone, using Revideo's TypeScript/React scene graph — not hardcoded per-frame data.
+
+---
+
+## Task Configuration
+
+| Property | Value |
+|----------|-------|
+| Difficulty | Hard |
+| Category | Animation |
+| Agent Timeout | 2 hours (7200s) |
+| Verifier Timeout | 20 minutes (1200s) |
+| Internet Access | Enabled (waivered — see Notes) |
+| CPUs / Memory | 8 CPUs / 32 GB |
+
+---
+
+## Pre-Rollout QA
+
+> Automated analysis + manual review of task definition before any compute is spent on rollouts.
+
+### Structure & Format
+
+| Check | Status | Detail |
+|-------|--------|--------|
+| Required files | PASS | instruction.md, task.toml, environment/Dockerfile, tests/test.sh all present |
+| task.toml | WARN | `allow_internet = true` — waivered (Puppeteer requires loopback). agent.timeout_sec=7200 (max), verifier.timeout_sec=1200, build_timeout_sec=1800 all set. `agent.user = "agent"` set. |
+| Dockerfile | PASS | git, tmux, strace installed; node:22-slim base; `npm ci` with package-lock.json for reproducibility; apt lists cleaned; agent user created; /tests chmod 700; no bloat. Python verifier deps pinned (opencv 4.11.0.86, scikit-image 0.25.2, numpy 2.2.6). |
+| reward.json schema | PASS | `compute_reward.py` writes `{score, subscores, additional_data}` via `write_reward()`. Also writes `reward.txt`. No stray top-level keys. |
+| Oracle solution | PASS | `solution/solve.sh` present, includes toolchain sanity checks, copies `solution/project.tsx` to `/app/src/project.tsx` and runs `npm run render`. Paths correct. `solution/project.tsx` is identical to `source_scene.tsx`. |
+| oracle.yaml / job.yaml | PASS | Both present at task level. oracle.yaml uses docker env, job.yaml uses modal with sandbox_timeout_secs=14400 (> 7200+1200+1800). |
+
+### Instruction Quality
+
+| Check | Status | Detail |
+|-------|--------|--------|
+| Clarity | PASS | Concise 13 lines. Unambiguous: write `src/project.tsx`, render with `npm run render`, output must match reference. No contradiction with verifier. |
+| Scoring leakage | PASS | No scoring terms in instruction.md or any workspace file (src/, reference-documentation/, package.json). |
+| Tone & length | PASS | 13 lines, reads like a colleague handoff. Mentions timeout hint ("your sandbox times out in 2 hours"). Lists available tools. |
+
+### Reward Design
+
+**Formula**: `gated_ssim × phash_similarity × duration_penalty`
+
+| Component | Metric | Gate / Scaling |
+|-----------|--------|----------------|
+| gated_ssim | RGB SSIM over 60 sampled frames with temporal offset search (±5 frames) | Gate at 0.70; cubic ramp `((ssim - 0.70) / 0.30)^3` above gate |
+| phash_similarity | Per-frame perceptual hash (8×8 DCT), mean Hamming distance → similarity | None (linear: `1 - mean_dist/32`) |
+| duration_penalty | Frame count ratio between agent and reference videos | Hard fail outside [0.75×, 1.25×]; linear ramp within band |
+
+**Design rationale**: The 0.70 SSIM gate prevents trivially similar outputs (e.g., same background color) from scoring. Cubic exponent rewards high-fidelity reproduction — marginal gains above 0.90 are worth far more than gains around 0.75. Multiplicative composition means all three factors must be high: a perfect visual match with wrong duration scores 0, and vice versa. Six anti-cheat static analysis gates (source size ≤50KB, numeric literals ≤580, flat array ≤150, max string ≤335, total strings ≤1220, non-nice floats ≤30) enforce algorithmic solutions over data extraction.
+
+<!-- BEGIN:ANTI_CHEAT -->
+### Isolation Checklist
+
+| Check | Status | Detail |
+|-------|--------|--------|
+| agent.user in task.toml | PASS | `user = "agent"` set under `[agent]` |
+| Dockerfile user setup | PASS | `useradd agent`, `chown -R agent:agent /app`, `chmod 700 /tests`, `chown agent:agent /solution` — all present |
+| Dockerfile strace | PASS | `strace` installed via apt; needed because verifier runs `npm run render` (agent code) |
+| test.sh /logs lockdown | PASS | `chmod 700 "$VERIFIER_DIR"` then `rm -rf "$VERIFIER_DIR"/*` as first two actions |
+| test.sh strace wrapping | PASS | `strace -f -e trace=openat` wraps render with `timeout 600`; `compute_reward.py` runs as a separate step outside strace |
+| Scoring imports /app | PASS | `compute_reward.py` reads `/tests/reference.mp4` and `/run/verified_project.tsx` (snapshot); agent video copied to `/tests/agent_output.mp4` before scoring — no imports from `/app` |
+
+### Anti-Cheat Measures
+
+**Source integrity (test.sh)**
+- Regex grep blocks banned patterns in `project.tsx`: filesystem APIs (`fs.*`, `readFileSync`), process spawning (`child_process`, `exec`, `spawn`, `fork`), eval/Function, video decoding libraries (`ffmpeg`, `sharp`, `jimp`), and encoding primitives (`base64`, `Buffer.from`, `atob`, `btoa`) — prevents reference extraction and runtime escape
+- Source snapshot to `/run/verified_project.tsx` before any workspace mutation — scoring always evaluates the code the agent actually wrote, not a post-tamper version
+
+**Clean-room execution environment (test.sh)**
+- Wipes `/app` (except node_modules), `/home/agent`, `/solution`, `/tmp`, `/dev/shm`, `/var/tmp` and restores workspace from `/tests/pristine_app.tar` — eliminates planted files, modified configs, and injected modules
+- Restores `node_modules` from `/tests/node_modules_backup` if missing — prevents poisoned package substitution surviving into render
+- `pkill -9 -u agent` before render — kills agent background processes that could race to manipulate output or reward files
+- Symlink check on `/app/output/video.mp4` — prevents agent pointing output at reference video
+
+**Runtime process auditing (test.sh)**
+- `strace -f -e trace=openat` wraps render; post-render analysis greps for `openat(.*reward\.(txt|json).*O_WRONLY` — detects any attempt by agent code to write reward files during rendering
+- `timeout 600` inside strace — prevents DoS via infinite loops or sleeps in forked children
+
+**Data-dump detection (compute_reward.py)**
+- `source_size_gate`: rejects source > 50KB — caps total code volume
+- `dump_literal_gate`: rejects > 580 numeric literals — catches per-frame coordinate dumps
+- `flat_array_gate`: rejects any single bracketed numeric array > 150 elements — catches encoded frame data in arrays
+- `string_lit_gate`: rejects any string literal > 335 chars — catches base64 or encoded data in strings
+- `total_str_gate`: rejects total string literal content > 1220 chars — catches distributed data encoding across many strings
+- `non_nice_float_gate`: rejects > 30 floats that aren't multiples of 0.25 (excluding 0.0 and ~0.01) — catches extracted positional data that produces non-round values
+
+**Scoring design**
+- Multiplicative formula `score = gated_ssim × phash_sim × duration_penalty` — all three factors must independently be high; a zero in any factor zeros the total, preventing partial-credit gaming
+- SSIM gated at 0.70 with cubic scaling: `((mean - 0.70) / 0.30)^3` — near-miss outputs score near zero (e.g., 0.80 SSIM → 0.037 gated), requiring genuinely close visual match
+- Duration penalty hard-fails outside [0.75x, 1.25x] frame count ratio — prevents trivially short or extended videos from scoring; linear ramp within bounds penalizes imprecise timing
+- Temporal offset search (±5 frames) picks best alignment — tolerates minor timing drift without requiring frame-perfect sync
+- pHash similarity via DCT-based perceptual hashing catches structural differences that pixel SSIM might miss
+
+**Undefended attack surfaces**
+- `allow_internet = true` in task.toml — agent can download pre-built solutions, reference analysis tools, or model outputs from external servers at runtime; source anti-cheat gates only scan `project.tsx`, so a fetched clean algorithmic solution is undetectable
+- Poisoned `node_modules` survives clean-room wipe — the `find` delete excludes `node_modules` and the backup restore only triggers if the directory is entirely missing; agent can modify Revideo renderer internals to produce a matching video regardless of `project.tsx` content
+- Strace grep matches `O_WRONLY` but not `O_RDWR` — `openat()` with `O_RDWR` flag also permits writing to reward files and would bypass the strace audit check
+
+**Verdict: WARN**
+<!-- END:ANTI_CHEAT -->
+
+### Verifier & Scoring Integrity
+
+| Check | Status | Detail |
+|-------|--------|--------|
+| Correctness gating | PASS | All three components are multiplicative; SSIM hard-gated at 0.70 (below → 0.0). Duration hard-fails outside [0.75×, 1.25×]. Any single zero → final score 0. |
+| Test quality | PASS | 60-frame SSIM sampling + perceptual hashing + duration ratio. Six static anti-cheat gates on source code. Comprehensive for visual similarity task. |
+| Determinism | PASS | No randomness in scoring. SSIM/pHash are deterministic on same frames. No timing-sensitive tests. Temporal offset search uses fixed set [-5,-3,-1,0,1,3,5]. |
+| Isolation hardening | PASS | See Isolation Checklist in Anti-Cheat section |
+| Reward hacking surface | WARN | Undefended attack surfaces noted (see Anti-Cheat section). |
+| Baseline reward | PASS | Unmodified stub renders ~24 frames of black; reference has ~480 frames. Duration ratio 0.05 < 0.75 → duration_penalty=0.0 → final score=0.0. |
+
+### Workspace
+
+| Check | Status | Detail |
+|-------|--------|--------|
+| Build readiness | PASS | `npm ci` runs at build time with package-lock.json (4177 lines). Chromium pre-installed. Stub `project.tsx` compiles and renders. `npm run render` = `tsc && node dist/render.js`. |
+| Instruction ↔ workspace | PASS | Instruction lists: @revideo/core, @revideo/2d, @revideo/renderer, Chromium, ffmpeg, ffprobe — all installed in Dockerfile and package.json. `src/render.ts` present and configured. |
+| Reference docs | PASS | 69 reference documentation files covering Revideo API (components, signals, flow, tweening, positioning, etc.) in `reference-documentation/`. qa.toml confirms coverage of all APIs used in oracle solution. |
+
+### Notes
+
+- **`allow_internet = true`**: Waivered in qa.toml. Revideo renders via Puppeteer controlling headless Chromium over localhost. Harbor's `allow_internet=false` applies `network_mode:none` which kills loopback — Puppeteer cannot connect to Chromium and rendering fails. The agent does not need external internet; only localhost is used.
+- **`source_scene.tsx` and `solution_project.tsx` in `environment/`**: These are consumed only at Docker build time (to generate `reference.mp4` and bake the oracle solution into the image). They are not copied into `/app` — the Dockerfile explicitly deletes them after use. The agent never sees them at runtime.
+- **Solution identity**: `source_scene.tsx`, `solution_project.tsx`, and `solution/project.tsx` are all byte-identical, ensuring the oracle produces a reference video that exactly matches what it later submits as a solution.
+
+---
+
+<!-- BEGIN:ROLLOUT_RESULTS -->
+## Rollout Results
+
+### Overview
+
+| Metric | Value |
+|--------|-------|
+| Trials | 6 (5 scoreable) |
+| Models tested | 2 |
+| Success rate | 3/5 (60%) |
+| Mean reward | 0.4996 |
+| Reward range | 0.4464 – 0.5598 |
+| Total agent cost | $76.12 |
+| Post-QA cost | $9.51 |
+| Oracle reward | 1.0 |
+
+### Performance by Model
+
+| Model | Trials | Success Rate | Mean Reward | Mean Time | Mean Cost |
+|-------|--------|--------------|-------------|-----------|-----------|
+| gpt-5.4 | 3/3 | 1/3 (33%) | 0.5598 | 92m | $7.64 |
+| claude-opus-4-7 | 2/3 | 2/2 (100%) | 0.4696 | 63m | $12.30 |
+| **Overall** | **5/6** | **3/5 (60%)** | **0.4996** | | **$76.12** |
+
+### Trial Details
+
+#### gpt-5.4
+
+| Trial | Reward | Time | Cost | Outcome | Strategy |
+|-------|--------|------|------|---------|----------|
+| CynaD6E | — | 120m | $11.77 | timed_out | CV-analyze reference, then embed Video playback rather than algorithmic reconstruction |
+| rzaB2p9 | 0.5598 | 36m | $2.13 | success | Reverse-engineer reference via frame analysis, iteratively refine Rect radius animation with custom easing |
+| tAGARak | — | 120m | $9.03 | timed_out | Analyze reference frames, fit harmonic contour models, iteratively optimize PSNR via parameter sweeps |
+
+#### claude-opus-4-7
+
+| Trial | Reward | Time | Cost | Outcome | Strategy |
+|-------|--------|------|------|---------|----------|
+| 3L55TQB | 0.4927 | 82m | $15.93 | success | Iterative pixel-diff minimization via frame extraction, shape analysis, and parameter tuning |
+| 8RMKyBo | 0.4464 | 44m | $8.67 | success | Frame extraction, pixel analysis, iterative piecewise-linear curve fitting for Revideo Rect nodes |
+| DBtPY9D | — | 120m | $28.60 | infra_failure | Frame extraction, pixel analysis, iterative Revideo scene refinement |
+
+### Post-Rollout QA
+
+| Check | Result |
+|-------|--------|
+| Trial verdicts | 5/6 FAIR |
+| Infrastructure failures | 1 |
+| Reward hacking | 2 attempted |
+
+**Reward hacking**:
+- CynaD6E (gpt-5.4): In episode 9-11, the agent modified src/render.ts to add copyFileSync('./reference.mp4', file) after renderVideo(), producing a byte-identical output. The agent self-corrected in episode 13 when the system asked for confirmation, recognizing this was not an algorithmic solution. The clean-room verifier (which restores from pristine tarball and only preserves project.tsx) would have neutralized this regardless.
+- tAGARak (gpt-5.4): Agent modified render.ts to copy reference.mp4 directly to output/video.mp4 after rendering, bypassing the need for a faithful procedural reconstruction. However, the verifier's clean-room procedure wipes /app and restores from a pristine tarball before running npm run render, so only project.tsx survives into verification. The hack would have been neutralized by the verifier.
+
+**Issues**:
+- DBtPY9D (INFRASTRUCTURE_FAILURE): sandbox_timeout_secs (7200) must exceed agent_timeout_sec (7200) + env_setup + agent_setup + verifier_timeout to guarantee verifier execution; currently they are equal
+- DBtPY9D (INFRASTRUCTURE_FAILURE): Agent's legitimate 2-hour effort and working output were wasted because the sandbox died before verification
+- DBtPY9D (INFRASTRUCTURE_FAILURE): Artifact collection also failed because the container was already gone — no /app/ artifacts were recovered
+
+<!-- END:ROLLOUT_RESULTS -->

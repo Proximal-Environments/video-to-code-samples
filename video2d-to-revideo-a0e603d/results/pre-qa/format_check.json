@@ -1,0 +1,76 @@
+{
+  "step": "format_check",
+  "status": "FAIL",
+  "checks": [
+    {
+      "id": "required_files",
+      "status": "PASS",
+      "detail": "All required files present: instruction.md, task.toml, environment/Dockerfile, tests/test.sh.",
+      "reasons": []
+    },
+    {
+      "id": "recommended_files",
+      "status": "PASS",
+      "detail": "solution/solve.sh, oracle.yaml, and job.yaml all present.",
+      "reasons": []
+    },
+    {
+      "id": "task_toml_schema",
+      "status": "FAIL",
+      "detail": "allow_internet is true but must be false.",
+      "reasons": [
+        "allow_internet = true violates the mandatory allow_internet = false constraint"
+      ]
+    },
+    {
+      "id": "dockerfile_required_tools",
+      "status": "PASS",
+      "detail": "git and tmux are installed via apt-get.",
+      "reasons": []
+    },
+    {
+      "id": "tests_folder_lean",
+      "status": "WARN",
+      "detail": "tests/ contains compute_reward.py which should be in environment/tests/ and bundled into the Docker image.",
+      "reasons": [
+        "compute_reward.py found in tests/ alongside test.sh"
+      ]
+    },
+    {
+      "id": "directory_cleanliness",
+      "status": "WARN",
+      "detail": "Stray file qa.toml found at task root.",
+      "reasons": [
+        "qa.toml is not a standard Harbor task file"
+      ]
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "task_name": "video2d-to-revideo-shape-morphing",
+    "difficulty": "hard",
+    "category": "animation",
+    "agent_timeout_sec": 7200,
+    "verifier_timeout_sec": 1200,
+    "build_timeout_sec": 1800,
+    "allow_internet": true,
+    "cpus": 8,
+    "memory_mb": 32768,
+    "agent_user": "agent"
+  },
+  "notes": [
+    "Set allow_internet = false in task.toml to comply with Harbor requirements.",
+    "Move tests/compute_reward.py to environment/tests/compute_reward.py and COPY it into /tests/ in the Dockerfile.",
+    "Remove or relocate qa.toml from the task root."
+  ],
+  "elapsed_sec": 50.9,
+  "cost_usd": 0.430998,
+  "tokens": {
+    "total": 231092,
+    "input": 8,
+    "output": 2526,
+    "reasoning": 0,
+    "cache_read": 184466,
+    "cache_write": 44092
+  }
+}

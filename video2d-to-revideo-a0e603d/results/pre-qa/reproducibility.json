@@ -1,0 +1,44 @@
+{
+  "step": "reproducibility",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "lockfile",
+      "status": "PASS",
+      "detail": "package-lock.json exists at environment/workspace/package-lock.json.",
+      "reasons": []
+    },
+    {
+      "id": "package_manager",
+      "status": "PASS",
+      "detail": "Node.js project uses npm with lockfile; Dockerfile runs `npm ci` for reproducible installs.",
+      "reasons": []
+    },
+    {
+      "id": "docker_image_cached",
+      "status": "PASS",
+      "detail": "task.toml sets docker_image to us-west1-docker.pkg.dev/proximal-core-0/environments/video2d-to-revideo-shape-morphing:20260520.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "base_image": "node:22-slim",
+    "package_manager": "npm",
+    "lockfiles_found": [
+      "environment/workspace/package-lock.json"
+    ],
+    "docker_image_cached": true
+  },
+  "notes": [],
+  "elapsed_sec": 34.6,
+  "cost_usd": 0.318321,
+  "tokens": {
+    "total": 167143,
+    "input": 7,
+    "output": 1478,
+    "reasoning": 0,
+    "cache_read": 131135,
+    "cache_write": 34523
+  }
+}

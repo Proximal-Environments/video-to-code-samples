@@ -1,0 +1,73 @@
+{
+  "step": "fairness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "instruction_verifier_sync",
+      "status": "PASS",
+      "detail": "Verifier scores visual similarity (SSIM, pHash) and duration match, all inferable from the instruction to reproduce reference.mp4; anti-cheat gates align with the algorithmic-only constraint.",
+      "reasons": []
+    },
+    {
+      "id": "definitions_documented",
+      "status": "PASS",
+      "detail": "All agent-facing terms (algorithmic approaches, render command, file paths) are documented in instruction.md; scoring uses standard visual metrics requiring no special definitions.",
+      "reasons": []
+    },
+    {
+      "id": "tools_accessible",
+      "status": "PASS",
+      "detail": "solve.sh validates node, typescript, chromium, ffmpeg, ffprobe, revideo packages, and workspace files; all installed via Dockerfile and prebuilt docker image.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_exists",
+      "status": "PASS",
+      "detail": "solution/solve.sh (33 lines) and solution/project.tsx (170 lines) both exist and are non-empty.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_validated",
+      "status": "PASS",
+      "detail": "Oracle scored 1.0 locally (perfect SSIM, pHash, duration); Modal runs failed due to infrastructure errors, not task issues.",
+      "reasons": [
+        "local: score=1.0 (job 2026-05-20__14-41-20)",
+        "modal: infra failures (InvalidError, RemoteError) — not task bugs"
+      ]
+    },
+    {
+      "id": "hidden_test_fairness",
+      "status": "N/A",
+      "detail": "No hidden tests; only test.sh and compute_reward.py in tests/.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "oracle_reward_local": 1.0,
+    "oracle_reward_modal": null,
+    "oracle_job_local": "2026-05-20__14-41-20",
+    "oracle_job_modal": null,
+    "tools_required": [
+      "node",
+      "typescript",
+      "chromium",
+      "ffmpeg",
+      "ffprobe",
+      "@revideo/core",
+      "@revideo/2d",
+      "@revideo/renderer"
+    ]
+  },
+  "notes": [],
+  "elapsed_sec": 214.9,
+  "cost_usd": 1.167022,
+  "tokens": {
+    "total": 1119219,
+    "input": 17,
+    "output": 9946,
+    "reasoning": 0,
+    "cache_read": 1046011,
+    "cache_write": 63245
+  }
+}

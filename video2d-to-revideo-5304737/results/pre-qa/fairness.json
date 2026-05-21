@@ -1,0 +1,80 @@
+{
+  "step": "fairness",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "instruction_verifier_sync",
+      "status": "PASS",
+      "detail": "Instruction asks to reproduce reference.mp4 algorithmically; verifier scores SSIM+pHash visual match and duration ratio with anti-cheat gates enforcing algorithmic solutions — all scoring dimensions are inferable from instruction.",
+      "reasons": []
+    },
+    {
+      "id": "definitions_documented",
+      "status": "PASS",
+      "detail": "Key terms ('algorithmic approaches', 'match reference.mp4', 'no hardcoded per-frame data') are clear and standard; internal scoring thresholds are not agent-visible by design.",
+      "reasons": []
+    },
+    {
+      "id": "tools_accessible",
+      "status": "PASS",
+      "detail": "solve.sh validates node, typescript, chromium, ffmpeg, ffprobe, reference.mp4, project.tsx, and all three @revideo packages; all are installed in Dockerfile and confirmed by 3 oracle runs scoring 1.0.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_exists",
+      "status": "PASS",
+      "detail": "solution/solve.sh exists with toolchain checks and copies solution/project.tsx into /app/src/project.tsx then runs npm run render.",
+      "reasons": []
+    },
+    {
+      "id": "oracle_validated",
+      "status": "WARN",
+      "detail": "Oracle scores 1.0 on all 3 local Docker runs; no Modal oracle run exists (only agent rollouts on Modal, many with exceptions).",
+      "reasons": [
+        "local: score=1.0 (3/3 runs, jobs 14-56-40, 15-20-46, 15-33-24)",
+        "modal: no oracle data (only terminus-2 agent runs; recommend running oracle on Modal before production rollouts)"
+      ]
+    },
+    {
+      "id": "hidden_test_fairness",
+      "status": "PASS",
+      "detail": "No hidden tests exist; tests/ contains only test.sh and compute_reward.py which perform video comparison scoring.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "oracle_reward_local": 1.0,
+    "oracle_reward_modal": null,
+    "oracle_job_local": "2026-05-20__14-56-40",
+    "oracle_job_modal": null,
+    "tools_required": [
+      "node",
+      "typescript",
+      "chromium",
+      "ffmpeg",
+      "ffprobe",
+      "@revideo/core",
+      "@revideo/2d",
+      "@revideo/renderer",
+      "opencv-python-headless",
+      "scikit-image",
+      "numpy"
+    ]
+  },
+  "notes": [
+    "allow_internet=true is waivered in qa.toml (Puppeteer requires localhost loopback); agents cannot use external internet for task-relevant advantage.",
+    "Many Modal agent rollouts (terminus-2) ended with exceptions — investigate Modal environment stability before production rollouts.",
+    "Run oracle on Modal to confirm cross-platform compatibility."
+  ],
+  "elapsed_sec": 196.0,
+  "cost_usd": 1.123013,
+  "tokens": {
+    "total": 1162688,
+    "input": 18,
+    "output": 7587,
+    "reasoning": 0,
+    "cache_read": 1093221,
+    "cache_write": 61862
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "step": "instruction_quality",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "clarity",
+      "status": "PASS",
+      "detail": "Unambiguous deliverable: write src/project.tsx, render with npm run render, output must match reference.mp4.",
+      "reasons": []
+    },
+    {
+      "id": "time_awareness",
+      "status": "PASS",
+      "detail": "Explicitly states 'your sandbox times out in 2 hours'.",
+      "reasons": []
+    },
+    {
+      "id": "tone",
+      "status": "PASS",
+      "detail": "Conversational colleague-handoff tone, short and crisp.",
+      "reasons": []
+    },
+    {
+      "id": "length",
+      "status": "PASS",
+      "detail": "13 lines, well under the 100-line limit.",
+      "reasons": []
+    },
+    {
+      "id": "scoring_leakage",
+      "status": "PASS",
+      "detail": "No scorer/verifier/reward/evaluation terms found in any agent-visible files.",
+      "reasons": []
+    },
+    {
+      "id": "tools_documented",
+      "status": "PASS",
+      "detail": "Lists npm run render, pre-installed packages, and workspace includes extensive reference-documentation/ with Revideo docs.",
+      "reasons": []
+    }
+  ],
+  "additional_checks": [],
+  "info": {
+    "task_name": "Orbiting Satellites Revideo Animation",
+    "task_summary": "Reproduce a reference animation of 6 satellites orbiting a central circle through 3 orbital phases with changing radii and direction. Agent writes a Revideo scene in TypeScript that renders to a matching video.",
+    "task_domain": "animation",
+    "deliverable": "output/video.mp4",
+    "tools_needed": [
+      "@revideo/core",
+      "@revideo/2d",
+      "@revideo/renderer",
+      "typescript",
+      "ffmpeg",
+      "chromium"
+    ],
+    "instruction_lines": 13
+  },
+  "notes": [],
+  "elapsed_sec": 59.1,
+  "cost_usd": 0.439671,
+  "tokens": {
+    "total": 311093,
+    "input": 11,
+    "output": 2742,
+    "reasoning": 0,
+    "cache_read": 270619,
+    "cache_write": 37721
+  }
+}
