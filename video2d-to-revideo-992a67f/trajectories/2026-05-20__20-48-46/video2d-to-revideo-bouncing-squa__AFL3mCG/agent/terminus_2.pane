@@ -1,2716 +1,0 @@
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ asciinema rec --stdin /logs/agent/recording.cast
-[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
-[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ clear
-[?2004l[H[J[3J[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /app/
-[?2004ltotal 800
-drwxr-xr-x 1 agent agent    187 May 20 14:24 [0m[01;34m.[0m
-drwxr-xr-x 1 root  root     180 May 20 20:49 [01;34m..[0m
-drwxr-xr-x 1 agent agent   8192 May 20 14:24 [01;34mnode_modules[0m
--rw-rw-r-- 1 agent agent 146865 May 20 14:22 package-lock.json
--rw-rw-r-- 1 agent agent    386 May 20 13:26 package.json
-drwxrwxr-x 1 agent agent     57 May 20 13:39 [01;34mreference-documentation[0m
--rw-r--r-- 1 agent agent 661281 May 20 14:24 [01;35mreference.mp4[0m
-drwxrwxr-x 1 agent agent     54 May 20 12:20 [01;34msrc[0m
--rw-rw-r-- 1 agent agent    197 May 20 10:53 tsconfig.json
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/src/project.tsx
-[?2004limport {makeProject} from '@revideo/core';
-import {makeScene2D} from '@revideo/2d';
-import {waitFor} from '@revideo/core';
-
-const scene = makeScene2D('scene', function* (view) {
-  view.fill('#000000');
-  yield* waitFor(1);
-});
-
-export default makeProject({
-  scenes: [scene],
-  settings: {
-    shared: {
-      size: {x: 480, y: 360},
-    },
-    rendering: {
-      fps: 24,
-    },
-  },
-});
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/src/render.ts
-[?2004limport {renderVideo} from '@revideo/renderer';
-
-async function render() {
-  console.log('Rendering video...');
-  const file = await renderVideo({
-    projectFile: './src/project.tsx',
-    settings: {
-      logProgress: true,
-      puppeteer: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      },
-    },
-  });
-  console.log(`Rendered video to ${file}`);
-  process.exit(0);
-}
-
-render();
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ffprobe -v error -show_format -show_streams /app/reference.mp4 2>&1 | head -50
-[?2004l[STREAM]
-index=0
-codec_name=h264
-codec_long_name=H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10
-profile=Main
-codec_type=video
-codec_tag_string=avc1
-codec_tag=0x31637661
-width=480
-height=360
-coded_width=480
-coded_height=360
-closed_captions=0
-film_grain=0
-has_b_frames=0
-sample_aspect_ratio=N/A
-display_aspect_ratio=N/A
-pix_fmt=yuv420p
-level=30
-color_range=tv
-color_space=smpte170m
-color_transfer=smpte170m
-color_primaries=smpte170m
-chroma_location=left
-field_order=progressive
-refs=1
-is_avc=true
-nal_length_size=4
-id=0x1
-r_frame_rate=24/1
-avg_frame_rate=24/1
-time_base=1/90000
-start_pts=0
-start_time=0.000000
-duration_ts=1623750
-duration=18.041667
-bit_rate=286277
-max_bit_rate=N/A
-bits_per_raw_sample=8
-nb_frames=433
-nb_read_frames=N/A
-nb_read_packets=N/A
-extradata_size=34
-DISPOSITION:default=1
-DISPOSITION:dub=0
-DISPOSITION:original=0
-DISPOSITION:comment=0
-DISPOSITION:lyrics=0
-DISPOSITION:karaoke=0
-DISPOSITION:forced=0
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ mkdir -p /tmp/frames && ffmpeg -i /app/reference.mp4 -vf fps=2 /tmp/frames/f%03d.png 2>&1 | tail -5
-[?2004l      handler_name    : VideoHandler
-      vendor_id       : [0][0][0][0]
-      encoder         : Lavc59.37.100 png
-frame=    1 fps=0.0 q=0.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=   36 fps=0.0 q=-0.0 Lsize=N/A time=00:00:18.00 bitrate=N/A speed=93.2x    
-video:521kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /tmp/frames/ | head -20
-[?2004lf001.png
-f002.png
-f003.png
-f004.png
-f005.png
-f006.png
-f007.png
-f008.png
-f009.png
-f010.png
-f011.png
-f012.png
-f013.png
-f014.png
-f015.png
-f016.png
-f017.png
-f018.png
-f019.png
-f020.png
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /tmp/frames/ | wc -l
-[?2004l36
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 -c "from PIL import Image; img = Image.open('/tmp/frames/f001.png'); print(img.size, img.getpixel((0,0)), img.getpixel((240,180)))"
-[?2004l(480, 360) (2, 2, 2) (0, 0, 4)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/analyze.py << 'EOF'
-[?2004l[?2004h> import os
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> frames_dir = '/tmp/frames'
-[?2004l[?2004h> files = sorted(os.listdir(frames_dir))
-[?2004l[?2004h> 
-[?2004l[?2004h> for f in files[::2]:
-[?2004l[?2004h>     img = np.array(Image.open(os.path.join(frames_dir, f)))
-[?2004l[?2004h>     # find non-black pixels
-[?2004l[?2004h>     mask = img.sum(axis=2) > 30
-[?2004l[?2004h>     if mask.sum() == 0:
-[?2004l[?2004h>         print(f, 'empty')
-[?2004l[?2004h>         continue
-[?2004l[?2004h>     ys, xs = np.where(mask)
-[?2004l[?2004h>     # find clusters by color
-[?2004l[?2004h>     pixels = img[mask]
-[?2004l[?2004h>     avg_color = pixels.mean(axis=0)
-[?2004l[?2004h>     print(f, f'count={mask.sum()} xrange=({xs.min()},{xs.max()}) yrange=({ys.min()},{ys.max()}) avgcolor={avg_color.astype(int)}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/analyze.py
-[?2004lf001.png count=31704 xrange=(46,457) yrange=(11,349) avgcolor=[120 120 120]
-f003.png count=31612 xrange=(13,450) yrange=(0,307) avgcolor=[120 120 120]
-f005.png count=31627 xrange=(12,469) yrange=(0,333) avgcolor=[120 120 120]
-f007.png count=31596 xrange=(6,471) yrange=(0,351) avgcolor=[119 120 119]
-f009.png count=31421 xrange=(42,460) yrange=(0,327) avgcolor=[121 121 121]
-f011.png count=31704 xrange=(34,421) yrange=(2,325) avgcolor=[120 120 120]
-f013.png count=31964 xrange=(6,463) yrange=(7,357) avgcolor=[119 119 119]
-f015.png count=31681 xrange=(14,453) yrange=(20,321) avgcolor=[120 120 120]
-f017.png count=31728 xrange=(32,426) yrange=(36,331) avgcolor=[120 120 120]
-f019.png count=31669 xrange=(42,425) yrange=(42,305) avgcolor=[120 120 120]
-f021.png count=31653 xrange=(72,423) yrange=(56,297) avgcolor=[120 120 120]
-f023.png count=31674 xrange=(68,402) yrange=(70,291) avgcolor=[120 120 120]
-f025.png count=31514 xrange=(76,400) yrange=(84,281) avgcolor=[121 120 121]
-f027.png count=31664 xrange=(71,407) yrange=(75,265) avgcolor=[120 120 120]
-f029.png count=31645 xrange=(63,407) yrange=(68,297) avgcolor=[120 120 120]
-f031.png count=31027 xrange=(64,419) yrange=(72,301) avgcolor=[118 122 118]
-f033.png count=31596 xrange=(62,425) yrange=(53,297) avgcolor=[120 120 121]
-f035.png count=31571 xrange=(60,433) yrange=(44,297) avgcolor=[121 120 120]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/analyze2.py << 'EOF'
-[?2004l[?2004h> import os
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> img = np.array(Image.open('/tmp/frames/f001.png'))
-[?2004l[?2004h> print('shape', img.shape)
-[?2004l[?2004h> print('unique R values (top 20):')
-[?2004l[?2004h> vals, counts = np.unique(img[:,:,0], return_counts=True)
-[?2004l[?2004h> for v, c in sorted(zip(vals, counts), key=lambda x: -x[1])[:20]:
-[?2004l[?2004h>     print(f'  {v}: {c}')
-[?2004l[?2004h> 
-[?2004l[?2004h> # Bin by brightness
-[?2004l[?2004h> bright = img.sum(axis=2)
-[?2004l[?2004h> print('brightness histogram (binned by 30):')
-[?2004l[?2004h> h, _ = np.histogram(bright, bins=range(0, 800, 30))
-[?2004l[?2004h> for i, hh in enumerate(h):
-[?2004l[?2004h>     print(f'  {i*30}-{(i+1)*30}: {hh}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/analyze2.py
-[?2004lshape (360, 480, 3)
-unique R values (top 20):
-  0: 143526
-  1: 6202
-  253: 4392
-  127: 2809
-  252: 2165
-  255: 1625
-  3: 1495
-  251: 1440
-  2: 1007
-  254: 919
-  126: 762
-  5: 412
-  250: 383
-  4: 331
-  249: 299
-  6: 274
-  248: 191
-  125: 185
-  129: 173
-  128: 167
-brightness histogram (binned by 30):
-  0-30: 141059
-  30-60: 477
-  60-90: 354
-  90-120: 412
-  120-150: 148
-  150-180: 262
-  180-210: 286
-  210-240: 386
-  240-270: 7113
-  270-300: 125
-  300-330: 308
-  330-360: 169
-  360-390: 13881
-  390-420: 393
-  420-450: 78
-  450-480: 94
-  480-510: 6524
-  510-540: 720
-  540-570: 11
-  570-600: 0
-  600-630: 0
-  630-660: 0
-  660-690: 0
-  690-720: 0
-  720-750: 0
-  750-780: 0
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/reference-documentation/
-[?2004l[0m[01;34mdocs.re.video[0m  [01;34mgithub.com[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/analyze3.py << 'EOF'
-[?2004l[?2004h> import os
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> img = Image.open('/tmp/frames/f001.png')
-[?2004l[?2004h> # downsample to 60x45 and print brightness
-[?2004l[?2004h> small = img.resize((60, 45))
-[?2004l[?2004h> arr = np.array(small).sum(axis=2)
-[?2004l[?2004h> for row in arr:
-[?2004l[?2004h>     s = ''
-[?2004l[?2004h>     for v in row:
-[?2004l[?2004h>         if v < 30: s += ' '
-[?2004l[?2004h>         elif v < 200: s += '.'
-[?2004l[?2004h>         elif v < 400: s += '+'
-[?2004l[?2004h>         elif v < 600: s += '#'
-[?2004l[?2004h>         else: s += '@'
-[?2004l[?2004h>     print(s)
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/analyze3.py
-[?2004l                                                            
-                                          .++++++           
-                                 .......  .######.          
-      ......                     .+++++.  .######.          
-     .++++++.                    .+++++.  .######.          
-     .++++++.    .+++++.         .+++++.  .######.          
-     .++++++.    .++++++         .+++++.  .######.          
-     .++++++.    .++++++         .+++++.  .++++++.          
-     .++++++.    .++++++         .......                    
-     .++++++.    .++++++                                    
-                 .++++++                                    
-                 .......                                    
-                                        .......             
-                                        ++++++.             
-                                        ++++++.             
-                                        ++++++.             
-              .######.                  ++++++.             
-              .######.                  ++++++.             
-        +++++++######.                  ++++++.             
-        ######+######.                                      
-        ######+######.                                      
-        ######+######.                                      
-        ######+......          ++++++.                      
-        ######+                ++++++.            .+++++.   
-        ++++++.                ++++++.            .++++++.  
-                               ++++++.            .++++++.  
-          ++++++.              ++++++.            .++++++.  
-          +++++++              ++++++.            .++++++.  
-          +++++++              .......            .++++++.  
-          +++++++                                 .++++++.  
-          +++++++                                           
-          +++++++                                           
-          ...++++...                                        
-             .++++++                                        
-             .++++++                                        
-             .++++++                                        
-             .++++++                                        
-             .++++++           .++++++.                     
-             .++++++           .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                                                            
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/analyze4.py << 'EOF'
-[?2004l[?2004h> import os
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> for fname in ['f001.png', 'f005.png', 'f010.png', 'f015.png', 'f020.png', 'f025.png', 'f030.png', 'f035.png']:
-[?2004l[?2004h>     img = Image.open(f'/tmp/frames/{fname}')
-[?2004l[?2004h>     small = img.resize((60, 45))
-[?2004l[?2004h>     arr = np.array(small).sum(axis=2)
-[?2004l[?2004h>     print('===', fname)
-[?2004l[?2004h>     for row in arr:
-[?2004l[?2004h>         s = ''
-[?2004l[?2004h>         for v in row:
-[?2004l[?2004h>             if v < 30: s += ' '
-[?2004l[?2004h>             elif v < 200: s += '.'
-[?2004l[?2004h>             elif v < 400: s += '+'
-[?2004l[?2004h>             elif v < 600: s += '#'
-[?2004l[?2004h>             else: s += '@'
-[?2004l[?2004h>         print(s)
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/analyze4.py
-[?2004l=== f001.png
-                                                            
-                                          .++++++           
-                                 .......  .######.          
-      ......                     .+++++.  .######.          
-     .++++++.                    .+++++.  .######.          
-     .++++++.    .+++++.         .+++++.  .######.          
-     .++++++.    .++++++         .+++++.  .######.          
-     .++++++.    .++++++         .+++++.  .++++++.          
-     .++++++.    .++++++         .......                    
-     .++++++.    .++++++                                    
-                 .++++++                                    
-                 .......                                    
-                                        .......             
-                                        ++++++.             
-                                        ++++++.             
-                                        ++++++.             
-              .######.                  ++++++.             
-              .######.                  ++++++.             
-        +++++++######.                  ++++++.             
-        ######+######.                                      
-        ######+######.                                      
-        ######+######.                                      
-        ######+......          ++++++.                      
-        ######+                ++++++.            .+++++.   
-        ++++++.                ++++++.            .++++++.  
-                               ++++++.            .++++++.  
-          ++++++.              ++++++.            .++++++.  
-          +++++++              ++++++.            .++++++.  
-          +++++++              .......            .++++++.  
-          +++++++                                 .++++++.  
-          +++++++                                           
-          +++++++                                           
-          ...++++...                                        
-             .++++++                                        
-             .++++++                                        
-             .++++++                                        
-             .++++++                                        
-             .++++++           .++++++.                     
-             .++++++           .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                               .++++++.                     
-                                                            
-=== f005.png
- .+++++.                                                    
- .++++++++++++.                                             
- .++++++++++++.                                             
- .++++++++++++.                 .++++++.                    
- .++++++++++++.                 .++++++.......              
- .++++++++++++.                 .++++++######+              
- .......++++++.                 .++++++######+              
-        ......                  .++++++######+              
-                     .....      .++++++######+              
-                    +#####+      ......######+              
-        ++++++.     +#####+            +#####+              
-        ++++++.     +#####+            .......              
-        ++++++.     +#####+                                 
-        ++++++.     +#####+                                 
-        ++++++.     +#####+                                 
-        ++++++.     .......                                 
-        .......                   .......                   
-                                  .+++++.                   
-                                  .+++++.           ....... 
-                                  .+++++.           .++++++ 
-                                  .+++++.           .++++++ 
-                            ......++++++.           .++++++ 
-                            +++++++......           .++++++ 
-                            ++++++.                 .++++++ 
-                            ++++++.                 .++++++ 
-                            ++++++.                 ....... 
-                            ++++++.                         
-                            ++++++.                         
-       .......                                              
-       +++++++         ++++++.                              
-       +++++++         ++++++.                              
-       +++++++         ++++++.                              
-       +++++++         ++++++.                              
-       +++++++         ++++++.                              
-       .++++++         ++++++.                              
-       ...++++++.      .......                              
-         .######.                                           
-         .######.                                           
-         .######.                                           
-         .######.                                           
-         .######.                                           
-         .++++++.                                           
-                                                            
-                                                            
-                                                            
-=== f010.png
-      .++++++.                                              
-      .++++++........                                       
-      .++++++..++++++                                       
-      .++++++..++++++                                       
-      .++++++..++++++                                       
-      .++++++..++++++                                       
-       ...... .++++++                                       
-              .......                     .+#####.          
-                               .......    .######.          
-                               .++++++.   .######.          
-                               .++++++.   .######.          
-                               .++++++.   .######.          
-                               .++++++.   .######.          
-                               .++++++.    ++++++.          
-                              ..++++++.                     
-                              .++++++                       
-                              .++++++                       
-                              .++++++                       
-                              .++++++                       
-                              .++++++                       
-                  ++++++. ....+++++++          .......      
-                  +++++++ .++++++....          ++++++.      
-                  ++++++. .++++++              ++++++.      
-                  ++++++. .++++++              ++++++.      
-                  ++++++. .++++++              ++++++.      
-                  +++++++ .++++++              ++++++.      
-                  ....... .++++++        ......++++++.      
-                                         .++++++.....       
-                                         .++++++            
-                          ......         .++++++            
-                         .++++++.        .++++++            
-                         .++++++.        .++++++            
-                         .++++++.        .+++++.            
-                         .++++++.                           
-                         .++++++.                           
-                         .++++++.                           
-                          ......                            
-                            .++++++                         
-           +++++++          .######                         
-           +#####+          .######                         
-           +#####+          .######                         
-           +#####+          .######                         
-           +#####+          +######                         
-           +#####+          .++++++                         
-           ++++++.                                          
-=== f015.png
-                                                            
-                                                            
-                                      .......               
-                                      +++++++               
-         ........                     +++++++               
-         .++++++.                     +++++++               
-  ........++++++.                     +++++++               
-  ++++++..++++++.                     +++++++               
-  ++++++..++++++.                     ++++++.               
-  ++++++..++++++.                                           
-  ++++++..++++++.                                           
-  ++++++.                      ......                       
-  .+++++.                     .++++++.   .......            
-            .......           .++++++.   +######            
-            .######.          .++++++.   +######            
-            .######.          .++++++.   +######            
-            .######.          .++++++.   +######            
-            .######.          .++++++    +######            
-            .######.                     .#####+            
-            .######.                      ....              
-                    .+++++.                   .......       
-                    ++++++.                  .++++++.       
-                    ++++++.                  .++++++.       
-                    ++++++.                  .++++++.       
-            ....... ++++++.                  .++++++.       
-            ++++++. ++++++.                  .++++++.       
-            ++++++. .+++++.                  .++++++.       
-            ++++++.                                         
-  ++++++.   ++++++.                               .......   
- .######.   ++++++.                               +++++++   
- .######.   ++++++.                               +++++++   
- .######.   ......                                +++++++   
- .######.                     .......             +++++++   
- .######.                     ++++++.             +++++++   
- .++++++.                     ++++++.             ++++++.   
-                              ++++++.                       
-                              ++++++.                       
-                              ++++++.                       
-                              .......                       
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-=== f020.png
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-      .++++++.                                              
-      .++++++.                                              
-      .++++++.                                              
-      .++++++.                               +#####+        
-      .++++++.       ++++++.  ......         +#####+        
-      .++++++.       ++++++. .######.        +#####+        
-       .......       ++++++. .######.        +#####+        
-             ++++++. ++++++. .######.        +#####+        
-             ++++++. ++++++. .######.        +#####+        
-             ++++++. ++++++. .######.        .+++++.        
-             ++++++. ....... .######.                       
-             ++++++.         .......  .......               
-             +++++++.                 .++++++               
-             ..++++++.                .++++++               
-               ++++++.                .++++++               
-              .++++++.                .++++++               
-              .++++++.                .++++++.++++++.       
-              .++++++.                .++++++.++++++.       
-               ++++++.                       .++++++.       
-            .........                        .++++++.       
-            +#####+        .+++++.           .++++++.       
-            +#####+        .+++++.         ...++++++.       
-            +#####+        .+++++.        .++++++....       
-            +#####+        .+++++.        .++++++           
-            +#####+        .+++++.        .++++++           
-            +#####+        .+++++.        .++++++           
-            .......        .............  .++++++           
-                                 .++++++. .++++++           
-                                 .++++++. .......           
-                                 .++++++.                   
-                                 .++++++.                   
-                                 .++++++.                   
-                                 .++++++.                   
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-=== f025.png
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-           ......                    .......                
-          .++++++ .......            +#####+                
-          .++++++ +#####+            +#####+                
-          .++++++ +#####+            +#####+......          
-          .++++++ +#####+            +#####+++++++          
-          .++++++ +#####+            +#####+++++++          
-          .++++++ +#####+            +#####+++++++          
-                  +#####+           .++++++.++++++          
-                  .......           .++++++.++++++          
-                          ++++++.   .++++++.++++++          
-                          ++++++.   .++++++.......          
-                          ++++++.   .++++++                 
-         .......          ++++++.   .++++++                 
-         .++++++          ++++++.   .++++++                 
-         .++++++          ++++++.                           
-         .++++++   ..............                           
-         .++++++   +#####+                                  
-         .++++++   +#####+         ++++++........           
-         .++++++...+#####+.+++++.  ++++++.++++++.           
-             ++++++######+.+++++.  ++++++.++++++.           
-             ++++++######+.+++++.  ++++++.++++++.           
-             ++++++######+.+++++.  ++++++.++++++.           
-             ++++++...... .+++++.  ++++++.++++++.           
-             ++++++.      .+++++.  .......++++++.           
-             ++++++.      .......                           
-             ......                                         
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-=== f030.png
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                           .....                            
-                          ++++++.                           
-                          ++++++.                           
-                          ++++++.                           
-                          ++++++. ......                    
-                          ++++++..++++++  .+++++.           
-                          ++++++..++++++  +#####+           
-         .......    ......+..... .++++++  +#####+           
-         ++++++.    +++++++      .++++++  +#####+           
-         ++++++.    +++++++      .++++++  +#####+           
-         ++++++.    +++++++      .++++++  +#####+           
-         ++++++.    +++++++       ......  +++++++           
-         ++++++.    +++++++.......                          
-         ++++++.    .++++++######+          .+...+.         
-                           ######+          .++++++         
-         .+++++.           ######+          .++++++         
-         ++++++.           ######+++++++    .++++++         
-         ++++++.           ######+######.   .++++++         
-         ++++++.           +#####+######.   .++++++         
-         ++++++.            ...  .######.   .......         
-         ++++++.                 .######.                   
-         ++++++.                 .######.                   
-                 .......     .++++++++++                    
-                 +++++++     .++++++     ++++++.            
-                 +++++++     .++++++     ++++++.            
-                 +++++++     .++++++     ++++++.            
-                 +++++++     .++++++     ++++++.            
-                 +++++++     .++++++     ++++++.            
-                 +++++++     .......     ++++++.            
-                  .....                  .......            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-=== f035.png
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                    .......     ......      
-                                    ######.     ++++++.     
-                         .......    ######.     ++++++.     
-        ........++++++  .######.    ######.     ++++++.     
-        ++++++..++++++. .######.    ######.     ++++++.     
-        ++++++..++++++. .######.    ######.     ++++++.     
-        ++++++..++++++. .######.    +#####.     ++++++.     
-        ++++++..++++++. .######.           ........         
-        ++++++..++++++. .######.           .++++++          
-        ........++++++                     .++++++          
-                                           .++++++          
-                  .......                  .++++++          
-                  ++++++.                  .++++++          
-                  ++++++.         .++++++  .++++++          
-                  ++++++.         +#####+                   
-       .++++++    ++++++.         +#####+                   
-       .++++++    ++++++........  +#####+                   
-       .++++++    ++++++..+++++.  +#####+                   
-       .++++++           .+++++.  +#####+                   
-       .++++++           .+++++.  .++++++                   
-       .++++++           .+++++.                            
-       .+++++.           .+++++.                            
-                         .......                            
-                                                            
-                                ......                      
-                 ......        .++++++                      
-                .++++++        .++++++.                     
-                .++++++        .++++++.                     
-                .++++++        .++++++.                     
-                .++++++        .++++++.                     
-                .++++++        .++++++.                     
-                .++++++         ......                      
-                .......                                     
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/detect.py << 'EOF'
-[?2004l[?2004h> import os
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> for fname in ['f001.png']:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/{fname}'))
-[?2004l[?2004h>     bright = img.sum(axis=2)
-[?2004l[?2004h>     mask = bright > 100
-[?2004l[?2004h>     labels, n = ndimage.label(mask)
-[?2004l[?2004h>     print(f'{fname}: {n} components')
-[?2004l[?2004h>     for i in range(1, n+1):
-[?2004l[?2004h>         ys, xs = np.where(labels == i)
-[?2004l[?2004h>         if len(xs) < 50: continue
-[?2004l[?2004h>         cx, cy = xs.mean(), ys.mean()
-[?2004l[?2004h>         w, h = xs.max()-xs.min(), ys.max()-ys.min()
-[?2004l[?2004h>         col = img[ys, xs].mean(axis=0).astype(int)
-[?2004l[?2004h>         print(f'  comp{i}: center=({cx:.0f},{cy:.0f}) size=({w}x{h}) color={col} px={len(xs)}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/detect.py
-[?2004lf001.png: 12 components
-  comp1: center=(367,36) size=(50x49) color=[246 248   2] px=2550
-  comp2: center=(292,42) size=(49x49) color=[  1   0 247] px=2500
-  comp3: center=(71,54) size=(50x49) color=[244   2   3] px=2502
-  comp4: center=(165,64) size=(50x49) color=[  1 247   1] px=2547
-  comp5: center=(345,125) size=(51x51) color=[117   2 234] px=2687
-  comp6: center=(143,153) size=(50x50) color=[  3 242 241] px=2598
-  comp7: center=(90,170) size=(51x49) color=[243   1 241] px=2600
-  comp8: center=(273,202) size=(50x50) color=[241 122   5] px=2586
-  comp9: center=(431,212) size=(50x50) color=[  1 122 243] px=2559
-  comp10: center=(107,233) size=(50x50) color=[  4 242 123] px=2600
-  comp11: center=(133,286) size=(49x51) color=[245   1 122] px=2553
-  comp12: center=(280,324) size=(49x50) color=[125 246   5] px=2550
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/track.py << 'EOF'
-[?2004l[?2004h> import os
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> # colors I saw
-[?2004l[?2004h> colors = {
-[?2004l[?2004h>     'yellow': (246,248,2),
-[?2004l[?2004h>     'blue': (1,0,247),
-[?2004l[?2004h>     'red': (244,2,3),
-[?2004l[?2004h>     'green': (1,247,1),
-[?2004l[?2004h>     'purple': (117,2,234),
-[?2004l[?2004h>     'cyan': (3,242,241),
-[?2004l[?2004h>     'magenta': (243,1,241),
-[?2004l[?2004h>     'orange': (241,122,5),
-[?2004l[?2004h>     'lightblue': (1,122,243),
-[?2004l[?2004h>     'lime': (4,242,123),
-[?2004l[?2004h>     'pink': (245,1,122),
-[?2004l[?2004h>     'limegreen': (125,246,5),
-[?2004l[?2004h> }
-[?2004l[?2004h> 
-[?2004l[?2004h> def detect_boxes(img):
-[?2004l[?2004h>     bright = img.sum(axis=2)
-[?2004l[?2004h>     mask = bright > 100
-[?2004l[?2004h>     labels, n = ndimage.label(mask)
-[?2004l[?2004h>     boxes = []
-[?2004l[?2004h>     for i in range(1, n+1):
-[?2004l[?2004h>         ys, xs = np.where(labels == i)
-[?2004l[?2004h>         if len(xs) < 100: continue
-[?2004l[?2004h>         cx, cy = xs.mean(), ys.mean()
-[?2004l[?2004h>         col = tuple(img[ys, xs].mean(axis=0).astype(int))
-[?2004l[?2004h>         boxes.append((cx, cy, col, len(xs)))
-[?2004l[?2004h>     return boxes
-[?2004l[?2004h> 
-[?2004l[?2004h> # find by color match
-[?2004l[?2004h> def closest_color_name(col):
-[?2004l[?2004h>     best = None; bd = 99999
-[?2004l[?2004h>     for n, c in colors.items():
-[?2004l[?2004h>         d = sum((col[i]-c[i])**2 for i in range(3))
-[?2004l[?2004h>         if d < bd: bd = d; best = n
-[?2004l[?2004h>     return best
-[?2004l[?2004h> 
-[?2004l[?2004h> files = sorted(os.listdir('/tmp/frames'))
-[?2004l[?2004h> tracks = {n: [] for n in colors}
-[?2004l[?2004h> for f in files:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/{f}'))
-[?2004l[?2004h>     boxes = detect_boxes(img)
-[?2004l[?2004h>     seen = {}
-[?2004l[?2004h>     for cx, cy, col, n in boxes:
-[?2004l[?2004h>         cn = closest_color_name(col)
-[?2004l[?2004h>         seen[cn] = (cx, cy)
-[?2004l[?2004h>     for n in colors:
-[?2004l[?2004h>         if n in seen:
-[?2004l[?2004h>             tracks[n].append(seen[n])
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             tracks[n].append(None)
-[?2004l[?2004h> 
-[?2004l[?2004h> for name, t in tracks.items():
-[?2004l[?2004h>     print(name)
-[?2004l[?2004h>     for i, p in enumerate(t):
-[?2004l[?2004h>         if p:
-[?2004l[?2004h>             print(f'  {i*0.5:.1f}s: ({p[0]:.0f},{p[1]:.0f})')
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             print(f'  {i*0.5:.1f}s: -')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/track.py | head -100
-[?2004lyellow
-  0.0s: (367,36)
-  0.5s: (362,58)
-  1.0s: (362,33)
-  1.5s: (361,86)
-  2.0s: -
-  2.5s: (390,53)
-  3.0s: -
-  3.5s: (453,51)
-  4.0s: (420,71)
-  4.5s: (368,82)
-  5.0s: (396,52)
-  5.5s: (434,30)
-  6.0s: (438,66)
-  6.5s: (400,102)
-  7.0s: (357,126)
-  7.5s: -
-  8.0s: (333,62)
-  8.5s: -
-  9.0s: (345,75)
-  9.5s: (387,98)
-  10.0s: (374,119)
-  10.5s: (386,108)
-  11.0s: (346,95)
-  11.5s: -
-  12.0s: -
-  12.5s: -
-  13.0s: (312,103)
-  13.5s: -
-  14.0s: (379,98)
-  14.5s: (363,125)
-  15.0s: (378,106)
-  15.5s: -
-  16.0s: (329,79)
-  16.5s: (277,78)
-  17.0s: (225,86)
-  17.5s: (201,67)
-blue
-  0.0s: (292,42)
-  0.5s: (301,31)
-  1.0s: (299,73)
-  1.5s: (297,114)
-  2.0s: -
-  2.5s: (338,142)
-  3.0s: (379,131)
-  3.5s: (392,163)
-  4.0s: -
-  4.5s: -
-  5.0s: -
-  5.5s: (339,307)
-  6.0s: (339,321)
-  6.5s: -
-  7.0s: (264,284)
-  7.5s: (240,249)
-  8.0s: -
-  8.5s: (213,294)
-  9.0s: (236,268)
-  9.5s: (244,232)
-  10.0s: (216,221)
-  10.5s: -
-  11.0s: (220,216)
-  11.5s: -
-  12.0s: (235,248)
-  12.5s: (232,259)
-  13.0s: (234,226)
-  13.5s: -
-  14.0s: (265,266)
-  14.5s: -
-  15.0s: -
-  15.5s: (248,272)
-  16.0s: (219,245)
-  16.5s: (199,214)
-  17.0s: (226,195)
-  17.5s: -
-red
-  0.0s: (71,54)
-  0.5s: (55,42)
-  1.0s: (39,30)
-  1.5s: (26,30)
-  2.0s: (36,24)
-  2.5s: (28,34)
-  3.0s: (31,34)
-  3.5s: (50,30)
-  4.0s: (70,26)
-  4.5s: (78,24)
-  5.0s: (59,26)
-  5.5s: (39,28)
-  6.0s: (32,40)
-  6.5s: (34,58)
-  7.0s: (42,77)
-  7.5s: (55,79)
-  8.0s: -
-  8.5s: -
-  9.0s: -
-  9.5s: (79,74)
-  10.0s: (100,81)
-  10.5s: (88,87)
-  11.0s: (95,99)
-  11.5s: (107,116)
-  12.0s: (110,110)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm -rf /tmp/frames && mkdir /tmp/frames && ffmpeg -i /app/reference.mp4 /tmp/frames/f%04d.png 2>&1 | tail -3
-[?2004l      encoder         : Lavc59.37.100 png
-frame=    1 fps=0.0 q=0.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=  433 fps=0.0 q=-0.0 Lsize=N/A time=00:00:18.04 bitrate=N/A speed=45.2x    
-video:6263kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /tmp/frames/ | wc -l
-[?2004l433
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/track2.py << 'EOF'
-[?2004l[?2004h> import os, json
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> colors = {
-[?2004l[?2004h>     'yellow': (255,255,0),
-[?2004l[?2004h>     'blue': (0,0,255),
-[?2004l[?2004h>     'red': (255,0,0),
-[?2004l[?2004h>     'green': (0,255,0),
-[?2004l[?2004h>     'purple': (127,0,255),
-[?2004l[?2004h>     'cyan': (0,255,255),
-[?2004l[?2004h>     'magenta': (255,0,255),
-[?2004l[?2004h>     'orange': (255,127,0),
-[?2004l[?2004h>     'lightblue': (0,127,255),
-[?2004l[?2004h>     'lime': (0,255,127),
-[?2004l[?2004h>     'pink': (255,0,127),
-[?2004l[?2004h>     'limegreen': (127,255,0),
-[?2004l[?2004h> }
-[?2004l[?2004h> 
-[?2004l[?2004h> files = sorted(os.listdir('/tmp/frames'))
-[?2004l[?2004h> tracks = {n: [] for n in colors}
-[?2004l[?2004h> 
-[?2004l[?2004h> for f in files:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/{f}'))
-[?2004l[?2004h>     for name, c in colors.items():
-[?2004l[?2004h>         # mask where pixel is close to this color
-[?2004l[?2004h>         d = np.abs(img.astype(int) - np.array(c)).sum(axis=2)
-[?2004l[?2004h>         m = d < 60
-[?2004l[?2004h>         if m.sum() < 500:
-[?2004l[?2004h>             tracks[name].append(None)
-[?2004l[?2004h>             continue
-[?2004l[?2004h>         ys, xs = np.where(m)
-[?2004l[?2004h>         cx, cy = xs.mean(), ys.mean()
-[?2004l[?2004h>         tracks[name].append((round(cx, 2), round(cy, 2)))
-[?2004l[?2004h> 
-[?2004l[?2004h> # Save and print summary
-[?2004l[?2004h> with open('/tmp/tracks.json', 'w') as fh:
-[?2004l[?2004h>     json.dump(tracks, fh)
-[?2004l[?2004h> 
-[?2004l[?2004h> # print first 10 frames for each
-[?2004l[?2004h> for name in colors:
-[?2004l[?2004h>     t = tracks[name]
-[?2004l[?2004h>     valid = [p for p in t if p]
-[?2004l[?2004h>     print(name, f'valid={len(valid)}/{len(t)}')
-[?2004l[?2004h>     print(' samples:', t[0], t[24], t[48], t[100], t[200], t[300], t[400])
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/track2.py
-[?2004lyellow valid=433/433
- samples: (np.float64(377.5), np.float64(55.5)) (np.float64(362.5), np.float64(33.5)) (np.float64(347.5), np.float64(79.5)) (np.float64(424.47), np.float64(69.55)) (np.float64(336.0), np.float64(65.5)) (np.float64(297.5), np.float64(127.5)) (np.float64(281.5), np.float64(77.5))
-blue valid=433/433
- samples: (np.float64(281.5), np.float64(56.5)) (np.float64(299.5), np.float64(55.5)) (np.float64(296.5), np.float64(139.5)) (np.float64(377.48), np.float64(199.48)) (np.float64(220.45), np.float64(294.6)) (np.float64(236.5), np.float64(255.5)) (np.float64(201.5), np.float64(216.5))
-red valid=433/433
- samples: (np.float64(78.5), np.float64(58.5)) (np.float64(45.49), np.float64(34.59)) (np.float64(33.5), np.float64(31.5)) (np.float64(68.54), np.float64(27.46)) (np.float64(78.04), np.float64(67.54)) (np.float64(108.42), np.float64(107.43)) (np.float64(90.5), np.float64(111.5))
-green valid=433/433
- samples: (np.float64(177.61), np.float64(60.35)) (np.float64(139.51), np.float64(37.49)) (np.float64(98.17), np.float64(25.43)) (np.float64(152.88), np.float64(27.41)) (np.float64(303.5), np.float64(120.5)) (np.float64(375.5), np.float64(119.5)) (np.float64(403.69), np.float64(78.33))
-purple valid=433/433
- samples: (np.float64(373.5), np.float64(153.5)) (np.float64(218.46), np.float64(105.5)) (np.float64(257.5), np.float64(71.5)) (np.float64(439.5), np.float64(163.5)) (np.float64(335.5), np.float64(224.5)) (np.float64(281.5), np.float64(201.5)) (np.float64(129.05), np.float64(189.54))
-cyan valid=433/433
- samples: (np.float64(173.5), np.float64(158.5)) (np.float64(159.5), np.float64(191.0)) (np.float64(118.58), np.float64(334.5)) (np.float64(302.5), np.float64(297.5)) (np.float64(245.5), np.float64(185.5)) (np.float64(181.53), np.float64(102.53)) (np.float64(295.07), np.float64(213.03))
-magenta valid=433/433
- samples: (np.float64(81.49), np.float64(163.99)) (np.float64(43.54), np.float64(121.54)) (np.float64(161.33), np.float64(92.45)) (np.float64(163.59), np.float64(293.37)) (np.float64(69.51), np.float64(118.51)) (np.float64(201.48), np.float64(201.52)) (np.float64(355.48), np.float64(118.02))
-orange valid=433/433
- samples: (np.float64(278.5), np.float64(166.5)) (np.float64(209.51), np.float64(163.01)) (np.float64(107.46), np.float64(227.54)) (np.float64(191.5), np.float64(99.0)) (np.float64(407.03), np.float64(186.01)) (np.float64(357.48), np.float64(187.52)) (np.float64(391.5), np.float64(193.5))
-lightblue valid=433/433
- samples: (np.float64(387.63), np.float64(251.42)) (np.float64(311.5), np.float64(151.5)) (np.float64(215.5), np.float64(299.5)) (np.float64(228.05), np.float64(33.47)) (np.float64(245.5), np.float64(236.5)) (np.float64(157.5), np.float64(152.5)) (np.float64(79.5), np.float64(241.5))
-lime valid=433/433
- samples: (np.float64(85.5), np.float64(253.0)) (np.float64(221.82), np.float64(315.22)) (np.float64(287.5), np.float64(199.5)) (np.float64(59.06), np.float64(217.48)) (np.float64(405.52), np.float64(129.52)) (np.float64(351.48), np.float64(243.52)) (np.float64(77.99), np.float64(161.51))
-pink valid=433/433
- samples: (np.float64(169.5), np.float64(261.5)) (np.float64(37.5), np.float64(247.5)) (np.float64(43.5), np.float64(91.5)) (np.float64(343.6), np.float64(148.07)) (np.float64(158.0), np.float64(161.0)) (np.float64(141.53), np.float64(227.94)) (np.float64(150.58), np.float64(267.96))
-limegreen valid=433/433
- samples: (np.float64(279.5), np.float64(270.0)) (np.float64(385.46), np.float64(291.5)) (np.float64(422.01), np.float64(157.49)) (np.float64(357.5), np.float64(253.5)) (np.float64(105.95), np.float64(217.53)) (np.float64(231.5), np.float64(137.5)) (np.float64(225.5), np.float64(143.5))
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/analyze_motion.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # look at red's trajectory in detail
-[?2004l[?2004h> for name in ['red', 'yellow', 'blue']:
-[?2004l[?2004h>     t = tracks[name]
-[?2004l[?2004h>     print(f'=== {name} ===')
-[?2004l[?2004h>     pos = np.array([p for p in t])
-[?2004l[?2004h>     # frame-to-frame deltas
-[?2004l[?2004h>     vels = np.diff(pos, axis=0)
-[?2004l[?2004h>     # print every 10 frames
-[?2004l[?2004h>     for i in range(0, len(t), 10):
-[?2004l[?2004h>         print(f'  frame{i} t={i/24:.2f}s pos=({pos[i][0]:.1f},{pos[i][1]:.1f})')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/analyze_motion.py | head -80
-[?2004l=== red ===
-  frame0 t=0.00s pos=(78.5,58.5)
-  frame10 t=0.42s pos=(64.5,48.5)
-  frame20 t=0.83s pos=(51.5,38.5)
-  frame30 t=1.25s pos=(37.5,28.5)
-  frame40 t=1.67s pos=(24.5,29.5)
-  frame50 t=2.08s pos=(35.4,28.5)
-  frame60 t=2.50s pos=(27.5,30.5)
-  frame70 t=2.92s pos=(27.5,35.5)
-  frame80 t=3.33s pos=(35.5,33.5)
-  frame90 t=3.75s pos=(52.5,29.5)
-  frame100 t=4.17s pos=(68.5,27.5)
-  frame110 t=4.58s pos=(83.5,24.5)
-  frame120 t=5.00s pos=(67.5,25.5)
-  frame130 t=5.42s pos=(50.5,27.5)
-  frame140 t=5.83s pos=(37.5,25.5)
-  frame150 t=6.25s pos=(31.5,41.5)
-  frame160 t=6.67s pos=(33.5,57.5)
-  frame170 t=7.08s pos=(39.5,72.5)
-  frame180 t=7.50s pos=(46.1,80.1)
-  frame190 t=7.92s pos=(63.5,78.5)
-  frame200 t=8.33s pos=(78.0,67.5)
-  frame210 t=8.75s pos=(74.3,61.4)
-  frame220 t=9.17s pos=(66.2,66.2)
-  frame230 t=9.58s pos=(74.5,73.5)
-  frame240 t=10.00s pos=(91.5,77.5)
-  frame250 t=10.42s pos=(94.9,83.7)
-  frame260 t=10.83s pos=(93.5,89.5)
-  frame270 t=11.25s pos=(96.5,100.4)
-  frame280 t=11.67s pos=(105.5,114.5)
-  frame290 t=12.08s pos=(105.6,111.0)
-  frame300 t=12.50s pos=(108.4,107.4)
-  frame310 t=12.92s pos=(100.8,103.3)
-  frame320 t=13.33s pos=(98.5,105.5)
-  frame330 t=13.75s pos=(93.9,120.7)
-  frame340 t=14.17s pos=(102.5,131.5)
-  frame350 t=14.58s pos=(101.5,140.5)
-  frame360 t=15.00s pos=(84.5,135.5)
-  frame370 t=15.42s pos=(91.5,123.5)
-  frame380 t=15.83s pos=(84.5,129.5)
-  frame390 t=16.25s pos=(97.5,127.5)
-  frame400 t=16.67s pos=(90.5,111.5)
-  frame410 t=17.08s pos=(93.5,91.5)
-  frame420 t=17.50s pos=(77.5,88.5)
-  frame430 t=17.92s pos=(71.0,85.6)
-=== yellow ===
-  frame0 t=0.00s pos=(377.5,55.5)
-  frame10 t=0.42s pos=(355.6,28.0)
-  frame20 t=0.83s pos=(363.2,51.5)
-  frame30 t=1.25s pos=(361.5,37.5)
-  frame40 t=1.67s pos=(361.0,81.5)
-  frame50 t=2.08s pos=(341.5,72.5)
-  frame60 t=2.50s pos=(368.5,57.5)
-  frame70 t=2.92s pos=(411.5,49.5)
-  frame80 t=3.33s pos=(456.6,33.4)
-  frame90 t=3.75s pos=(452.5,55.5)
-  frame100 t=4.17s pos=(424.5,69.5)
-  frame110 t=4.58s pos=(381.5,79.5)
-  frame120 t=5.00s pos=(377.1,69.3)
-  frame130 t=5.42s pos=(411.5,37.5)
-  frame140 t=5.83s pos=(443.5,39.5)
-  frame150 t=6.25s pos=(435.5,69.5)
-  frame160 t=6.67s pos=(403.5,99.5)
-  frame170 t=7.08s pos=(371.5,129.5)
-  frame180 t=7.50s pos=(330.6,115.6)
-  frame190 t=7.92s pos=(338.0,71.5)
-  frame200 t=8.33s pos=(336.0,65.5)
-  frame210 t=8.75s pos=(365.5,69.5)
-  frame220 t=9.17s pos=(347.5,72.5)
-  frame230 t=9.58s pos=(375.0,92.5)
-  frame240 t=10.00s pos=(394.0,110.5)
-  frame250 t=10.42s pos=(374.5,123.5)
-  frame260 t=10.83s pos=(377.5,98.0)
-  frame270 t=11.25s pos=(341.5,95.5)
-  frame280 t=11.67s pos=(305.2,94.8)
-  frame290 t=12.08s pos=(317.0,105.5)
-  frame300 t=12.50s pos=(297.5,127.5)
-  frame310 t=12.92s pos=(312.0,102.5)
-  frame320 t=13.33s pos=(319.5,99.5)
-  frame330 t=13.75s pos=(341.5,113.0)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/vel.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # Check velocity magnitudes for each box
-[?2004l[?2004h> for name in tracks:
-[?2004l[?2004h>     pos = np.array(tracks[name])
-[?2004l[?2004h>     vels = np.diff(pos, axis=0)
-[?2004l[?2004h>     speeds = np.linalg.norm(vels, axis=1)
-[?2004l[?2004h>     print(f'{name}: mean_speed={speeds.mean():.2f} median={np.median(speeds):.2f} max={speeds.max():.2f} min={speeds.min():.2f}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/vel.py
-[?2004lyellow: mean_speed=4.31 median=4.45 max=9.83 min=0.00
-blue: mean_speed=3.49 median=3.51 max=8.04 min=0.00
-red: mean_speed=1.81 median=1.89 max=7.37 min=0.00
-green: mean_speed=2.64 median=2.67 max=7.18 min=0.06
-purple: mean_speed=7.60 median=8.00 max=10.55 min=0.00
-cyan: mean_speed=6.12 median=6.14 max=16.14 min=0.00
-magenta: mean_speed=5.14 median=5.18 max=9.41 min=0.00
-orange: mean_speed=6.81 median=7.05 max=10.25 min=0.00
-lightblue: mean_speed=11.00 median=11.52 max=14.18 min=0.00
-lime: mean_speed=8.45 median=8.79 max=11.71 min=0.00
-pink: mean_speed=9.28 median=9.73 max=10.77 min=0.00
-limegreen: mean_speed=10.08 median=10.56 max=12.13 min=0.00
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/init.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # Initial position and avg velocity from first few frames
-[?2004l[?2004h> for name in tracks:
-[?2004l[?2004h>     pos = np.array(tracks[name][:6])
-[?2004l[?2004h>     v0 = (pos[1] - pos[0])  # per frame
-[?2004l[?2004h>     v_avg = (pos[5] - pos[0]) / 5
-[?2004l[?2004h>     print(f'{name}: pos0=({pos[0][0]:.1f},{pos[0][1]:.1f}) v_first=({v0[0]:.2f},{v0[1]:.2f}) v_avg5=({v_avg[0]:.2f},{v_avg[1]:.2f})')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/init.py
-[?2004lyellow: pos0=(377.5,55.5) v_first=(-2.00,-4.00) v_avg5=(-2.08,-3.80)
-blue: pos0=(281.5,56.5) v_first=(1.93,-2.91) v_avg5=(1.99,-2.78)
-red: pos0=(78.5,58.5) v_first=(-1.51,-0.82) v_avg5=(-1.40,-1.00)
-green: pos0=(177.6,60.4) v_first=(-3.09,1.13) v_avg5=(-2.43,0.82)
-purple: pos0=(373.5,153.5) v_first=(-6.03,-5.54) v_avg5=(-5.60,-5.60)
-cyan: pos0=(173.5,158.5) v_first=(-6.00,-1.00) v_avg5=(-6.08,-0.99)
-magenta: pos0=(81.5,164.0) v_first=(2.55,5.47) v_avg5=(1.61,1.29)
-orange: pos0=(278.5,166.5) v_first=(-1.00,7.00) v_avg5=(-1.00,7.00)
-lightblue: pos0=(387.6,251.4) v_first=(9.37,-7.92) v_avg5=(8.78,-7.91)
-lime: pos0=(85.5,253.0) v_first=(6.00,-7.50) v_avg5=(4.38,-3.91)
-pink: pos0=(169.5,261.5) v_first=(-10.00,2.00) v_avg5=(-7.40,4.80)
-limegreen: pos0=(279.5,270.0) v_first=(0.00,11.50) v_avg5=(0.00,10.70)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/check_grid.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> print('initial positions:')
-[?2004l[?2004h> for name in tracks:
-[?2004l[?2004h>     p = tracks[name][0]
-[?2004l[?2004h>     print(f'  {name}: ({p[0]:.1f},{p[1]:.1f})')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/check_grid.py
-[?2004linitial positions:
-  yellow: (377.5,55.5)
-  blue: (281.5,56.5)
-  red: (78.5,58.5)
-  green: (177.6,60.4)
-  purple: (373.5,153.5)
-  cyan: (173.5,158.5)
-  magenta: (81.5,164.0)
-  orange: (278.5,166.5)
-  lightblue: (387.6,251.4)
-  lime: (85.5,253.0)
-  pink: (169.5,261.5)
-  limegreen: (279.5,270.0)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/grid.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> for name in tracks:
-[?2004l[?2004h>     pos = np.array(tracks[name][:6])
-[?2004l[?2004h>     v = pos[1] - pos[0]
-[?2004l[?2004h>     # extrapolate to t=-1 (frame 0 is t=0?)
-[?2004l[?2004h>     p_init = pos[0] - v  # assume frame index 0 already moved by 1 step
-[?2004l[?2004h>     # try with no movement
-[?2004l[?2004h>     print(f'{name}: detected p0=({pos[0][0]:.1f},{pos[0][1]:.1f}) v=({v[0]:.2f},{v[1]:.2f}) back={p_init[0]:.1f},{p_init[1]:.1f}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/grid.py
-[?2004lyellow: detected p0=(377.5,55.5) v=(-2.00,-4.00) back=379.5,59.5
-blue: detected p0=(281.5,56.5) v=(1.93,-2.91) back=279.6,59.4
-red: detected p0=(78.5,58.5) v=(-1.51,-0.82) back=80.0,59.3
-green: detected p0=(177.6,60.4) v=(-3.09,1.13) back=180.7,59.2
-purple: detected p0=(373.5,153.5) v=(-6.03,-5.54) back=379.5,159.0
-cyan: detected p0=(173.5,158.5) v=(-6.00,-1.00) back=179.5,159.5
-magenta: detected p0=(81.5,164.0) v=(2.55,5.47) back=78.9,158.5
-orange: detected p0=(278.5,166.5) v=(-1.00,7.00) back=279.5,159.5
-lightblue: detected p0=(387.6,251.4) v=(9.37,-7.92) back=378.3,259.3
-lime: detected p0=(85.5,253.0) v=(6.00,-7.50) back=79.5,260.5
-pink: detected p0=(169.5,261.5) v=(-10.00,2.00) back=179.5,259.5
-limegreen: detected p0=(279.5,270.0) v=(0.00,11.50) back=279.5,258.5
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/package.json
-[?2004l{
-  "name": "revideo-task",
-  "private": true,
-  "version": "0.0.0",
-  "scripts": {
-    "render": "tsc && node dist/render.js"
-  },
-  "dependencies": {
-    "@revideo/core": "0.10.4",
-    "@revideo/2d": "0.10.4",
-    "@revideo/renderer": "0.10.4"
-  },
-  "devDependencies": {
-    "@revideo/ui": "0.10.4",
-    "@revideo/cli": "0.10.4",
-    "typescript": "5.5.4",
-    "vite": "4.5.2"
-  }
-}
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/reference-documentation/docs.re.video/
-[?2004l3d-animations-with-threejs.md  custom-components.md     flow.md                    logging.md              references.md        time-events.md
-[0m[01;34mapi[0m                            custom-font.md           [01;34mguide[0m                      logical-separation.md   rendering-videos.md  transitions.md
-code-animations.md             designing-animations.md  hierarchy.md               parameterized-video.md  rive-animations.md   transparent-video.md
-[01;34mcode-snippets[0m                  emojis.md                hls-video.md               positioning.md          shaders.md           tweening-guide.md
-[01;34mcommon-issues[0m                  experimental.md          installation-and-setup.md  project-structure.md    signals-guide.md     understanding-scene-flow.md
-configuration.md               filters-and-effects.md   layouts.md                 random-values.md        spawners.md
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ head -80 /app/reference-documentation/docs.re.video/positioning.md
-[?2004l# Positioning
-
-_Note: These docs were adopted from the original Motion Canvas docs_
-
-Motion Canvas uses a Cartesian coordinate system. Its origin is located in the center of the scene, with the x-axis going to the right and the y-axis going down.
-
-## Transform
-
-All nodes are positioned relative to their parents. This means that any transformations applied to the parent are also applied to its children. The transform of each node consists of the following properties:
-
-### `Node.position`
-
-```
-readonly public position: Vector2SignalNode
-```
-
-Represents the position of this node in local space of its parent.
-
-### `Node.scale`
-
-```
-readonly public scale: Vector2SignalNode
-```
-
-Represents the scale of this node in local space of its parent.
-
-### `Node.rotation`
-
-```
-readonly public rotation: SimpleSignalnumberNode
-```
-
-Represents the rotation (in degrees) of this node relative to its parent.
-
-## Absolute transform
-
-Each of the basic transform properties has a dedicated helper method that operates in world space.
-
-This can be helpful, for instance, when we need to match the transforms of two nodes located within different parents. Consider the following example:
-
-```typescript
-const circleA = createRef<Node>();
-const circleB = createRef<Node>();
-view.add(
-  <>
-    <Node position={[200, 100]}>
-      <Circle
-        position={[0, 100]}
-        ref={circleA}
-        width={20}
-        height={20}
-        fill={'white'}
-      />
-    </Node>
-    <Circle ref={circleB} width={10} height={10} fill={'red'} />
-  </>,
-);
-circleB().absolutePosition(circleA().absolutePosition());
-```
-
-We access the absolute position (position in world space) of `circleA` and assign it as the absolute position of `circleB`. This will move the `circleB` right on top of `circleA`.
-
-**Note:** We still need to set the `absolutePosition` of `circleB` and not just the `position`. It may seem redundant since `circleB` is a direct child of the scene view. But the local space of the scene view is not the same as the world space.
-
-### `Node.absolutePosition`
-
-```
-readonly public absolutePosition: SimpleVector2SignalNode
-```
-
-A helper signal for operating on the position in world space.
-
-Retrieving the position using this signal returns the position in world space. Similarly, setting the position using this signal transforms the new value to local space.
-
-If the new value is a function, the position of this node will be continuously updated to always match the position returned by the function. This can be useful to "pin" the node in a specific place or to make it follow another node's position.
-
-Unlike `position`, this signal is not compound - it doesn't contain separate signals for the `x` and `y` components.
-
-### `Node.absoluteScale`
-
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/reference-documentation/docs.re.video/api/ | head -30
-[?2004l2d
-core
-renderer
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ grep -l 'Rect' /app/reference-documentation/docs.re.video/ -r | head -5
-[?2004l/app/reference-documentation/docs.re.video/layouts.md
-/app/reference-documentation/docs.re.video/code-snippets/moving-manipulating-objects.md
-/app/reference-documentation/docs.re.video/custom-components.md
-/app/reference-documentation/docs.re.video/api/core/types.md
-/app/reference-documentation/docs.re.video/api/2d/components/View2D.md
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/reference-documentation/docs.re.video/code-snippets/moving-manipulating-objects.md | head -100
-[?2004l# Moving and Manipulating Objects
-
-You can easily move objects and manipulate them using a variety of functions. Here, we move a square along with some text around the screen, make it larger, and finally turn it into a circle:
-
-```typescript
-import ...
-export default makeScene2D(function* (view) {
-  const rectRef = createRef<Rect>();
-  yield view.add(
-    <Rect fill={'blue'} size={[100, 100]} ref={rectRef}>
-      <Txt fontSize={30} fontFamily={'Sans-Serif'} fill={'white'}>
-        Hi!
-      </Txt>
-    </Rect>,
-  );
-  yield* waitFor(0.5); // do nothing for 0.5s
-  yield* all(rectRef().position.x(200, 1), rectRef().position.y(50, 1)); // move the rectangle to [200, 50] in 1s
-  yield* all(rectRef().position.x(0, 2), rectRef().position.y(0, 2)); // move the rectangle to [0,0] (center) in 2s
-  yield* rectRef().scale(2, 1); // scale the rectangle by 2 in 1s
-  yield* rectRef().radius(100, 1); // increase the radius to 100 in 1s
-  yield* waitFor(1); // do nothing for 1s
-});
-```
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /app/src/project.tsx << 'PROJEOF'
-[?2004l[?2004h> import {makeProject, makeScene2D} from '@revideo/core';
-[?2004l[?2004h> import {Rect} from '@revideo/2d';
-[?2004l[?2004h> import {createRef, waitFor} from '@revideo/core';
-[?2004l[?2004h> 
-[?2004l[?2004h> const W = 480;
-[?2004l[?2004h> const H = 360;
-[?2004l[?2004h> const BOX = 50;
-[?2004l[?2004h> const FPS = 24;
-[?2004l[?2004h> const DURATION = 18.041667;
-[?2004l[?2004h> 
-[?2004l[?2004h> // Initial positions on a 4x3 grid (pixel coords from top-left)
-[?2004l[?2004h> // cols x=80,180,280,380; rows y=60,160,260
-[?2004l[?2004h> const BOXES = [
-[?2004l[?2004h>   // [name, color, x, y, vx, vy]  vx,vy in pixels-per-frame
-[?2004l[?2004h>   ['red',       '#ff0000',  80,  60, -1.51, -0.82],
-[?2004l[?2004h>   ['green',     '#00ff00', 180,  60, -3.09,  1.13],
-[?2004l[?2004h>   ['blue',      '#0000ff', 280,  60,  1.93, -2.91],
-[?2004l[?2004h>   ['yellow',    '#ffff00', 380,  60, -2.00, -4.00],
-[?2004l[?2004h>   ['magenta',   '#ff00ff',  80, 160,  2.55,  5.47],
-[?2004l[?2004h>   ['cyan',      '#00ffff', 180, 160, -6.00, -1.00],
-[?2004l[?2004h>   ['orange',    '#ff7f00', 280, 160, -1.00,  7.00],
-[?2004l[?2004h>   ['purple',    '#7f00ff', 380, 160, -6.03, -5.54],
-[?2004l[?2004h>   ['lime',      '#00ff7f',  80, 260,  6.00, -7.50],
-[?2004l[?2004h>   ['pink',      '#ff007f', 180, 260,-10.00,  2.00],
-[?2004l[?2004h>   ['limegreen', '#7fff00', 280, 260,  0.00, 11.50],
-[?2004l[?2004h>   ['lightblue', '#007fff', 380, 260,  9.37, -7.92],
-[?2004l[?2004h> ];
-[?2004l[?2004h> 
-[?2004l[?2004h> const scene = makeScene2D('scene', function* (view) {
-[?2004l[?2004h>   view.fill('#000000');
-[?2004l[?2004h> 
-[?2004l[?2004h>   const refs = BOXES.map(() => createRef<Rect>());
-[?2004l[?2004h>   for (let i = 0; i < BOXES.length; i++) {
-[?2004l[?2004h>     const [, color, x, y] = BOXES[i] as [string, string, number, number, number, number];
-[?2004l[?2004h>     view.add(
-[?2004l[?2004h>       <Rect
-[?2004l[?2004h>         ref={refs[i]}
-[?2004l[?2004h>         size={[BOX, BOX]}
-[?2004l[?2004h>         fill={color}
-[?2004l[?2004h>         position={[x - W / 2, y - H / 2]}
-[?2004l[?2004h>       />
-[?2004l[?2004h>     );
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   // simulation state - positions are centers
-[?2004l[?2004h>   const state = BOXES.map(b => ({
-[?2004l[?2004h>     x: b[2] as number,
-[?2004l[?2004h>     y: b[3] as number,
-[?2004l[?2004h>     vx: b[4] as number,
-[?2004l[?2004h>     vy: b[5] as number,
-[?2004l[?2004h>   }));
-[?2004l[?2004h> 
-[?2004l[?2004h>   const half = BOX / 2;
-[?2004l[?2004h>   const dt = 1; // one frame step
-[?2004l[?2004h>   const totalFrames = Math.round(DURATION * FPS);
-[?2004l[?2004h> 
-[?2004l[?2004h>   for (let f = 0; f < totalFrames; f++) {
-[?2004l[?2004h>     // step substeps for better collision accuracy
-[?2004l[?2004h>     const SUB = 4;
-[?2004l[?2004h>     for (let s = 0; s < SUB; s++) {
-[?2004l[?2004h>       const sdt = dt / SUB;
-[?2004l[?2004h>       // move
-[?2004l[?2004h>       for (const b of state) {
-[?2004l[?2004h>         b.x += b.vx * sdt;
-[?2004l[?2004h>         b.y += b.vy * sdt;
-[?2004l[?2004h>       }
-[?2004l[?2004h>       // wall bounces
-[?2004l[?2004h>       for (const b of state) {
-[?2004l[?2004h>         if (b.x < half) { b.x = half; b.vx = Math.abs(b.vx); }
-[?2004l[?2004h>         if (b.x > W - half) { b.x = W - half; b.vx = -Math.abs(b.vx); }
-[?2004l[?2004h>         if (b.y < half) { b.y = half; b.vy = Math.abs(b.vy); }
-[?2004l[?2004h>         if (b.y > H - half) { b.y = H - half; b.vy = -Math.abs(b.vy); }
-[?2004l[?2004h>       }
-[?2004l[?2004h>       // box-box collisions (AABB elastic with equal mass)
-[?2004l[?2004h>       for (let i = 0; i < state.length; i++) {
-[?2004l[?2004h>         for (let j = i + 1; j < state.length; j++) {
-[?2004l[?2004h>           const a = state[i], c = state[j];
-[?2004l[?2004h>           const dx = c.x - a.x;
-[?2004l[?2004h>           const dy = c.y - a.y;
-[?2004l[?2004h>           const overlapX = BOX - Math.abs(dx);
-[?2004l[?2004h>           const overlapY = BOX - Math.abs(dy);
-[?2004l[?2004h>           if (overlapX > 0 && overlapY > 0) {
-[?2004l[?2004h>             // resolve along axis of least overlap
-[?2004l[?2004h>             if (overlapX < overlapY) {
-[?2004l[?2004h>               const sgn = dx > 0 ? 1 : -1;
-[?2004l[?2004h>               a.x -= sgn * overlapX / 2;
-[?2004l[?2004h>               c.x += sgn * overlapX / 2;
-[?2004l[?2004h>               // swap vx if approaching
-[?2004l[?2004h>               const rel = c.vx - a.vx;
-[?2004l[?2004h>               if (rel * sgn < 0) {
-[?2004l[?2004h>                 const tmp = a.vx; a.vx = c.vx; c.vx = tmp;
-[?2004l[?2004h>               }
-[?2004l[?2004h>             } else {
-[?2004l[?2004h>               const sgn = dy > 0 ? 1 : -1;
-[?2004l[?2004h>               a.y -= sgn * overlapY / 2;
-[?2004l[?2004h>               c.y += sgn * overlapY / 2;
-[?2004l[?2004h>               const rel = c.vy - a.vy;
-[?2004l[?2004h>               if (rel * sgn < 0) {
-[?2004l[?2004h>                 const tmp = a.vy; a.vy = c.vy; c.vy = tmp;
-[?2004l[?2004h>               }
-[?2004l[?2004h>             }
-[?2004l[?2004h>           }
-[?2004l[?2004h>         }
-[?2004l[?2004h>       }
-[?2004l[?2004h>     }
-[?2004l[?2004h>     // apply to rects
-[?2004l[?2004h>     for (let i = 0; i < state.length; i++) {
-[?2004l[?2004h>       refs[i]().position([state[i].x - W / 2, state[i].y - H / 2]);
-[?2004l[?2004h>     }
-[?2004l[?2004h>     yield* waitFor(1 / FPS);
-[?2004l[?2004h>   }
-[?2004l[?2004h> });
-[?2004l[?2004h> 
-[?2004l[?2004h> export default makeProject({
-[?2004l[?2004h>   scenes: [scene],
-[?2004l[?2004h>   settings: {
-[?2004l[?2004h>     shared: {
-[?2004l[?2004h>       size: {x: W, y: H},
-[?2004l[?2004h>     },
-[?2004l[?2004h>     rendering: {
-[?2004l[?2004h>       fps: FPS,
-[?2004l[?2004h>     },
-[?2004l[?2004h>   },
-[?2004l[?2004h> });
-[?2004l[?2004h> PROJEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -30
-[?2004l
-> revideo-task@0.0.0 render
-> tsc && node dist/render.js
-
-src/project.tsx(1,22): error TS2305: Module '"@revideo/core"' has no exported member 'makeScene2D'.
-src/project.tsx(29,47): error TS7006: Parameter 'view' implicitly has an 'any' type.
-npm notice
-npm notice New major version of npm available! 10.9.8 -> 11.15.0
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.15.0
-npm notice To update run: npm install -g npm@11.15.0
-npm notice
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ sed -i "s|import {makeProject, makeScene2D} from '@revideo/core';|import {makeProject} from '@revideo/core';\nimport {makeScene2D, Rect} from '@revideo/2d';|" /app/src/project.tsx
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ sed -i "s|import {Rect} from '@revideo/2d';||" /app/src/project.tsx
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ head -10 /app/src/project.tsx
-[?2004limport {makeProject} from '@revideo/core';
-import {makeScene2D, Rect} from '@revideo/2d';
-
-import {createRef, waitFor} from '@revideo/core';
-
-const W = 480;
-const H = 360;
-const BOX = 50;
-const FPS = 24;
-const DURATION = 18.041667;
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -30
-[?2004l
-> revideo-task@0.0.0 render
-> tsc && node dist/render.js
-
-Rendering video...
-Worker 0: JSHandle:finished downloading
-Render progress, worker 0: 51% 
-Rendered video to output/video.mp4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /app/output/
-[?2004ltotal 553
-drwxr-xr-x 1 agent agent    120 May 20 20:56 [0m[01;34m.[0m
-drwxr-xr-x 1 agent agent    100 May 20 20:56 [01;34m..[0m
--rw-r--r-- 1 agent agent 565768 May 20 20:56 [01;35mvideo.mp4[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm -rf /tmp/outframes && mkdir /tmp/outframes && ffmpeg -i /app/output/video.mp4 /tmp/outframes/o%04d.png 2>&1 | tail -3
-[?2004l      encoder         : Lavc59.37.100 png
-frame=    1 fps=0.0 q=0.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=  433 fps=0.0 q=-0.0 Lsize=N/A time=00:00:18.04 bitrate=N/A speed=51.9x    
-video:5851kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/compare.py << 'EOF'
-[?2004l[?2004h> import os, json
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> colors = {
-[?2004l[?2004h>     'yellow': (255,255,0),
-[?2004l[?2004h>     'blue': (0,0,255),
-[?2004l[?2004h>     'red': (255,0,0),
-[?2004l[?2004h>     'green': (0,255,0),
-[?2004l[?2004h>     'purple': (127,0,255),
-[?2004l[?2004h>     'cyan': (0,255,255),
-[?2004l[?2004h>     'magenta': (255,0,255),
-[?2004l[?2004h>     'orange': (255,127,0),
-[?2004l[?2004h>     'lightblue': (0,127,255),
-[?2004l[?2004h>     'lime': (0,255,127),
-[?2004l[?2004h>     'pink': (255,0,127),
-[?2004l[?2004h>     'limegreen': (127,255,0),
-[?2004l[?2004h> }
-[?2004l[?2004h> 
-[?2004l[?2004h> def detect(path):
-[?2004l[?2004h>     img = np.array(Image.open(path))
-[?2004l[?2004h>     res = {}
-[?2004l[?2004h>     for name, c in colors.items():
-[?2004l[?2004h>         d = np.abs(img.astype(int) - np.array(c)).sum(axis=2)
-[?2004l[?2004h>         m = d < 60
-[?2004l[?2004h>         if m.sum() < 500:
-[?2004l[?2004h>             res[name] = None
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             ys, xs = np.where(m)
-[?2004l[?2004h>             res[name] = (xs.mean(), ys.mean())
-[?2004l[?2004h>     return res
-[?2004l[?2004h> 
-[?2004l[?2004h> ref_files = sorted(os.listdir('/tmp/frames'))
-[?2004l[?2004h> out_files = sorted(os.listdir('/tmp/outframes'))
-[?2004l[?2004h> print(f'ref:{len(ref_files)} out:{len(out_files)}')
-[?2004l[?2004h> 
-[?2004l[?2004h> for i in [1, 10, 30, 60, 100, 200, 300, 400, 432]:
-[?2004l[?2004h>     if i >= len(ref_files) or i >= len(out_files): continue
-[?2004l[?2004h>     r = detect(f'/tmp/frames/{ref_files[i]}')
-[?2004l[?2004h>     o = detect(f'/tmp/outframes/{out_files[i]}')
-[?2004l[?2004h>     print(f'--- frame {i} ---')
-[?2004l[?2004h>     for name in colors:
-[?2004l[?2004h>         rp, op = r[name], o[name]
-[?2004l[?2004h>         if rp and op:
-[?2004l[?2004h>             d = ((rp[0]-op[0])**2 + (rp[1]-op[1])**2)**0.5
-[?2004l[?2004h>             print(f'  {name}: ref=({rp[0]:.0f},{rp[1]:.0f}) out=({op[0]:.0f},{op[1]:.0f}) dist={d:.1f}')
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             print(f'  {name}: ref={rp} out={op}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/compare.py
-[?2004lref:433 out:433
---- frame 1 ---
-  yellow: ref=(376,52) out=(374,48) dist=4.5
-  blue: ref=(283,54) out=(285,51) dist=3.6
-  red: ref=(77,58) out=(76,58) dist=1.5
-  green: ref=(175,61) out=(170,63) dist=4.5
-  purple: ref=(367,148) out=(362,144) dist=7.5
-  cyan: ref=(168,158) out=(162,156) dist=6.1
-  magenta: ref=(84,169) out=(88,176) dist=7.0
-  orange: ref=(278,174) out=(276,180) dist=7.1
-  lightblue: ref=(397,244) out=(408,236) dist=13.2
-  lime: ref=(92,246) out=(98,238) dist=10.0
-  pink: ref=(160,264) out=(150,265) dist=10.2
-  limegreen: ref=(280,282) out=(280,294) dist=12.0
---- frame 10 ---
-  yellow: ref=(356,28) out=(356,36) dist=8.5
-  blue: ref=(303,29) out=(303,24) dist=4.1
-  red: ref=(64,48) out=(62,50) dist=3.1
-  green: ref=(152,68) out=(143,73) dist=11.1
-  purple: ref=(318,98) out=(308,94) dist=10.8
-  cyan: ref=(142,128) out=(160,148) dist=26.9
-  magenta: ref=(69,156) out=(58,120) dist=37.3
-  orange: ref=(268,238) out=(268,224) dist=13.0
-  lightblue: ref=(438,173) out=(420,164) dist=19.9
-  lime: ref=(138,266) out=(37,274) dist=100.4
-  pink: ref=(100,322) out=(200,284) dist=107.9
-  limegreen: ref=(280,292) out=(280,294) dist=2.0
---- frame 30 ---
-  yellow: ref=(362,38) out=(392,90) dist=60.0
-  blue: ref=(299,77) out=(266,80) dist=33.3
-  red: ref=(38,29) out=(32,34) dist=7.8
-  green: ref=(136,24) out=(88,96) dist=85.1
-  purple: ref=(182,80) out=(257,161) dist=110.7
-  cyan: ref=(158,232) out=(198,128) dist=111.4
-  magenta: ref=(72,108) out=(32,178) dist=80.6
-  orange: ref=(176,166) out=(182,238) dist=71.3
-  lightblue: ref=(255,192) out=(310,166) dist=61.2
-  lime: ref=(258,276) out=(181,296) dist=79.7
-  pink: ref=(78,204) out=(286,324) dist=240.2
-  limegreen: ref=(433,248) out=(370,236) dist=64.4
---- frame 60 ---
-  yellow: ref=(368,57) out=(450,72) dist=82.2
-  blue: ref=(322,148) out=(246,168) dist=79.5
-  red: ref=(27,31) out=(64,40) dist=37.1
-  green: ref=(90,50) out=(120,124) dist=78.5
-  purple: ref=(274,48) out=(262,328) dist=280.3
-  cyan: ref=(116,329) out=(156,68) dist=264.5
-  magenta: ref=(224,104) out=(110,268) dist=199.7
-  orange: ref=(37,244) out=(132,180) dist=114.4
-  lightblue: ref=(130,278) out=(326,195) dist=212.2
-  lime: ref=(200,168) out=(190,146) dist=23.9
-  pink: ref=(152,124) out=(324,334) dist=272.1
-  limegreen: ref=(373,201) out=(436,238) dist=71.7
---- frame 100 ---
-  yellow: ref=(424,70) out=(190,108) dist=238.0
-  blue: ref=(377,199) out=(332,284) dist=96.7
-  red: ref=(69,27) out=(26,74) dist=63.0
-  green: ref=(153,27) out=(112,176) dist=153.8
-  purple: ref=(440,164) out=(272,328) dist=235.5
-  cyan: ref=(302,298) out=(174,29) dist=297.9
-  magenta: ref=(164,293) out=(132,228) dist=73.3
-  orange: ref=(192,99) out=(76,298) dist=229.9
-  lightblue: ref=(228,33) out=(334,172) dist=173.7
-  lime: ref=(59,217) out=(129,106) dist=131.2
-  pink: ref=(344,148) out=(273,176) dist=75.7
-  limegreen: ref=(358,254) out=(430,270) dist=73.8
---- frame 200 ---
-  yellow: ref=(336,66) out=(124,106) dist=216.2
-  blue: ref=(220,295) out=(208,240) dist=56.6
-  red: ref=(78,68) out=(72,168) dist=100.2
-  green: ref=(304,120) out=(62,228) dist=264.6
-  purple: ref=(336,224) out=(40,284) dist=300.8
-  cyan: ref=(246,186) out=(386,44) dist=200.1
-  magenta: ref=(70,119) out=(228,74) dist=164.7
-  orange: ref=(407,186) out=(442,250) dist=72.7
-  lightblue: ref=(246,236) out=(280,34) dist=205.8
-  lime: ref=(406,130) out=(47,42) dist=368.5
-  pink: ref=(158,161) out=(372,104) dist=221.1
-  limegreen: ref=(106,218) out=(424,191) dist=318.7
---- frame 300 ---
-  yellow: ref=(298,128) out=(239,194) dist=88.2
-  blue: ref=(236,256) out=(80,230) dist=158.2
-  red: ref=(108,107) out=(188,80) dist=83.9
-  green: ref=(376,120) out=(196,252) dist=223.2
-  purple: ref=(282,202) out=(170,170) dist=115.9
-  cyan: ref=(182,103) out=(356,244) dist=223.9
-  magenta: ref=(201,202) out=(440,176) dist=239.4
-  orange: ref=(357,188) out=(428,108) dist=106.6
-  lightblue: ref=(158,152) out=(300,202) dist=151.2
-  lime: ref=(351,244) out=(261,137) dist=139.1
-  pink: ref=(142,228) out=(378,174) dist=242.2
-  limegreen: ref=(232,138) out=(428,255) dist=228.7
---- frame 400 ---
-  yellow: ref=(282,78) out=(338,164) dist=103.7
-  blue: ref=(202,216) out=(328,214) dist=127.0
-  red: ref=(90,112) out=(122,58) dist=62.8
-  green: ref=(404,78) out=(415,278) dist=199.5
-  purple: ref=(129,190) out=(36,120) dist=116.9
-  cyan: ref=(295,213) out=(226,94) dist=138.3
-  magenta: ref=(355,118) out=(90,170) dist=270.9
-  orange: ref=(392,194) out=(270,160) dist=126.2
-  lightblue: ref=(80,242) out=(205,245) dist=125.6
-  lime: ref=(78,162) out=(28,180) dist=52.7
-  pink: ref=(151,268) out=(82,292) dist=73.0
-  limegreen: ref=(226,144) out=(444,188) dist=222.4
---- frame 432 ---
-  yellow: ref=(193,91) out=(273,24) dist=103.6
-  blue: ref=(262,252) out=(329,212) dist=78.8
-  red: ref=(72,86) out=(44,26) dist=66.6
-  green: ref=(399,112) out=(368,318) dist=207.6
-  purple: ref=(155,176) out=(59,99) dist=122.4
-  cyan: ref=(328,88) out=(213,73) dist=115.5
-  magenta: ref=(258,92) out=(158,195) dist=143.6
-  orange: ref=(353,211) out=(267,163) dist=98.3
-  lightblue: ref=(331,276) out=(306,291) dist=30.0
-  lime: ref=(288,184) out=(72,232) dist=221.3
-  pink: ref=(401,251) out=(132,284) dist=271.2
-  limegreen: ref=(208,233) out=(351,127) dist=178.4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/fit.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # For each box, look at first N frames and find longest stretch of constant velocity
-[?2004l[?2004h> for name in tracks:
-[?2004l[?2004h>     pos = np.array(tracks[name])
-[?2004l[?2004h>     # diffs
-[?2004l[?2004h>     d = np.diff(pos, axis=0)
-[?2004l[?2004h>     # find longest stretch starting from frame 0 where vel is approximately constant
-[?2004l[?2004h>     v0 = d[0]
-[?2004l[?2004h>     end = 1
-[?2004l[?2004h>     while end < len(d):
-[?2004l[?2004h>         if np.linalg.norm(d[end] - v0) < 0.3:
-[?2004l[?2004h>             end += 1
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             break
-[?2004l[?2004h>     # fit
-[?2004l[?2004h>     n = end + 1
-[?2004l[?2004h>     xs = np.arange(n)
-[?2004l[?2004h>     px = np.polyfit(xs, pos[:n, 0], 1)
-[?2004l[?2004h>     py = np.polyfit(xs, pos[:n, 1], 1)
-[?2004l[?2004h>     # px[0] is slope = vx, px[1] = intercept = pos at frame 0 (which is t=1/24, no, frame index 0)
-[?2004l[?2004h>     # actual t=0 position: extrapolate back by 1 step? Actually frame 0 is the first rendered frame.
-[?2004l[?2004h>     # at frame 0, position = px[1]. v = px[0].
-[?2004l[?2004h>     p0_render = (px[1], py[1])
-[?2004l[?2004h>     v = (px[0], py[0])
-[?2004l[?2004h>     # the rendered frame 0 is actually at t=0 in the render. So if reference starts boxes at grid at t=0,
-[?2004l[?2004h>     # render frame 0 corresponds to t=0 exactly. But box already at displaced position at frame0?
-[?2004l[?2004h>     # Try extrapolating back 1 frame
-[?2004l[?2004h>     p_back1 = (px[1] - px[0], py[1] - py[0])
-[?2004l[?2004h>     print(f'{name}: n_const={n} p_at_f0=({p0_render[0]:.2f},{p0_render[1]:.2f}) v=({v[0]:.3f},{v[1]:.3f}) back1=({p_back1[0]:.2f},{p_back1[1]:.2f})')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/fit.py
-[?2004lyellow: n_const=4 p_at_f0=(377.50,55.50) v=(-2.000,-4.000) back1=(379.50,59.50)
-blue: n_const=2 p_at_f0=(281.50,56.50) v=(1.930,-2.910) back1=(279.57,59.41)
-red: n_const=2 p_at_f0=(78.50,58.50) v=(-1.510,-0.820) back1=(80.01,59.32)
-green: n_const=2 p_at_f0=(177.61,60.35) v=(-3.090,1.130) back1=(180.70,59.22)
-purple: n_const=2 p_at_f0=(373.50,153.50) v=(-6.030,-5.540) back1=(379.53,159.04)
-cyan: n_const=4 p_at_f0=(173.50,158.50) v=(-6.000,-1.000) back1=(179.50,159.50)
-magenta: n_const=2 p_at_f0=(81.49,163.99) v=(2.550,5.470) back1=(78.94,158.52)
-orange: n_const=2 p_at_f0=(278.50,166.50) v=(-1.000,7.000) back1=(279.50,159.50)
-lightblue: n_const=2 p_at_f0=(387.63,251.42) v=(9.370,-7.920) back1=(378.26,259.34)
-lime: n_const=2 p_at_f0=(85.50,253.00) v=(6.000,-7.500) back1=(79.50,260.50)
-pink: n_const=2 p_at_f0=(169.50,261.50) v=(-10.000,2.000) back1=(179.50,259.50)
-limegreen: n_const=2 p_at_f0=(279.50,270.00) v=(-0.000,11.500) back1=(279.50,258.50)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/sim.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> W, H, BOX = 480, 360, 50
-[?2004l[?2004h> half = BOX / 2
-[?2004l[?2004h> 
-[?2004l[?2004h> BOXES = [
-[?2004l[?2004h>     ('red',       (80, 60), (-1.51, -0.82)),
-[?2004l[?2004h>     ('green',     (180, 60), (-3.09, 1.13)),
-[?2004l[?2004h>     ('blue',      (280, 60), (1.93, -2.91)),
-[?2004l[?2004h>     ('yellow',    (380, 60), (-2.00, -4.00)),
-[?2004l[?2004h>     ('magenta',   (80, 160), (2.55, 5.47)),
-[?2004l[?2004h>     ('cyan',      (180, 160), (-6.00, -1.00)),
-[?2004l[?2004h>     ('orange',    (280, 160), (-1.00, 7.00)),
-[?2004l[?2004h>     ('purple',    (380, 160), (-6.03, -5.54)),
-[?2004l[?2004h>     ('lime',      (80, 260), (6.00, -7.50)),
-[?2004l[?2004h>     ('pink',      (180, 260), (-10.00, 2.00)),
-[?2004l[?2004h>     ('limegreen', (280, 260), (0.00, 11.50)),
-[?2004l[?2004h>     ('lightblue', (380, 260), (9.37, -7.92)),
-[?2004l[?2004h> ]
-[?2004l[?2004h> 
-[?2004l[?2004h> state = [{'x':p[0],'y':p[1],'vx':v[0],'vy':v[1],'name':n} for n,p,v in BOXES]
-[?2004l[?2004h> N = len(state)
-[?2004l[?2004h> 
-[?2004l[?2004h> def step(SUB=4):
-[?2004l[?2004h>     sdt = 1.0 / SUB
-[?2004l[?2004h>     for _ in range(SUB):
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             b['x'] += b['vx']*sdt
-[?2004l[?2004h>             b['y'] += b['vy']*sdt
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             if b['x'] < half: b['x']=half; b['vx']=abs(b['vx'])
-[?2004l[?2004h>             if b['x'] > W-half: b['x']=W-half; b['vx']=-abs(b['vx'])
-[?2004l[?2004h>             if b['y'] < half: b['y']=half; b['vy']=abs(b['vy'])
-[?2004l[?2004h>             if b['y'] > H-half: b['y']=H-half; b['vy']=-abs(b['vy'])
-[?2004l[?2004h>         for i in range(N):
-[?2004l[?2004h>             for j in range(i+1, N):
-[?2004l[?2004h>                 a, c = state[i], state[j]
-[?2004l[?2004h>                 dx, dy = c['x']-a['x'], c['y']-a['y']
-[?2004l[?2004h>                 ox = BOX - abs(dx); oy = BOX - abs(dy)
-[?2004l[?2004h>                 if ox > 0 and oy > 0:
-[?2004l[?2004h>                     if ox < oy:
-[?2004l[?2004h>                         sgn = 1 if dx > 0 else -1
-[?2004l[?2004h>                         a['x'] -= sgn*ox/2; c['x'] += sgn*ox/2
-[?2004l[?2004h>                         rel = c['vx']-a['vx']
-[?2004l[?2004h>                         if rel*sgn < 0:
-[?2004l[?2004h>                             a['vx'], c['vx'] = c['vx'], a['vx']
-[?2004l[?2004h>                     else:
-[?2004l[?2004h>                         sgn = 1 if dy > 0 else -1
-[?2004l[?2004h>                         a['y'] -= sgn*oy/2; c['y'] += sgn*oy/2
-[?2004l[?2004h>                         rel = c['vy']-a['vy']
-[?2004l[?2004h>                         if rel*sgn < 0:
-[?2004l[?2004h>                             a['vy'], c['vy'] = c['vy'], a['vy']
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> total_err = 0
-[?2004l[?2004h> count = 0
-[?2004l[?2004h> for f_idx in range(433):
-[?2004l[?2004h>     step()
-[?2004l[?2004h>     for b in state:
-[?2004l[?2004h>         ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>         if ref:
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             total_err += d; count += 1
-[?2004l[?2004h>     if f_idx in [1, 10, 30, 60, 100, 200, 300, 432]:
-[?2004l[?2004h>         print(f'--- frame {f_idx} ---')
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             print(f'  {b["name"]}: sim=({b["x"]:.1f},{b["y"]:.1f}) ref=({ref[0]:.1f},{ref[1]:.1f}) d={d:.1f}')
-[?2004l[?2004h> print(f'mean err: {total_err/count:.2f}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/sim.py | tail -50
-[?2004l  blue: sim=(338.2,282.0) ref=(377.5,199.5) d=91.4
-  yellow: sim=(199.7,110.5) ref=(424.5,69.5) d=228.5
-  magenta: sim=(132.3,233.8) ref=(163.6,293.4) d=67.3
-  cyan: sim=(172.2,26.1) ref=(302.5,297.5) d=301.0
-  orange: sim=(70.0,286.9) ref=(191.5,99.0) d=223.8
-  purple: sim=(262.3,321.6) ref=(439.5,163.5) d=237.5
-  lime: sim=(130.2,107.9) ref=(59.1,217.5) d=130.7
-  pink: sim=(275.8,180.0) ref=(343.6,148.1) d=74.9
-  limegreen: sim=(427.0,277.2) ref=(357.5,253.5) d=73.4
-  lightblue: sim=(335.9,163.6) ref=(228.1,33.5) d=169.0
---- frame 200 ---
-  red: sim=(70.9,172.1) ref=(78.0,67.5) d=104.8
-  green: sim=(56.5,222.7) ref=(303.5,120.5) d=267.3
-  blue: sim=(217.5,238.2) ref=(220.4,294.6) d=56.5
-  yellow: sim=(121.1,105.4) ref=(336.0,65.5) d=218.6
-  magenta: sim=(226.2,62.4) ref=(69.5,118.5) d=166.5
-  cyan: sim=(396.4,51.2) ref=(245.5,185.5) d=202.0
-  orange: sim=(449.0,254.1) ref=(407.0,186.0) d=80.0
-  purple: sim=(43.0,284.8) ref=(335.5,224.5) d=298.7
-  lime: sim=(41.5,42.0) ref=(405.5,129.5) d=374.4
-  pink: sim=(369.9,101.2) ref=(158.0,161.0) d=220.2
-  limegreen: sim=(422.7,185.7) ref=(106.0,217.5) d=318.3
-  lightblue: sim=(280.2,42.1) ref=(245.5,236.5) d=197.5
---- frame 300 ---
-  red: sim=(189.2,71.9) ref=(108.4,107.4) d=88.2
-  green: sim=(189.4,263.1) ref=(375.5,119.5) d=235.1
-  blue: sim=(71.9,232.0) ref=(236.5,255.5) d=166.3
-  yellow: sim=(241.3,193.1) ref=(297.5,127.5) d=86.4
-  magenta: sim=(450.0,178.4) ref=(201.5,201.5) d=249.6
-  cyan: sim=(350.0,251.0) ref=(181.5,102.5) d=224.6
-  orange: sim=(431.8,113.7) ref=(357.5,187.5) d=104.8
-  purple: sim=(169.7,171.9) ref=(281.5,201.5) d=115.6
-  lime: sim=(267.5,136.7) ref=(351.5,243.5) d=135.9
-  pink: sim=(380.7,178.2) ref=(141.5,227.9) d=244.3
-  limegreen: sim=(428.6,249.6) ref=(231.5,137.5) d=226.8
-  lightblue: sim=(299.2,193.8) ref=(157.5,152.5) d=147.6
---- frame 432 ---
-  red: sim=(44.0,26.4) ref=(72.5,85.5) d=65.6
-  green: sim=(367.5,317.5) ref=(399.0,112.3) d=207.6
-  blue: sim=(329.8,212.3) ref=(261.5,251.5) d=78.8
-  yellow: sim=(273.1,25.0) ref=(193.5,91.0) d=103.5
-  magenta: sim=(159.0,195.6) ref=(257.5,91.5) d=143.3
-  cyan: sim=(213.3,73.9) ref=(328.0,87.5) d=115.5
-  orange: sim=(267.4,163.6) ref=(353.3,211.3) d=98.2
-  purple: sim=(60.1,99.4) ref=(155.0,175.6) d=121.8
-  lime: sim=(72.0,231.9) ref=(287.5,183.5) d=220.9
-  pink: sim=(132.2,283.5) ref=(400.8,250.9) d=270.5
-  limegreen: sim=(351.2,127.0) ref=(207.5,233.3) d=178.7
-  lightblue: sim=(305.6,291.2) ref=(331.5,275.9) d=30.0
-mean err: 154.78
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/check_grav.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # Check if velocity changes between collisions are exactly elastic
-[?2004l[?2004h> # look at limegreen which starts (0, 11.5)  - vertical only, will hit bottom wall
-[?2004l[?2004h> for name in ['limegreen', 'orange']:
-[?2004l[?2004h>     pos = np.array(tracks[name])
-[?2004l[?2004h>     d = np.diff(pos, axis=0)
-[?2004l[?2004h>     print(f'=== {name} ===')
-[?2004l[?2004h>     for i in range(30):
-[?2004l[?2004h>         print(f'  f{i}: pos=({pos[i][0]:.2f},{pos[i][1]:.2f}) v=({d[i][0]:.3f},{d[i][1]:.3f})')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/check_grav.py
-[?2004l=== limegreen ===
-  f0: pos=(279.50,270.00) v=(0.000,11.500)
-  f1: pos=(279.50,281.50) v=(0.000,10.000)
-  f2: pos=(279.50,291.50) v=(0.000,11.000)
-  f3: pos=(279.50,302.50) v=(0.000,11.000)
-  f4: pos=(279.50,313.50) v=(0.000,10.000)
-  f5: pos=(279.50,323.50) v=(0.000,11.000)
-  f6: pos=(279.50,334.50) v=(0.000,-11.000)
-  f7: pos=(279.50,323.50) v=(0.000,-10.000)
-  f8: pos=(279.50,313.50) v=(0.000,-11.500)
-  f9: pos=(279.50,302.00) v=(0.000,-10.500)
-  f10: pos=(279.50,291.50) v=(2.000,-4.000)
-  f11: pos=(281.50,287.50) v=(7.940,7.620)
-  f12: pos=(289.44,295.12) v=(8.060,6.380)
-  f13: pos=(297.50,301.50) v=(8.000,8.000)
-  f14: pos=(305.50,309.50) v=(8.000,7.000)
-  f15: pos=(313.50,316.50) v=(8.000,7.000)
-  f16: pos=(321.50,323.50) v=(7.960,7.960)
-  f17: pos=(329.46,331.46) v=(8.020,3.040)
-  f18: pos=(337.48,334.50) v=(8.020,-7.000)
-  f19: pos=(345.50,327.50) v=(8.000,-8.000)
-  f20: pos=(353.50,319.50) v=(7.990,-6.470)
-  f21: pos=(361.49,313.03) v=(8.010,-7.530)
-  f22: pos=(369.50,305.50) v=(7.990,-7.580)
-  f23: pos=(377.49,297.92) v=(7.970,-6.420)
-  f24: pos=(385.46,291.50) v=(7.790,-8.090)
-  f25: pos=(393.25,283.41) v=(7.790,-7.000)
-  f26: pos=(401.04,276.41) v=(8.040,-6.860)
-  f27: pos=(409.08,269.55) v=(7.880,-7.970)
-  f28: pos=(416.96,261.58) v=(8.000,-7.060)
-  f29: pos=(424.96,254.52) v=(8.040,-7.020)
-=== orange ===
-  f0: pos=(278.50,166.50) v=(-1.000,7.000)
-  f1: pos=(277.50,173.50) v=(-1.020,7.560)
-  f2: pos=(276.48,181.06) v=(-0.970,6.450)
-  f3: pos=(275.51,187.51) v=(-1.440,7.490)
-  f4: pos=(274.07,195.00) v=(-0.570,6.500)
-  f5: pos=(273.50,201.50) v=(-1.550,7.530)
-  f6: pos=(271.95,209.03) v=(-0.450,6.470)
-  f7: pos=(271.50,215.50) v=(-1.680,8.010)
-  f8: pos=(269.82,223.51) v=(-0.360,6.030)
-  f9: pos=(269.46,229.54) v=(-1.620,7.990)
-  f10: pos=(267.84,237.53) v=(-2.880,-0.010)
-  f11: pos=(264.96,237.52) v=(-4.460,-6.020)
-  f12: pos=(260.50,231.50) v=(-4.490,-6.010)
-  f13: pos=(256.01,225.49) v=(-4.470,-5.950)
-  f14: pos=(251.54,219.54) v=(-4.040,-5.540)
-  f15: pos=(247.50,214.00) v=(-4.020,-4.940)
-  f16: pos=(243.48,209.06) v=(-3.980,-5.560)
-  f17: pos=(239.50,203.50) v=(-4.000,-6.000)
-  f18: pos=(235.50,197.50) v=(-4.290,-6.000)
-  f19: pos=(231.21,191.50) v=(-4.690,-6.020)
-  f20: pos=(226.52,185.48) v=(-4.110,-6.050)
-  f21: pos=(222.41,179.43) v=(-4.540,-5.410)
-  f22: pos=(217.87,174.02) v=(-4.350,-5.500)
-  f23: pos=(213.52,168.52) v=(-4.010,-5.510)
-  f24: pos=(209.51,163.01) v=(-4.010,-4.510)
-  f25: pos=(205.50,158.50) v=(-3.010,-0.470)
-  f26: pos=(202.49,158.03) v=(-6.970,1.950)
-  f27: pos=(195.52,159.98) v=(-6.420,2.570)
-  f28: pos=(189.10,162.55) v=(-7.220,1.880)
-  f29: pos=(181.88,164.43) v=(-6.380,2.070)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/check_quant.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # Check fractional parts
-[?2004l[?2004h> name = 'limegreen'
-[?2004l[?2004h> pos = np.array(tracks[name])
-[?2004l[?2004h> print('fractional x:', sorted(set([round(p[0] % 1, 3) for p in pos[:100]])))
-[?2004l[?2004h> print('fractional y:', sorted(set([round(p[1] % 1, 3) for p in pos[:100]])))
-[?2004l[?2004h> 
-[?2004l[?2004h> # Try modeling motion as exactly v=10.875 or such for limegreen
-[?2004l[?2004h> # fit linear to first 6 frames
-[?2004l[?2004h> p = pos[:6]
-[?2004l[?2004h> xs = np.arange(6)
-[?2004l[?2004h> coef = np.polyfit(xs, p[:, 1], 1)
-[?2004l[?2004h> print(f'limegreen y linear fit: slope={coef[0]:.4f} intercept={coef[1]:.4f}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/check_quant.py
-[?2004lfractional x: [np.float64(0.0), np.float64(0.01), np.float64(0.02), np.float64(0.04), np.float64(0.06), np.float64(0.08), np.float64(0.1), np.float64(0.11), np.float64(0.25), np.float64(0.42), np.float64(0.44), np.float64(0.45), np.float64(0.46), np.float64(0.47), np.float64(0.48), np.float64(0.49), np.float64(0.5), np.float64(0.51), np.float64(0.52), np.float64(0.53), np.float64(0.54), np.float64(0.55), np.float64(0.56), np.float64(0.62), np.float64(0.8), np.float64(0.96), np.float64(0.98), np.float64(0.99)]
-fractional y: [np.float64(0.0), np.float64(0.03), np.float64(0.04), np.float64(0.06), np.float64(0.1), np.float64(0.11), np.float64(0.12), np.float64(0.13), np.float64(0.39), np.float64(0.41), np.float64(0.46), np.float64(0.48), np.float64(0.49), np.float64(0.5), np.float64(0.52), np.float64(0.53), np.float64(0.54), np.float64(0.55), np.float64(0.58), np.float64(0.9), np.float64(0.92), np.float64(0.94), np.float64(0.95), np.float64(0.96), np.float64(0.98)]
-limegreen y linear fit: slope=10.7000 intercept=270.3333
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/fit2.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # For each box, find longest stretch starting from frame 0 with linear motion
-[?2004l[?2004h> for name in tracks:
-[?2004l[?2004h>     pos = np.array(tracks[name])
-[?2004l[?2004h>     # try increasing window, keep window where linear fit residuals are tiny
-[?2004l[?2004h>     best_n = 2
-[?2004l[?2004h>     for n in range(3, 30):
-[?2004l[?2004h>         xs = np.arange(n)
-[?2004l[?2004h>         cx = np.polyfit(xs, pos[:n, 0], 1)
-[?2004l[?2004h>         cy = np.polyfit(xs, pos[:n, 1], 1)
-[?2004l[?2004h>         residx = pos[:n, 0] - (cx[0]*xs + cx[1])
-[?2004l[?2004h>         residy = pos[:n, 1] - (cy[0]*xs + cy[1])
-[?2004l[?2004h>         if np.abs(residx).max() < 1.5 and np.abs(residy).max() < 1.5:
-[?2004l[?2004h>             best_n = n
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             break
-[?2004l[?2004h>     n = best_n
-[?2004l[?2004h>     xs = np.arange(n)
-[?2004l[?2004h>     cx = np.polyfit(xs, pos[:n, 0], 1)
-[?2004l[?2004h>     cy = np.polyfit(xs, pos[:n, 1], 1)
-[?2004l[?2004h>     # extrapolate to frame=-1 (=t=0 if frame 0 is t=1/24)
-[?2004l[?2004h>     p0 = (cx[1] - cx[0], cy[1] - cy[0])  # if frame 0 = step 1
-[?2004l[?2004h>     print(f'{name}: n={n} v=({cx[0]:.3f},{cy[0]:.3f}) p_at_f-1=({p0[0]:.2f},{p0[1]:.2f}) p_at_f0=({cx[1]:.2f},{cy[1]:.2f})')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/fit2.py
-[?2004lyellow: n=9 v=(-2.135,-3.742) p_at_f-1=(379.87,58.87) p_at_f0=(377.73,55.13)
-blue: n=12 v=(2.092,-2.802) p_at_f-1=(279.29,59.52) p_at_f0=(281.38,56.72)
-red: n=29 v=(-1.346,-0.999) p_at_f-1=(79.43,59.52) p_at_f0=(78.08,58.52)
-green: n=12 v=(-2.440,0.828) p_at_f-1=(179.56,59.44) p_at_f0=(177.12,60.27)
-purple: n=14 v=(-5.674,-5.661) p_at_f-1=(379.34,159.38) p_at_f0=(373.66,153.72)
-cyan: n=7 v=(-5.936,-1.126) p_at_f-1=(179.27,159.78) p_at_f0=(173.34,158.66)
-magenta: n=4 v=(2.665,4.518) p_at_f-1=(78.84,159.87) p_at_f0=(81.50,164.39)
-orange: n=11 v=(-1.051,7.061) p_at_f-1=(279.59,159.47) p_at_f0=(278.54,166.53)
-lightblue: n=8 v=(8.631,-7.871) p_at_f-1=(379.36,259.14) p_at_f0=(387.99,251.27)
-lime: n=3 v=(6.000,-6.750) p_at_f-1=(79.50,259.50) p_at_f0=(85.50,252.75)
-pink: n=3 v=(-9.480,1.480) p_at_f-1=(178.81,260.19) p_at_f0=(169.33,261.67)
-limegreen: n=7 v=(0.000,10.696) p_at_f-1=(279.50,259.64) p_at_f0=(279.50,270.34)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/sim2.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> W, H, BOX = 480, 360, 50
-[?2004l[?2004h> half = BOX / 2
-[?2004l[?2004h> 
-[?2004l[?2004h> BOXES = [
-[?2004l[?2004h>     ('red',       (80, 60), (-1.346, -0.999)),
-[?2004l[?2004h>     ('green',     (180, 60), (-2.440, 0.828)),
-[?2004l[?2004h>     ('blue',      (280, 60), (2.092, -2.802)),
-[?2004l[?2004h>     ('yellow',    (380, 60), (-2.135, -3.742)),
-[?2004l[?2004h>     ('magenta',   (80, 160), (2.665, 4.518)),
-[?2004l[?2004h>     ('cyan',      (180, 160), (-5.936, -1.126)),
-[?2004l[?2004h>     ('orange',    (280, 160), (-1.051, 7.061)),
-[?2004l[?2004h>     ('purple',    (380, 160), (-5.674, -5.661)),
-[?2004l[?2004h>     ('lime',      (80, 260), (6.000, -6.750)),
-[?2004l[?2004h>     ('pink',      (180, 260), (-9.480, 1.480)),
-[?2004l[?2004h>     ('limegreen', (280, 260), (0.000, 10.696)),
-[?2004l[?2004h>     ('lightblue', (380, 260), (8.631, -7.871)),
-[?2004l[?2004h> ]
-[?2004l[?2004h> 
-[?2004l[?2004h> state = [{'x':p[0],'y':p[1],'vx':v[0],'vy':v[1],'name':n} for n,p,v in BOXES]
-[?2004l[?2004h> N = len(state)
-[?2004l[?2004h> 
-[?2004l[?2004h> def step(SUB=10):
-[?2004l[?2004h>     sdt = 1.0 / SUB
-[?2004l[?2004h>     for _ in range(SUB):
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             b['x'] += b['vx']*sdt
-[?2004l[?2004h>             b['y'] += b['vy']*sdt
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             if b['x'] < half: b['x']=half; b['vx']=abs(b['vx'])
-[?2004l[?2004h>             if b['x'] > W-half: b['x']=W-half; b['vx']=-abs(b['vx'])
-[?2004l[?2004h>             if b['y'] < half: b['y']=half; b['vy']=abs(b['vy'])
-[?2004l[?2004h>             if b['y'] > H-half: b['y']=H-half; b['vy']=-abs(b['vy'])
-[?2004l[?2004h>         for i in range(N):
-[?2004l[?2004h>             for j in range(i+1, N):
-[?2004l[?2004h>                 a, c = state[i], state[j]
-[?2004l[?2004h>                 dx, dy = c['x']-a['x'], c['y']-a['y']
-[?2004l[?2004h>                 ox = BOX - abs(dx); oy = BOX - abs(dy)
-[?2004l[?2004h>                 if ox > 0 and oy > 0:
-[?2004l[?2004h>                     if ox < oy:
-[?2004l[?2004h>                         sgn = 1 if dx > 0 else -1
-[?2004l[?2004h>                         a['x'] -= sgn*ox/2; c['x'] += sgn*ox/2
-[?2004l[?2004h>                         rel = c['vx']-a['vx']
-[?2004l[?2004h>                         if rel*sgn < 0:
-[?2004l[?2004h>                             a['vx'], c['vx'] = c['vx'], a['vx']
-[?2004l[?2004h>                     else:
-[?2004l[?2004h>                         sgn = 1 if dy > 0 else -1
-[?2004l[?2004h>                         a['y'] -= sgn*oy/2; c['y'] += sgn*oy/2
-[?2004l[?2004h>                         rel = c['vy']-a['vy']
-[?2004l[?2004h>                         if rel*sgn < 0:
-[?2004l[?2004h>                             a['vy'], c['vy'] = c['vy'], a['vy']
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> total_err = 0; count = 0
-[?2004l[?2004h> for f_idx in range(433):
-[?2004l[?2004h>     step()
-[?2004l[?2004h>     for b in state:
-[?2004l[?2004h>         ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>         if ref:
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             total_err += d; count += 1
-[?2004l[?2004h>     if f_idx in [10, 30, 60, 100, 432]:
-[?2004l[?2004h>         errs = []
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             errs.append(d)
-[?2004l[?2004h>         print(f'frame {f_idx}: mean_err={np.mean(errs):.2f} max={max(errs):.1f}')
-[?2004l[?2004h> print(f'mean err overall: {total_err/count:.2f}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/sim2.py
-[?2004lframe 10: mean_err=22.93 max=111.4
-frame 30: mean_err=76.56 max=211.5
-frame 60: mean_err=138.72 max=290.5
-frame 100: mean_err=118.35 max=241.9
-frame 432: mean_err=150.21 max=282.3
-mean err overall: 157.14
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/sim_wall.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> W, H, BOX = 480, 360, 50
-[?2004l[?2004h> half = BOX / 2
-[?2004l[?2004h> 
-[?2004l[?2004h> BOXES = [
-[?2004l[?2004h>     ('red',       (80, 60), (-1.346, -0.999)),
-[?2004l[?2004h>     ('green',     (180, 60), (-2.440, 0.828)),
-[?2004l[?2004h>     ('blue',      (280, 60), (2.092, -2.802)),
-[?2004l[?2004h>     ('yellow',    (380, 60), (-2.135, -3.742)),
-[?2004l[?2004h>     ('magenta',   (80, 160), (2.665, 4.518)),
-[?2004l[?2004h>     ('cyan',      (180, 160), (-5.936, -1.126)),
-[?2004l[?2004h>     ('orange',    (280, 160), (-1.051, 7.061)),
-[?2004l[?2004h>     ('purple',    (380, 160), (-5.674, -5.661)),
-[?2004l[?2004h>     ('lime',      (80, 260), (6.000, -6.750)),
-[?2004l[?2004h>     ('pink',      (180, 260), (-9.480, 1.480)),
-[?2004l[?2004h>     ('limegreen', (280, 260), (0.000, 10.696)),
-[?2004l[?2004h>     ('lightblue', (380, 260), (8.631, -7.871)),
-[?2004l[?2004h> ]
-[?2004l[?2004h> 
-[?2004l[?2004h> state = [{'x':p[0],'y':p[1],'vx':v[0],'vy':v[1],'name':n} for n,p,v in BOXES]
-[?2004l[?2004h> 
-[?2004l[?2004h> def step():
-[?2004l[?2004h>     for b in state:
-[?2004l[?2004h>         b['x'] += b['vx']
-[?2004l[?2004h>         b['y'] += b['vy']
-[?2004l[?2004h>         if b['x'] < half: b['x']=2*half-b['x']; b['vx']=-b['vx']
-[?2004l[?2004h>         if b['x'] > W-half: b['x']=2*(W-half)-b['x']; b['vx']=-b['vx']
-[?2004l[?2004h>         if b['y'] < half: b['y']=2*half-b['y']; b['vy']=-b['vy']
-[?2004l[?2004h>         if b['y'] > H-half: b['y']=2*(H-half)-b['y']; b['vy']=-b['vy']
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> total_err = 0; count = 0
-[?2004l[?2004h> for f_idx in range(433):
-[?2004l[?2004h>     step()
-[?2004l[?2004h>     for b in state:
-[?2004l[?2004h>         ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>         if ref:
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             total_err += d; count += 1
-[?2004l[?2004h>     if f_idx in [10, 30, 60, 100, 200, 432]:
-[?2004l[?2004h>         errs = []
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             errs.append(d)
-[?2004l[?2004h>         print(f'frame {f_idx}: mean_err={np.mean(errs):.2f} max={max(errs):.1f}')
-[?2004l[?2004h> print(f'mean err overall: {total_err/count:.2f}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/sim_wall.py
-[?2004lframe 10: mean_err=20.18 max=80.2
-frame 30: mean_err=123.09 max=228.0
-frame 60: mean_err=180.45 max=355.8
-frame 100: mean_err=197.38 max=348.9
-frame 200: mean_err=183.43 max=367.9
-frame 432: mean_err=211.74 max=360.5
-mean err overall: 176.86
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/check_collide.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> # show all box positions at frames 7,8,9,10,11
-[?2004l[?2004h> for frame in range(6, 14):
-[?2004l[?2004h>     print(f'=== frame {frame} ===')
-[?2004l[?2004h>     for name in tracks:
-[?2004l[?2004h>         p = tracks[name][frame]
-[?2004l[?2004h>         print(f'  {name}: ({p[0]:.1f},{p[1]:.1f})')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/check_collide.py
-[?2004l=== frame 6 ===
-  yellow: (365.1,32.5)
-  blue: (294.3,39.6)
-  red: (69.6,52.5)
-  green: (162.5,65.5)
-  purple: (339.5,119.5)
-  cyan: (138.5,151.5)
-  magenta: (87.5,165.5)
-  orange: (271.9,209.0)
-  lightblue: (439.6,203.9)
-  lime: (113.5,239.5)
-  pink: (125.5,293.1)
-  limegreen: (279.5,334.5)
-=== frame 7 ===
-  yellow: (362.6,29.0)
-  blue: (296.3,37.7)
-  red: (68.5,51.5)
-  green: (159.5,65.5)
-  purple: (333.6,113.9)
-  cyan: (139.5,145.5)
-  magenta: (83.5,163.5)
-  orange: (271.5,215.5)
-  lightblue: (448.4,196.5)
-  lime: (119.5,246.0)
-  pink: (119.5,299.5)
-  limegreen: (279.5,323.5)
-=== frame 8 ===
-  yellow: (360.5,25.5)
-  blue: (298.5,34.5)
-  red: (67.5,50.5)
-  green: (157.5,67.5)
-  purple: (328.1,108.4)
-  cyan: (139.8,139.5)
-  magenta: (78.0,161.5)
-  orange: (269.8,223.5)
-  lightblue: (454.5,188.5)
-  lime: (125.5,253.1)
-  pink: (112.7,307.4)
-  limegreen: (279.5,313.5)
-=== frame 9 ===
-  yellow: (358.0,24.5)
-  blue: (300.5,31.5)
-  red: (65.5,49.5)
-  green: (155.5,67.5)
-  purple: (322.5,103.0)
-  cyan: (141.5,133.5)
-  magenta: (73.5,158.5)
-  orange: (269.5,229.5)
-  lightblue: (445.5,181.0)
-  lime: (131.5,259.5)
-  pink: (105.5,314.5)
-  limegreen: (279.5,302.0)
-=== frame 10 ===
-  yellow: (355.6,28.0)
-  blue: (302.5,28.5)
-  red: (64.5,48.5)
-  green: (152.5,68.5)
-  purple: (317.5,97.5)
-  cyan: (141.5,127.5)
-  magenta: (69.0,155.9)
-  orange: (267.8,237.5)
-  lightblue: (437.5,173.0)
-  lime: (137.5,265.5)
-  pink: (99.5,321.5)
-  limegreen: (279.5,291.5)
-=== frame 11 ===
-  yellow: (355.0,32.0)
-  blue: (303.6,25.6)
-  red: (63.5,47.5)
-  green: (150.5,69.5)
-  purple: (311.5,91.5)
-  cyan: (143.5,121.5)
-  magenta: (63.5,153.5)
-  orange: (265.0,237.5)
-  lightblue: (428.6,165.5)
-  lime: (143.5,272.5)
-  pink: (93.0,329.5)
-  limegreen: (281.5,287.5)
-=== frame 12 ===
-  yellow: (355.5,36.5)
-  blue: (302.5,24.5)
-  red: (61.6,46.6)
-  green: (147.5,67.5)
-  purple: (305.5,85.5)
-  cyan: (143.5,117.5)
-  magenta: (59.5,151.5)
-  orange: (260.5,231.5)
-  lightblue: (419.5,157.1)
-  lime: (149.5,279.5)
-  pink: (86.0,334.5)
-  limegreen: (289.4,295.1)
-=== frame 13 ===
-  yellow: (357.5,41.0)
-  blue: (301.5,27.5)
-  red: (60.6,45.5)
-  green: (147.5,64.5)
-  purple: (299.5,80.0)
-  cyan: (145.5,123.5)
-  magenta: (54.5,149.5)
-  orange: (256.0,225.5)
-  lightblue: (411.5,149.5)
-  lime: (155.5,285.5)
-  pink: (79.5,327.5)
-  limegreen: (297.5,301.5)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/track3.py << 'EOF'
-[?2004l[?2004h> import os, json
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> # Use more strict color match plus check that the box is solid
-[?2004l[?2004h> colors = {
-[?2004l[?2004h>     'yellow': (255,255,0),
-[?2004l[?2004h>     'blue': (0,0,255),
-[?2004l[?2004h>     'red': (255,0,0),
-[?2004l[?2004h>     'green': (0,255,0),
-[?2004l[?2004h>     'purple': (127,0,255),
-[?2004l[?2004h>     'cyan': (0,255,255),
-[?2004l[?2004h>     'magenta': (255,0,255),
-[?2004l[?2004h>     'orange': (255,127,0),
-[?2004l[?2004h>     'lightblue': (0,127,255),
-[?2004l[?2004h>     'lime': (0,255,127),
-[?2004l[?2004h>     'pink': (255,0,127),
-[?2004l[?2004h>     'limegreen': (127,255,0),
-[?2004l[?2004h> }
-[?2004l[?2004h> 
-[?2004l[?2004h> files = sorted(os.listdir('/tmp/frames'))
-[?2004l[?2004h> tracks = {n: [] for n in colors}
-[?2004l[?2004h> 
-[?2004l[?2004h> for f in files:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/{f}'))
-[?2004l[?2004h>     for name, c in colors.items():
-[?2004l[?2004h>         # very strict - only pixels nearly identical
-[?2004l[?2004h>         d = np.abs(img.astype(int) - np.array(c)).sum(axis=2)
-[?2004l[?2004h>         m = d < 20
-[?2004l[?2004h>         if m.sum() < 1500:  # need ~50x50 = 2500 ideally, allow partial overlap
-[?2004l[?2004h>             tracks[name].append(None)
-[?2004l[?2004h>             continue
-[?2004l[?2004h>         # take largest cluster
-[?2004l[?2004h>         labels, ncomp = ndimage.label(m)
-[?2004l[?2004h>         sizes = ndimage.sum(m, labels, range(1, ncomp+1))
-[?2004l[?2004h>         best = np.argmax(sizes) + 1
-[?2004l[?2004h>         ys, xs = np.where(labels == best)
-[?2004l[?2004h>         # use bounding-box center to be more robust to partial occlusion
-[?2004l[?2004h>         cx = (xs.min() + xs.max()) / 2
-[?2004l[?2004h>         cy = (ys.min() + ys.max()) / 2
-[?2004l[?2004h>         tracks[name].append((round(cx, 2), round(cy, 2)))
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json', 'w') as fh:
-[?2004l[?2004h>     json.dump(tracks, fh)
-[?2004l[?2004h> 
-[?2004l[?2004h> valid = {n: sum(1 for p in t if p) for n, t in tracks.items()}
-[?2004l[?2004h> print('valid counts:', valid)
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/track3.py
-[?2004lvalid counts: {'yellow': 433, 'blue': 433, 'red': 433, 'green': 433, 'purple': 433, 'cyan': 433, 'magenta': 433, 'orange': 433, 'lightblue': 433, 'lime': 433, 'pink': 433, 'limegreen': 433}
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 -c "
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> with open('/tmp/tracks.json') as f: tracks = json.load(f)
-[?2004l[?2004h> for name in ['limegreen', 'orange', 'lime']:
-[?2004l[?2004h>     print(name)
-[?2004l[?2004h>     for i in range(15):
-[?2004l[?2004h>         print(' f', i, tracks[name][i])"
-[?2004llimegreen
- f 0 [279.5, 269.5]
- f 1 [279.5, 281.5]
- f 2 [279.5, 291.5]
- f 3 [279.5, 302.5]
- f 4 [279.5, 313.5]
- f 5 [279.5, 323.5]
- f 6 [279.5, 334.5]
- f 7 [279.5, 323.5]
- f 8 [279.5, 313.5]
- f 9 [279.5, 301.5]
- f 10 [279.5, 291.5]
- f 11 [281.5, 287.5]
- f 12 [289.5, 295.5]
- f 13 [297.5, 301.5]
- f 14 [305.5, 309.5]
-orange
- f 0 [278.5, 166.5]
- f 1 [277.5, 173.5]
- f 2 [276.0, 181.5]
- f 3 [275.5, 187.5]
- f 4 [274.0, 195.5]
- f 5 [273.5, 201.5]
- f 6 [271.5, 209.5]
- f 7 [271.5, 215.5]
- f 8 [269.5, 223.5]
- f 9 [269.5, 229.5]
- f 10 [267.5, 237.5]
- f 11 [265.0, 237.5]
- f 12 [260.5, 231.5]
- f 13 [256.0, 225.5]
- f 14 [251.5, 219.5]
-lime
- f 0 [85.5, 253.5]
- f 1 [91.5, 245.5]
- f 2 [97.5, 239.5]
- f 3 [97.5, 227.5]
- f 4 [101.5, 226.5]
- f 5 [107.5, 233.5]
- f 6 [113.5, 239.5]
- f 7 [119.5, 245.5]
- f 8 [125.5, 253.5]
- f 9 [131.5, 259.5]
- f 10 [137.5, 265.5]
- f 11 [143.5, 272.5]
- f 12 [149.5, 279.5]
- f 13 [155.5, 285.5]
- f 14 [161.5, 291.5]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 -c "
-[?2004l[?2004h> import json
-[?2004l[?2004h> with open('/tmp/tracks.json') as f: tracks = json.load(f)
-[?2004l[?2004h> for frame in [9, 10, 11, 12]:
-[?2004l[?2004h>     print('=== frame', frame)
-[?2004l[?2004h>     for n in tracks:
-[?2004l[?2004h>         p = tracks[n][frame]
-[?2004l[?2004h>         print(f'  {n}: ({p[0]:.1f},{p[1]:.1f})')"
-[?2004l=== frame 9
-  yellow: (358.0,24.5)
-  blue: (300.5,31.5)
-  red: (65.5,49.5)
-  green: (155.5,67.5)
-  purple: (323.5,103.5)
-  cyan: (141.5,133.5)
-  magenta: (73.5,158.5)
-  orange: (269.5,229.5)
-  lightblue: (445.5,181.5)
-  lime: (131.5,259.5)
-  pink: (105.5,314.5)
-  limegreen: (279.5,301.5)
-=== frame 10
-  yellow: (355.5,27.5)
-  blue: (302.5,29.5)
-  red: (65.5,48.5)
-  green: (152.5,68.5)
-  purple: (317.5,97.5)
-  cyan: (141.5,127.5)
-  magenta: (69.5,155.5)
-  orange: (267.5,237.5)
-  lightblue: (437.5,173.5)
-  lime: (137.5,265.5)
-  pink: (99.5,321.5)
-  limegreen: (279.5,291.5)
-=== frame 11
-  yellow: (355.5,31.5)
-  blue: (303.5,25.5)
-  red: (63.5,47.5)
-  green: (149.5,69.5)
-  purple: (311.5,91.5)
-  cyan: (143.5,121.5)
-  magenta: (63.5,153.5)
-  orange: (265.0,237.5)
-  lightblue: (429.0,165.5)
-  lime: (143.5,272.5)
-  pink: (93.5,329.5)
-  limegreen: (281.5,287.5)
-=== frame 12
-  yellow: (355.5,36.5)
-  blue: (302.5,24.5)
-  red: (61.5,47.5)
-  green: (147.5,67.5)
-  purple: (305.5,85.5)
-  cyan: (143.5,117.5)
-  magenta: (59.5,151.5)
-  orange: (260.5,231.5)
-  lightblue: (419.5,157.5)
-  lime: (149.5,279.5)
-  pink: (86.0,334.5)
-  limegreen: (289.5,295.5)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/node_modules/ | grep -iE 'matter|planck|cannon|p2|box2d|ammo' 
-[?2004lunbzip2-stream
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/node_modules/ | head -50
-[?2004l@babel
-@codemirror
-@esbuild
-@ffmpeg-installer
-@ffprobe-installer
-@lezer
-@marijn
-@noble
-@nodelib
-@paralleldrive
-@preact
-@puppeteer
-@revideo
-@rive-app
-@tootallnate
-@types
-@wooorm
-@xmldom
-accepts
-agent-base
-ansi-regex
-ansi-styles
-anymatch
-argparse
-array-flatten
-asap
-ast-types
-async
-asynckit
-axios
-b4a
-bare-events
-bare-fs
-bare-os
-bare-path
-bare-stream
-bare-url
-base64-js
-basic-ftp
-binary-extensions
-body-parser
-braces
-buffer
-buffer-crc32
-bytes
-call-bind-apply-helpers
-call-bound
-callsites
-chokidar
-chroma-js
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /app/src/project.tsx << 'PROJEOF'
-[?2004l[?2004h> import {makeProject} from '@revideo/core';
-[?2004l[?2004h> import {makeScene2D, Rect} from '@revideo/2d';
-[?2004l[?2004h> import {createRef, waitFor} from '@revideo/core';
-[?2004l[?2004h> 
-[?2004l[?2004h> const W = 480;
-[?2004l[?2004h> const H = 360;
-[?2004l[?2004h> const BOX = 50;
-[?2004l[?2004h> const FPS = 24;
-[?2004l[?2004h> const DURATION = 18.041667;
-[?2004l[?2004h> 
-[?2004l[?2004h> const BOXES: [string, string, number, number, number, number][] = [
-[?2004l[?2004h>   ['red',       '#ff0000',  80,  60, -1.346, -0.999],
-[?2004l[?2004h>   ['green',     '#00ff00', 180,  60, -2.440,  0.828],
-[?2004l[?2004h>   ['blue',      '#0000ff', 280,  60,  2.092, -2.802],
-[?2004l[?2004h>   ['yellow',    '#ffff00', 380,  60, -2.135, -3.742],
-[?2004l[?2004h>   ['magenta',   '#ff00ff',  80, 160,  2.665,  4.518],
-[?2004l[?2004h>   ['cyan',      '#00ffff', 180, 160, -5.936, -1.126],
-[?2004l[?2004h>   ['orange',    '#ff7f00', 280, 160, -1.051,  7.061],
-[?2004l[?2004h>   ['purple',    '#7f00ff', 380, 160, -5.674, -5.661],
-[?2004l[?2004h>   ['lime',      '#00ff7f',  80, 260,  6.000, -6.750],
-[?2004l[?2004h>   ['pink',      '#ff007f', 180, 260, -9.480,  1.480],
-[?2004l[?2004h>   ['limegreen', '#7fff00', 280, 260,  0.000, 10.696],
-[?2004l[?2004h>   ['lightblue', '#007fff', 380, 260,  8.631, -7.871],
-[?2004l[?2004h> ];
-[?2004l[?2004h> 
-[?2004l[?2004h> const scene = makeScene2D('scene', function* (view) {
-[?2004l[?2004h>   view.fill('#000000');
-[?2004l[?2004h> 
-[?2004l[?2004h>   const refs = BOXES.map(() => createRef<Rect>());
-[?2004l[?2004h>   for (let i = 0; i < BOXES.length; i++) {
-[?2004l[?2004h>     const [, color, x, y] = BOXES[i];
-[?2004l[?2004h>     view.add(
-[?2004l[?2004h>       <Rect
-[?2004l[?2004h>         ref={refs[i]}
-[?2004l[?2004h>         size={[BOX, BOX]}
-[?2004l[?2004h>         fill={color}
-[?2004l[?2004h>         position={[x - W / 2, y - H / 2]}
-[?2004l[?2004h>       />
-[?2004l[?2004h>     );
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   const state = BOXES.map(b => ({x: b[2], y: b[3], vx: b[4], vy: b[5]}));
-[?2004l[?2004h>   const half = BOX / 2;
-[?2004l[?2004h>   const totalFrames = Math.round(DURATION * FPS);
-[?2004l[?2004h> 
-[?2004l[?2004h>   for (let f = 0; f < totalFrames; f++) {
-[?2004l[?2004h>     const SUB = 10;
-[?2004l[?2004h>     const sdt = 1 / SUB;
-[?2004l[?2004h>     for (let s = 0; s < SUB; s++) {
-[?2004l[?2004h>       for (const b of state) {
-[?2004l[?2004h>         b.x += b.vx * sdt;
-[?2004l[?2004h>         b.y += b.vy * sdt;
-[?2004l[?2004h>       }
-[?2004l[?2004h>       for (const b of state) {
-[?2004l[?2004h>         if (b.x < half) { b.x = half; b.vx = Math.abs(b.vx); }
-[?2004l[?2004h>         if (b.x > W - half) { b.x = W - half; b.vx = -Math.abs(b.vx); }
-[?2004l[?2004h>         if (b.y < half) { b.y = half; b.vy = Math.abs(b.vy); }
-[?2004l[?2004h>         if (b.y > H - half) { b.y = H - half; b.vy = -Math.abs(b.vy); }
-[?2004l[?2004h>       }
-[?2004l[?2004h>       for (let i = 0; i < state.length; i++) {
-[?2004l[?2004h>         for (let j = i + 1; j < state.length; j++) {
-[?2004l[?2004h>           const a = state[i], c = state[j];
-[?2004l[?2004h>           const dx = c.x - a.x;
-[?2004l[?2004h>           const dy = c.y - a.y;
-[?2004l[?2004h>           const ox = BOX - Math.abs(dx);
-[?2004l[?2004h>           const oy = BOX - Math.abs(dy);
-[?2004l[?2004h>           if (ox > 0 && oy > 0) {
-[?2004l[?2004h>             if (ox < oy) {
-[?2004l[?2004h>               const sgn = dx > 0 ? 1 : -1;
-[?2004l[?2004h>               a.x -= sgn * ox / 2;
-[?2004l[?2004h>               c.x += sgn * ox / 2;
-[?2004l[?2004h>               const rel = c.vx - a.vx;
-[?2004l[?2004h>               if (rel * sgn < 0) {
-[?2004l[?2004h>                 const tmp = a.vx; a.vx = c.vx; c.vx = tmp;
-[?2004l[?2004h>               }
-[?2004l[?2004h>             } else {
-[?2004l[?2004h>               const sgn = dy > 0 ? 1 : -1;
-[?2004l[?2004h>               a.y -= sgn * oy / 2;
-[?2004l[?2004h>               c.y += sgn * oy / 2;
-[?2004l[?2004h>               const rel = c.vy - a.vy;
-[?2004l[?2004h>               if (rel * sgn < 0) {
-[?2004l[?2004h>                 const tmp = a.vy; a.vy = c.vy; c.vy = tmp;
-[?2004l[?2004h>               }
-[?2004l[?2004h>             }
-[?2004l[?2004h>           }
-[?2004l[?2004h>         }
-[?2004l[?2004h>       }
-[?2004l[?2004h>     }
-[?2004l[?2004h>     for (let i = 0; i < state.length; i++) {
-[?2004l[?2004h>       refs[i]().position([state[i].x - W / 2, state[i].y - H / 2]);
-[?2004l[?2004h>     }
-[?2004l[?2004h>     yield* waitFor(1 / FPS);
-[?2004l[?2004h>   }
-[?2004l[?2004h> });
-[?2004l[?2004h> 
-[?2004l[?2004h> export default makeProject({
-[?2004l[?2004h>   scenes: [scene],
-[?2004l[?2004h>   settings: {
-[?2004l[?2004h>     shared: {size: {x: W, y: H}},
-[?2004l[?2004h>     rendering: {fps: FPS},
-[?2004l[?2004h>   },
-[?2004l[?2004h> });
-[?2004l[?2004h> PROJEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -10
-[?2004l
-> revideo-task@0.0.0 render
-> tsc && node dist/render.js
-
-Rendering video...
-Worker 0: JSHandle:finished downloading
-Render progress, worker 0: 39% 
-Render progress, worker 0: 100% 
-Rendered video to output/video.mp4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /app/output/video.mp4
-[?2004l-rw-r--r-- 1 agent agent 631168 May 20 21:04 [0m[01;35m/app/output/video.mp4[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,duration -of default=noprint_wrappers=1 /app/output/video.mp4
-[?2004lcodec_name=h264
-width=480
-height=360
-r_frame_rate=24/1
-duration=18.041667
-codec_name=aac
-r_frame_rate=0/0
-duration=18.041000
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/diff.py << 'EOF'
-[?2004l[?2004h> import os
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> ref_files = sorted(os.listdir('/tmp/frames'))
-[?2004l[?2004h> out_files = sorted(os.listdir('/tmp/outframes'))
-[?2004l[?2004h> 
-[?2004l[?2004h> totals = []
-[?2004l[?2004h> for rf, of in zip(ref_files, out_files):
-[?2004l[?2004h>     r = np.array(Image.open(f'/tmp/frames/{rf}')).astype(int)
-[?2004l[?2004h>     o = np.array(Image.open(f'/tmp/outframes/{of}')).astype(int)
-[?2004l[?2004h>     diff = np.abs(r - o).mean()
-[?2004l[?2004h>     totals.append(diff)
-[?2004l[?2004h> print(f'mean per-pixel diff: {np.mean(totals):.2f}')
-[?2004l[?2004h> print(f'first 20: {[f"{t:.1f}" for t in totals[:20]]}')
-[?2004l[?2004h> print(f'last 20: {[f"{t:.1f}" for t in totals[-20:]]}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm -rf /tmp/outframes && mkdir /tmp/outframes && ffmpeg -i /app/output/video.mp4 /tmp/outframes/o%04d.png 2>&1 | tail -2
-[?2004l433 frames successfully decoded, 0 decoding errors
-[AVIOContext @ 0x55a8ee9c5000] Statistics: 665828 bytes read, 2 seeks
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ on3 /tmp/diff.py
-[?2004lbash: on3: command not found
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/diff.py
-[?2004lmean per-pixel diff: 38.59
-first 20: ['7.8', '7.8', '0.8', '8.4', '10.8', '12.6', '14.6', '15.2', '16.4', '17.7', '17.7', '19.7', '21.9', '24.7', '25.9', '27.0', '27.9', '29.0', '28.7', '29.3']
-last 20: ['38.8', '38.0', '36.8', '37.4', '38.0', '38.6', '38.7', '38.9', '39.4', '38.8', '38.2', '37.4', '37.0', '36.9', '36.3', '36.6', '37.6', '38.8', '39.5', '39.5']
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/sim_circle.py << 'EOF'
-[?2004l[?2004h> import json
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> W, H, BOX = 480, 360, 50
-[?2004l[?2004h> half = BOX / 2
-[?2004l[?2004h> R = 25  # treat as circle for collision
-[?2004l[?2004h> 
-[?2004l[?2004h> BOXES = [
-[?2004l[?2004h>     ('red',       (80, 60), (-1.346, -0.999)),
-[?2004l[?2004h>     ('green',     (180, 60), (-2.440, 0.828)),
-[?2004l[?2004h>     ('blue',      (280, 60), (2.092, -2.802)),
-[?2004l[?2004h>     ('yellow',    (380, 60), (-2.135, -3.742)),
-[?2004l[?2004h>     ('magenta',   (80, 160), (2.665, 4.518)),
-[?2004l[?2004h>     ('cyan',      (180, 160), (-5.936, -1.126)),
-[?2004l[?2004h>     ('orange',    (280, 160), (-1.051, 7.061)),
-[?2004l[?2004h>     ('purple',    (380, 160), (-5.674, -5.661)),
-[?2004l[?2004h>     ('lime',      (80, 260), (6.000, -6.750)),
-[?2004l[?2004h>     ('pink',      (180, 260), (-9.480, 1.480)),
-[?2004l[?2004h>     ('limegreen', (280, 260), (0.000, 10.696)),
-[?2004l[?2004h>     ('lightblue', (380, 260), (8.631, -7.871)),
-[?2004l[?2004h> ]
-[?2004l[?2004h> 
-[?2004l[?2004h> state = [{'x':p[0],'y':p[1],'vx':v[0],'vy':v[1],'name':n} for n,p,v in BOXES]
-[?2004l[?2004h> N = len(state)
-[?2004l[?2004h> 
-[?2004l[?2004h> def step(SUB=10):
-[?2004l[?2004h>     sdt = 1.0 / SUB
-[?2004l[?2004h>     for _ in range(SUB):
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             b['x'] += b['vx']*sdt
-[?2004l[?2004h>             b['y'] += b['vy']*sdt
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             if b['x'] < half: b['x']=half; b['vx']=abs(b['vx'])
-[?2004l[?2004h>             if b['x'] > W-half: b['x']=W-half; b['vx']=-abs(b['vx'])
-[?2004l[?2004h>             if b['y'] < half: b['y']=half; b['vy']=abs(b['vy'])
-[?2004l[?2004h>             if b['y'] > H-half: b['y']=H-half; b['vy']=-abs(b['vy'])
-[?2004l[?2004h>         for i in range(N):
-[?2004l[?2004h>             for j in range(i+1, N):
-[?2004l[?2004h>                 a, c = state[i], state[j]
-[?2004l[?2004h>                 dx, dy = c['x']-a['x'], c['y']-a['y']
-[?2004l[?2004h>                 dist = (dx*dx + dy*dy)**0.5
-[?2004l[?2004h>                 if dist < 2*R and dist > 0:
-[?2004l[?2004h>                     nx, ny = dx/dist, dy/dist
-[?2004l[?2004h>                     # relative velocity
-[?2004l[?2004h>                     rvx = c['vx'] - a['vx']
-[?2004l[?2004h>                     rvy = c['vy'] - a['vy']
-[?2004l[?2004h>                     rel = rvx*nx + rvy*ny
-[?2004l[?2004h>                     if rel < 0:
-[?2004l[?2004h>                         # exchange velocity along normal
-[?2004l[?2004h>                         a['vx'] += rel * nx
-[?2004l[?2004h>                         a['vy'] += rel * ny
-[?2004l[?2004h>                         c['vx'] -= rel * nx
-[?2004l[?2004h>                         c['vy'] -= rel * ny
-[?2004l[?2004h>                     # separate
-[?2004l[?2004h>                     overlap = 2*R - dist
-[?2004l[?2004h>                     a['x'] -= nx * overlap/2
-[?2004l[?2004h>                     a['y'] -= ny * overlap/2
-[?2004l[?2004h>                     c['x'] += nx * overlap/2
-[?2004l[?2004h>                     c['y'] += ny * overlap/2
-[?2004l[?2004h> 
-[?2004l[?2004h> with open('/tmp/tracks.json') as f:
-[?2004l[?2004h>     tracks = json.load(f)
-[?2004l[?2004h> 
-[?2004l[?2004h> total_err = 0; count = 0
-[?2004l[?2004h> for f_idx in range(433):
-[?2004l[?2004h>     step()
-[?2004l[?2004h>     for b in state:
-[?2004l[?2004h>         ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>         if ref:
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             total_err += d; count += 1
-[?2004l[?2004h>     if f_idx in [10, 30, 60, 100, 200, 432]:
-[?2004l[?2004h>         errs = []
-[?2004l[?2004h>         for b in state:
-[?2004l[?2004h>             ref = tracks[b['name']][f_idx]
-[?2004l[?2004h>             d = ((b['x']-ref[0])**2 + (b['y']-ref[1])**2)**0.5
-[?2004l[?2004h>             errs.append(d)
-[?2004l[?2004h>         print(f'frame {f_idx}: mean_err={np.mean(errs):.2f} max={max(errs):.1f}')
-[?2004l[?2004h> print(f'mean err overall: {total_err/count:.2f}')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/sim_circle.py
-[?2004lframe 10: mean_err=10.93 max=39.0
-frame 30: mean_err=54.24 max=89.6
-frame 60: mean_err=142.39 max=214.9
-frame 100: mean_err=207.47 max=334.1
-frame 200: mean_err=167.86 max=314.1
-frame 432: mean_err=185.86 max=439.6
-mean err overall: 161.39
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /app/output/video.mp4
-[?2004l-rw-r--r-- 1 agent agent 631168 May 20 21:04 [0m[01;35m/app/output/video.mp4[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ 

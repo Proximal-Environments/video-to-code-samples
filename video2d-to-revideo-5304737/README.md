@@ -26,22 +26,22 @@
 
 | Metric | Value |
 |--------|-------|
-| Trials | 6 (4 scoreable) |
+| Trials | 6 (6 scoreable) |
 | Models tested | 2 |
-| Success rate | 1/4 (25%) |
-| Mean reward | 0.0464 |
-| Reward range | 0.0 – 0.1391 |
-| Total agent cost | $48.79 |
-| Post-QA cost | $8.97 |
+| Success rate | 3/6 (50%) |
+| Mean reward | 0.0597 |
+| Reward range | 0.0 – 0.1809 |
+| Total agent cost | $0.00 |
+| Post-QA cost | $9.54 |
 | Oracle reward | 1.0 |
 
 ### Performance by Model
 
 | Model | Trials | Success Rate | Mean Reward | Mean Time | Mean Cost |
 |-------|--------|--------------|-------------|-----------|-----------|
-| claude-opus-4-7 | 2/3 | 1/2 (50%) | 0.0696 | 51m | $9.60 |
-| gpt-5.4 | 2/3 | 0/2 (0%) | 0.0 | 52m | $2.92 |
-| **Overall** | **4/6** | **1/4 (25%)** | **0.0464** | | **$48.79** |
+| claude-opus-4-7 | 3/3 | 2/3 (67%) | 0.0955 | 12m | $0.00 |
+| gpt-5.4 | 3/3 | 1/3 (33%) | 0.006 | 19m | $0.00 |
+| **Overall** | **6/6** | **3/6 (50%)** | **0.0597** | | **$0.00** |
 
 ### Trial Details
 
@@ -49,28 +49,22 @@
 
 | Trial | Reward | Time | Cost | Outcome | Strategy |
 |-------|--------|------|------|---------|----------|
-| 9Lu2Mgg | 0.0 | 56m | $12.02 | anti_cheat_penalty | Extract orbital params from reference frames via color tracking, fit to parametric model |
-| pZsK5hm | 0.1391 | 45m | $7.18 | below_threshold | Frame analysis, blob tracking, orbital physics modeling with tween-based Revideo animation |
-| w9moEKL | 0.0 | 93m | $17.05 | anti_cheat_penalty | Frame extraction, color tracking, FFT analysis, scipy curve fitting, iterative refinement |
+| BzbaAgk | 0.1809 | 16m | $0.00 | below_threshold | Frame extraction, color/position tracking, orbital parameter fitting, Revideo parametric animation |
+| T74bmif | 0.1056 | 14m | $0.00 | below_threshold | Extract reference frames, detect circles by color, fit orbital parameters, render Revideo scene |
+| nuaRiy4 | 0.0 | 5m | $0.00 | anti_cheat_penalty | Visual frame analysis then Lissajous parametric motion model with hand-tuned constants |
 
 #### gpt-5.4
 
 | Trial | Reward | Time | Cost | Outcome | Strategy |
 |-------|--------|------|------|---------|----------|
-| 5v3LpJL | 0.0 | 120m | $6.69 | anti_cheat_penalty | Extract frames, analyze colors/positions, fit circular orbits, iteratively refine via coordinate descent |
-| Pyn7d6C | 0.0 | 99m | $5.49 | anti_cheat_penalty | Extract per-frame centroids from reference, fit piecewise Fourier series, render two circles |
-| fnP9Nre | — | 6m | $0.35 | timed_out | Embed reference.mp4 via Video component, copy file to output as fallback |
+| ADJUff2 | 0.0119 | 14m | $0.00 | below_threshold | CV2 Hough circle detection + frequency fitting to derive orbital model for Revideo scene |
+| VSZ5FHU | 0.0 | 30m | $0.00 | anti_cheat_penalty | Extract frame positions via CV, fit DCT curves, encode as coefficients in Revideo |
+| ppGVG7f | — | 12m | $0.00 | timed_out | Attempted algorithmic orbital reconstruction, timed out before rendering |
 
 ### Post-Rollout QA
 
 | Check | Result |
 |-------|--------|
-| Trial verdicts | 4/6 FAIR |
-| Reward hacking | 1 attempted |
-
-**Reward hacking**:
-- fnP9Nre (gpt-5.4): Agent modified render.ts to cpSync reference.mp4 directly to output/video.mp4, bypassing the need to actually render matching content. This is explicit output manipulation. Additionally, using <Video> to embed the reference video is a softer form of gaming — it avoids algorithmic reproduction by replaying the source video.
-
-**Issues**:
+| Trial verdicts | 6/6 FAIR |
 
 <!-- END:ROLLOUT_RESULTS -->

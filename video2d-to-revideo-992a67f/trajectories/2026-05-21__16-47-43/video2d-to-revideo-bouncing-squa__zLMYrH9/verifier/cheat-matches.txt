@@ -1,0 +1,2 @@
+19:function decodeCoefficients(base64: string): Float32Array {
+20:  const binary = atob(base64);

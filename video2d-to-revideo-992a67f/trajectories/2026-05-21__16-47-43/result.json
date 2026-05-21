@@ -1,0 +1,56 @@
+{
+    "id": "267ca69b-7140-4fb5-88a3-61aa3e6ebef6",
+    "started_at": "2026-05-21T16:47:43.822383",
+    "finished_at": "2026-05-21T17:38:21.042321",
+    "n_total_trials": 6,
+    "stats": {
+        "n_trials": 6,
+        "n_errors": 0,
+        "evals": {
+            "claude-code__claude-opus-4-7__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-revideo-bouncing-squa__fd4sQ7h",
+                            "video2d-to-revideo-bouncing-squa__2zdn5TV",
+                            "video2d-to-revideo-bouncing-squa__CUDhFhi"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            },
+            "codex__gpt-5.4__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-revideo-bouncing-squa__mXZfe26",
+                            "video2d-to-revideo-bouncing-squa__SoHsTa8",
+                            "video2d-to-revideo-bouncing-squa__zLMYrH9"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

@@ -1,3581 +1,0 @@
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ asciinema rec --stdin /logs/agent/recording.cast
-[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
-[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ clear
-[?2004l[H[J[3J[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /app/
-[?2004ltotal 453
-drwxr-xr-x 1 agent agent    155 May 20 15:30 [0m[01;34m.[0m
-drwxr-xr-x 1 root  root     180 May 20 20:49 [01;34m..[0m
-drwxr-xr-x 1 agent agent   8192 May 20 15:30 [01;34mnode_modules[0m
--rw-rw-r-- 1 agent agent 146865 May 20 14:22 package-lock.json
--rw-rw-r-- 1 agent agent    386 May 20 13:26 package.json
-drwxrwxr-x 1 agent agent     45 May 20 13:39 [01;34mreference-documentation[0m
--rw-r--r-- 1 agent agent 305684 May 20 15:30 [01;35mreference.mp4[0m
-drwxrwxr-x 1 agent agent     42 May 20 12:20 [01;34msrc[0m
--rw-rw-r-- 1 agent agent    197 May 20 10:53 tsconfig.json
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/src/project.tsx
-[?2004limport {makeProject} from '@revideo/core';
-import {makeScene2D} from '@revideo/2d';
-import {waitFor} from '@revideo/core';
-
-const scene = makeScene2D('scene', function* (view) {
-  view.fill('#000000');
-  yield* waitFor(1);
-});
-
-export default makeProject({
-  scenes: [scene],
-  settings: {
-    shared: {
-      size: {x: 480, y: 360},
-    },
-    rendering: {
-      fps: 24,
-    },
-  },
-});
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/src/render.ts
-[?2004limport {renderVideo} from '@revideo/renderer';
-
-async function render() {
-  console.log('Rendering video...');
-  const file = await renderVideo({
-    projectFile: './src/project.tsx',
-    settings: {
-      logProgress: true,
-      puppeteer: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      },
-    },
-  });
-  console.log(`Rendered video to ${file}`);
-  process.exit(0);
-}
-
-render();
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ffprobe -v error -show_format -show_streams /app/reference.mp4 2>&1 | head -50
-[?2004l[STREAM]
-index=0
-codec_name=h264
-codec_long_name=H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10
-profile=Main
-codec_type=video
-codec_tag_string=avc1
-codec_tag=0x31637661
-width=480
-height=360
-coded_width=480
-coded_height=360
-closed_captions=0
-film_grain=0
-has_b_frames=0
-sample_aspect_ratio=N/A
-display_aspect_ratio=N/A
-pix_fmt=yuv420p
-level=30
-color_range=tv
-color_space=smpte170m
-color_transfer=smpte170m
-color_primaries=smpte170m
-chroma_location=left
-field_order=progressive
-refs=1
-is_avc=true
-nal_length_size=4
-id=0x1
-r_frame_rate=24/1
-avg_frame_rate=24/1
-time_base=1/90000
-start_pts=0
-start_time=0.000000
-duration_ts=1803750
-duration=20.041667
-bit_rate=115136
-max_bit_rate=N/A
-bits_per_raw_sample=8
-nb_frames=481
-nb_read_frames=N/A
-nb_read_packets=N/A
-extradata_size=34
-DISPOSITION:default=1
-DISPOSITION:dub=0
-DISPOSITION:original=0
-DISPOSITION:comment=0
-DISPOSITION:lyrics=0
-DISPOSITION:karaoke=0
-DISPOSITION:forced=0
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ mkdir -p /tmp/frames && ffmpeg -i /app/reference.mp4 -vf fps=4 /tmp/frames/f%03d.png 2>&1 | tail -5
-[?2004l      handler_name    : VideoHandler
-      vendor_id       : [0][0][0][0]
-      encoder         : Lavc59.37.100 png
-frame=    1 fps=0.0 q=0.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=   80 fps=0.0 q=-0.0 Lsize=N/A time=00:00:20.00 bitrate=N/A speed= 162x    
-video:3842kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /tmp/frames/ | head -20
-[?2004lf001.png
-f002.png
-f003.png
-f004.png
-f005.png
-f006.png
-f007.png
-f008.png
-f009.png
-f010.png
-f011.png
-f012.png
-f013.png
-f014.png
-f015.png
-f016.png
-f017.png
-f018.png
-f019.png
-f020.png
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/reference-documentation/
-[?2004l[0m[01;34mdocs.re.video[0m  [01;34mgithub.com[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /tmp/frames/ | wc -l
-[?2004l80
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ which python3 && python3 -c "from PIL import Image; print('ok')"
-[?2004l/usr/bin/python3
-ok
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ which convert montage
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import os
-[?2004l[?2004h> files = sorted(os.listdir('/tmp/frames'))
-[?2004l[?2004h> # 80 frames in 10x8 grid
-[?2004l[?2004h> w, h = 480, 360
-[?2004l[?2004h> scale = 4
-[?2004l[?2004h> sw, sh = w//scale, h//scale
-[?2004l[?2004h> cols = 10
-[?2004l[?2004h> rows = (len(files)+cols-1)//cols
-[?2004l[?2004h> montage = Image.new('RGB', (sw*cols, sh*rows), 'white')
-[?2004l[?2004h> for i, f in enumerate(files):
-[?2004l[?2004h>     img = Image.open(f'/tmp/frames/{f}').resize((sw, sh))
-[?2004l[?2004h>     montage.paste(img, ((i%cols)*sw, (i//cols)*sh))
-[?2004l[?2004h> montage.save('/tmp/montage.png')
-[?2004l[?2004h> print('saved', montage.size)
-[?2004l[?2004h> EOF
-[?2004lsaved (1200, 720)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> # Analyze the first frame for background
-[?2004l[?2004h> for i in [1, 10, 20, 30, 40, 50, 60, 70, 80]:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/f{i:03d}.png'))
-[?2004l[?2004h>     print(f'frame {i}: shape={img.shape}, mean={img.mean(axis=(0,1))}, unique colors sample')
-[?2004l[?2004h>     # Find non-background pixels
-[?2004l[?2004h>     bg = img[0,0]
-[?2004l[?2004h>     print(f'  bg color: {bg}')
-[?2004l[?2004h>     diff = np.abs(img.astype(int) - bg.astype(int)).sum(axis=2)
-[?2004l[?2004h>     nonbg = np.where(diff > 30)
-[?2004l[?2004h>     if len(nonbg[0]) > 0:
-[?2004l[?2004h>         print(f'  non-bg pixels: {len(nonbg[0])}, x range: {nonbg[1].min()}-{nonbg[1].max()}, y range: {nonbg[0].min()}-{nonbg[0].max()}')
-[?2004l[?2004h> EOF
-[?2004lframe 1: shape=(360, 480, 3), mean=[58.36471644 58.83703125 69.6590162 ], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 48422, x range: 30-455, y range: 28-331
-frame 10: shape=(360, 480, 3), mean=[59.15511574 59.62056713 69.9637963 ], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 49544, x range: 30-449, y range: 28-331
-frame 20: shape=(360, 480, 3), mean=[62.62990741 63.03293403 71.58107639], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 53659, x range: 30-455, y range: 24-331
-frame 30: shape=(360, 480, 3), mean=[65.87102431 66.76665509 73.76508681], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 58833, x range: 30-455, y range: 24-331
-frame 40: shape=(360, 480, 3), mean=[65.00476273 65.6778125  73.29535301], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 57323, x range: 30-455, y range: 24-331
-frame 50: shape=(360, 480, 3), mean=[64.82898148 65.47625579 73.37822917], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 56533, x range: 30-455, y range: 29-331
-frame 60: shape=(360, 480, 3), mean=[63.95514468 64.84319444 73.76836806], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 55944, x range: 30-455, y range: 28-331
-frame 70: shape=(360, 480, 3), mean=[63.84824074 64.76854167 73.7478588 ], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 55995, x range: 28-455, y range: 28-331
-frame 80: shape=(360, 480, 3), mean=[64.79059606 65.45913194 73.29395833], unique colors sample
-  bg color: [23 24 43]
-  non-bg pixels: 56606, x range: 28-451, y range: 28-331
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> # Detect distinct color clusters/objects
-[?2004l[?2004h> img = np.array(Image.open('/tmp/frames/f001.png'))
-[?2004l[?2004h> bg = np.array([23, 24, 43])
-[?2004l[?2004h> h, w, _ = img.shape
-[?2004l[?2004h> # Find unique colors (rounded)
-[?2004l[?2004h> rounded = (img // 20) * 20
-[?2004l[?2004h> flat = rounded.reshape(-1, 3)
-[?2004l[?2004h> from collections import Counter
-[?2004l[?2004h> c = Counter(map(tuple, flat))
-[?2004l[?2004h> print('top colors:', c.most_common(15))
-[?2004l[?2004h> EOF
-[?2004ltop colors: [((np.uint8(20), np.uint8(20), np.uint8(40)), 120004), ((np.uint8(240), np.uint8(40), np.uint8(240)), 3545), ((np.uint8(40), np.uint8(140), np.uint8(240)), 3526), ((np.uint8(240), np.uint8(200), np.uint8(0)), 3524), ((np.uint8(240), np.uint8(40), np.uint8(40)), 3503), ((np.uint8(40), np.uint8(240), np.uint8(200)), 3495), ((np.uint8(240), np.uint8(120), np.uint8(0)), 3489), ((np.uint8(140), np.uint8(200), np.uint8(240)), 3451), ((np.uint8(40), np.uint8(200), np.uint8(40)), 3349), ((np.uint8(0), np.uint8(200), np.uint8(200)), 3303), ((np.uint8(200), np.uint8(40), np.uint8(240)), 3285), ((np.uint8(240), np.uint8(100), np.uint8(100)), 2821), ((np.uint8(100), np.uint8(240), np.uint8(100)), 2613), ((np.uint8(20), np.uint8(20), np.uint8(20)), 2258), ((np.uint8(0), np.uint8(20), np.uint8(40)), 1251)]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> img = np.array(Image.open('/tmp/frames/f001.png'))
-[?2004l[?2004h> bg = np.array([23, 24, 43])
-[?2004l[?2004h> diff = np.abs(img.astype(int) - bg.astype(int)).sum(axis=2)
-[?2004l[?2004h> mask = diff > 50
-[?2004l[?2004h> labels, n = ndimage.label(mask)
-[?2004l[?2004h> print(f'{n} connected components')
-[?2004l[?2004h> for i in range(1, min(n+1, 30)):
-[?2004l[?2004h>     coords = np.where(labels == i)
-[?2004l[?2004h>     size = len(coords[0])
-[?2004l[?2004h>     if size > 50:
-[?2004l[?2004h>         cy, cx = coords[0].mean(), coords[1].mean()
-[?2004l[?2004h>         ymin, ymax = coords[0].min(), coords[0].max()
-[?2004l[?2004h>         xmin, xmax = coords[1].min(), coords[1].max()
-[?2004l[?2004h>         colors = img[coords]
-[?2004l[?2004h>         avg = colors.mean(axis=0)
-[?2004l[?2004h>         print(f'comp {i}: size={size}, center=({cx:.0f},{cy:.0f}), bbox=({xmin},{ymin})-({xmax},{ymax}), color={avg}')
-[?2004l[?2004h> EOF
-[?2004l14 connected components
-comp 1: size=3967, center=(64,64), bbox=(30,30)-(99,99), color=[243.56768339  48.83614822  48.70582304]
-comp 2: size=3970, center=(181,65), bbox=(146,30)-(216,99), color=[ 48.56120907 195.81536524  50.25491184]
-comp 3: size=3974, center=(298,64), bbox=(263,30)-(333,99), color=[ 49.60820332 146.08354303 242.91897333]
-comp 4: size=3972, center=(415,65), bbox=(380,30)-(449,99), color=[243.64476334 196.41364552   4.12588117]
-comp 7: size=4013, center=(65,180), bbox=(30,144)-(99,215), color=[241.18290556  50.0782457  240.29753302]
-comp 8: size=3990, center=(181,179), bbox=(146,144)-(216,215), color=[  2.82280702 195.9358396  194.52155388]
-comp 9: size=4002, center=(298,179), bbox=(262,144)-(333,215), color=[241.25137431 131.16016992   3.64242879]
-comp 10: size=3993, center=(414,179), bbox=(380,144)-(449,215), color=[ 97.91309792 244.02278988  98.75381918]
-comp 11: size=3976, center=(65,295), bbox=(30,260)-(99,329), color=[194.23566398  49.3528672  243.09582495]
-comp 12: size=3949, center=(181,295), bbox=(146,260)-(217,329), color=[ 50.92453786 245.05292479 198.66371233]
-comp 13: size=3961, center=(298,295), bbox=(263,260)-(333,329), color=[242.53850038  99.22039889  98.77758142]
-comp 14: size=3923, center=(414,294), bbox=(380,260)-(449,329), color=[149.82921234 197.46596992 246.40198827]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> bg = np.array([23, 24, 43])
-[?2004l[?2004h> for fnum in [1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80]:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/f{fnum:03d}.png'))
-[?2004l[?2004h>     diff = np.abs(img.astype(int) - bg.astype(int)).sum(axis=2)
-[?2004l[?2004h>     mask = diff > 50
-[?2004l[?2004h>     labels, n = ndimage.label(mask)
-[?2004l[?2004h>     print(f'=== frame {fnum}: {n} components ===')
-[?2004l[?2004h>     for i in range(1, n+1):
-[?2004l[?2004h>         coords = np.where(labels == i)
-[?2004l[?2004h>         size = len(coords[0])
-[?2004l[?2004h>         if size > 500:
-[?2004l[?2004h>             cy, cx = coords[0].mean(), coords[1].mean()
-[?2004l[?2004h>             colors = img[coords]
-[?2004l[?2004h>             avg = colors.mean(axis=0).astype(int)
-[?2004l[?2004h>             print(f'  size={size}, c=({cx:.0f},{cy:.0f}), color={avg}')
-[?2004l[?2004h> EOF
-[?2004l=== frame 1: 14 components ===
-  size=3967, c=(64,64), color=[243  48  48]
-  size=3970, c=(181,65), color=[ 48 195  50]
-  size=3974, c=(298,64), color=[ 49 146 242]
-  size=3972, c=(415,65), color=[243 196   4]
-  size=4013, c=(65,180), color=[241  50 240]
-  size=3990, c=(181,179), color=[  2 195 194]
-  size=4002, c=(298,179), color=[241 131   3]
-  size=3993, c=(414,179), color=[ 97 244  98]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3923, c=(414,294), color=[149 197 246]
-=== frame 5: 14 components ===
-  size=3967, c=(64,64), color=[243  48  48]
-  size=3970, c=(181,65), color=[ 48 195  50]
-  size=3974, c=(298,64), color=[ 49 146 242]
-  size=3972, c=(415,65), color=[243 196   4]
-  size=4013, c=(65,180), color=[241  50 240]
-  size=3990, c=(181,179), color=[  2 195 194]
-  size=4002, c=(298,179), color=[241 131   3]
-  size=3993, c=(414,179), color=[ 97 244  98]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3923, c=(414,294), color=[149 197 246]
-=== frame 10: 13 components ===
-  size=4219, c=(64,64), color=[244  49  49]
-  size=4267, c=(181,65), color=[ 49 194  50]
-  size=4254, c=(298,65), color=[ 50 145 242]
-  size=4231, c=(415,64), color=[244 197   4]
-  size=4013, c=(65,180), color=[241  50 240]
-  size=3990, c=(181,179), color=[  2 195 194]
-  size=4002, c=(298,179), color=[241 131   3]
-  size=3993, c=(414,179), color=[ 97 244  98]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3923, c=(414,294), color=[149 197 246]
-=== frame 15: 13 components ===
-  size=4876, c=(65,65), color=[246  48  48]
-  size=4931, c=(181,65), color=[ 48 196  49]
-  size=4921, c=(298,65), color=[ 49 146 244]
-  size=4879, c=(414,64), color=[246 198   2]
-  size=4013, c=(65,180), color=[241  50 240]
-  size=3990, c=(181,179), color=[  2 195 194]
-  size=4002, c=(298,179), color=[241 131   3]
-  size=3993, c=(414,179), color=[ 97 244  98]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3931, c=(414,294), color=[149 197 246]
-=== frame 20: 15 components ===
-  size=4900, c=(64,64), color=[252  49  49]
-  size=5038, c=(181,65), color=[ 48 197  49]
-  size=5037, c=(298,65), color=[ 49 147 246]
-  size=4900, c=(414,64), color=[254 202   2]
-  size=4375, c=(65,180), color=[240  50 238]
-  size=4340, c=(181,180), color=[  3 194 195]
-  size=4370, c=(298,179), color=[240 130   3]
-  size=4349, c=(414,179), color=[ 98 243  99]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3923, c=(414,294), color=[149 197 246]
-=== frame 25: 14 components ===
-  size=4950, c=(65,65), color=[250  49  49]
-  size=5087, c=(181,65), color=[ 48 197  49]
-  size=5080, c=(298,65), color=[ 49 147 245]
-  size=5011, c=(414,65), color=[249 199   3]
-  size=4726, c=(65,180), color=[241  50 241]
-  size=4720, c=(181,180), color=[  2 196 195]
-  size=4751, c=(298,179), color=[241 131   3]
-  size=4718, c=(415,180), color=[ 98 244 100]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3923, c=(414,294), color=[149 197 246]
-=== frame 30: 13 components ===
-  size=5457, c=(66,66), color=[247  48  50]
-  size=5716, c=(181,66), color=[ 49 196  49]
-  size=5702, c=(298,66), color=[ 50 147 244]
-  size=5444, c=(413,66), color=[249 198   3]
-  size=4995, c=(65,180), color=[242  50 242]
-  size=5036, c=(181,179), color=[  3 194 195]
-  size=5086, c=(298,179), color=[238 129   3]
-  size=4978, c=(415,180), color=[ 98 245  99]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3932, c=(414,294), color=[149 197 246]
-=== frame 40: 14 components ===
-  size=5163, c=(65,65), color=[244  47  49]
-  size=5154, c=(181,65), color=[ 48 197  49]
-  size=5168, c=(298,65), color=[ 49 147 244]
-  size=5133, c=(414,65), color=[246 196   2]
-  size=5040, c=(64,180), color=[244  51 244]
-  size=5166, c=(181,180), color=[  3 194 194]
-  size=5184, c=(298,180), color=[240 129   3]
-  size=5040, c=(414,180), color=[ 99 248 100]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3932, c=(414,294), color=[149 197 246]
-=== frame 50: 12 components ===
-  size=4896, c=(65,65), color=[249  49  49]
-  size=4995, c=(181,65), color=[ 48 196  49]
-  size=4992, c=(298,65), color=[ 49 146 244]
-  size=4896, c=(414,65), color=[250 199   3]
-  size=5135, c=(65,180), color=[244  51 243]
-  size=5184, c=(182,180), color=[  2 197 197]
-  size=5184, c=(298,180), color=[244 132   3]
-  size=5105, c=(414,180), color=[ 99 248 100]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3923, c=(414,294), color=[149 197 246]
-=== frame 60: 17 components ===
-  size=3967, c=(64,64), color=[243  48  48]
-  size=3970, c=(181,65), color=[ 48 195  50]
-  size=3974, c=(298,64), color=[ 49 146 242]
-  size=3972, c=(415,65), color=[243 196   4]
-  size=6026, c=(298,180), color=[244 132   3]
-  size=5755, c=(413,179), color=[ 99 247 100]
-  size=5764, c=(66,180), color=[245  50 244]
-  size=6013, c=(181,180), color=[  2 197 196]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3932, c=(414,294), color=[149 197 246]
-=== frame 70: 15 components ===
-  size=3967, c=(64,64), color=[243  48  48]
-  size=3970, c=(181,65), color=[ 48 195  50]
-  size=3974, c=(298,64), color=[ 49 146 242]
-  size=3972, c=(415,65), color=[243 196   4]
-  size=5760, c=(66,180), color=[244  50 243]
-  size=5744, c=(413,180), color=[ 98 246  99]
-  size=6002, c=(181,179), color=[  2 196 197]
-  size=6021, c=(298,179), color=[243 131   3]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3932, c=(414,294), color=[149 197 246]
-=== frame 80: 13 components ===
-  size=4903, c=(65,65), color=[249  49  48]
-  size=5012, c=(181,65), color=[ 48 196  50]
-  size=4956, c=(298,64), color=[ 49 148 246]
-  size=4900, c=(414,64), color=[249 201   1]
-  size=5124, c=(65,179), color=[244  50 243]
-  size=5184, c=(182,180), color=[  2 195 196]
-  size=5184, c=(298,180), color=[243 131   3]
-  size=5142, c=(414,179), color=[ 98 245  99]
-  size=3976, c=(65,295), color=[194  49 243]
-  size=3949, c=(181,295), color=[ 50 245 198]
-  size=3961, c=(298,295), color=[242  99  98]
-  size=3932, c=(414,294), color=[149 197 246]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ffmpeg -y -i /app/reference.mp4 -vf fps=24 /tmp/frames/g%04d.png 2>&1 | tail -3
-[?2004l      encoder         : Lavc59.37.100 png
-frame=    1 fps=0.0 q=0.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=  481 fps=0.0 q=-0.0 Lsize=N/A time=00:00:20.04 bitrate=N/A speed=93.8x    
-video:23112kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> import os
-[?2004l[?2004h> 
-[?2004l[?2004h> bg = np.array([23, 24, 43])
-[?2004l[?2004h> files = sorted([f for f in os.listdir('/tmp/frames') if f.startswith('g')])
-[?2004l[?2004h> print(f'total {len(files)} frames')
-[?2004l[?2004h> 
-[?2004l[?2004h> # Track each circle's size over time
-[?2004l[?2004h> # Centers approximately:
-[?2004l[?2004h> centers = [
-[?2004l[?2004h>     (64,64),(181,65),(298,64),(415,65),  # row 0: red, green, blue, yellow
-[?2004l[?2004h>     (65,180),(181,179),(298,179),(414,179),  # row 1: magenta, teal, orange, lime
-[?2004l[?2004h>     (65,295),(181,295),(298,295),(414,294),  # row 2: purple, mint, pink, lightblue
-[?2004l[?2004h> ]
-[?2004l[?2004h> import math
-[?2004l[?2004h> data = []
-[?2004l[?2004h> for fi, fname in enumerate(files):
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/{fname}'))
-[?2004l[?2004h>     diff = np.abs(img.astype(int) - bg.astype(int)).sum(axis=2)
-[?2004l[?2004h>     mask = diff > 50
-[?2004l[?2004h>     row = []
-[?2004l[?2004h>     for cx, cy in centers:
-[?2004l[?2004h>         # measure radius: count pixels in a window around center belonging to mask
-[?2004l[?2004h>         x0,x1 = max(0,cx-50), min(480,cx+50)
-[?2004l[?2004h>         y0,y1 = max(0,cy-50), min(360,cy+50)
-[?2004l[?2004h>         sub = mask[y0:y1, x0:x1]
-[?2004l[?2004h>         area = sub.sum()
-[?2004l[?2004h>         r = math.sqrt(area / math.pi)
-[?2004l[?2004h>         row.append(r)
-[?2004l[?2004h>     data.append(row)
-[?2004l[?2004h> data = np.array(data)
-[?2004l[?2004h> print('shape:', data.shape)
-[?2004l[?2004h> # Print radii at every 20th frame for each circle
-[?2004l[?2004h> for i in range(12):
-[?2004l[?2004h>     print(f'circle {i} ({centers[i]}): ', ' '.join(f'{data[t,i]:.1f}' for t in range(0, len(files), 20)))
-[?2004l[?2004h> EOF
-[?2004ltotal 481 frames
-shape: (481, 12)
-circle 0 ((64, 64)):  35.5 35.5 35.5 37.2 39.1 39.5 39.5 39.5 40.7 41.9 42.1 41.2 39.5 39.5 39.5 39.3 37.7 35.5 35.5 35.5 35.5 35.5 36.6 38.8 39.5
-circle 1 ((181, 65)):  35.6 35.6 35.6 37.2 39.2 40.0 40.0 40.0 41.5 43.0 43.3 41.8 40.0 40.0 40.0 39.6 37.7 35.6 35.6 35.6 35.6 35.6 36.7 38.9 40.0
-circle 2 ((298, 64)):  35.6 35.6 35.6 37.2 39.2 40.0 40.0 40.0 41.4 42.9 43.3 41.8 40.0 40.0 40.0 39.5 37.7 35.6 35.6 35.6 35.6 35.6 36.7 38.9 40.0
-circle 3 ((415, 65)):  35.6 35.6 35.6 37.2 39.1 39.5 39.5 39.5 40.7 42.0 42.1 41.2 39.5 39.5 39.5 39.4 37.7 35.6 35.6 35.6 35.6 35.6 36.7 38.8 39.5
-circle 4 ((65, 180)):  35.7 35.7 35.7 35.7 35.7 36.0 37.4 38.5 39.3 40.0 40.1 40.1 40.1 40.1 40.1 40.6 41.5 42.3 43.0 43.9 43.4 42.6 41.7 40.8 40.1
-circle 5 ((181, 179)):  35.6 35.6 35.6 35.6 35.6 35.9 37.3 38.5 39.4 40.2 40.6 40.6 40.6 40.6 40.6 40.7 42.1 43.2 44.0 45.1 44.4 43.5 42.3 41.2 40.6
-circle 6 ((298, 179)):  35.7 35.7 35.7 35.7 35.7 36.0 37.4 38.6 39.5 40.4 40.6 40.6 40.6 40.6 40.6 40.7 42.1 43.3 44.1 45.1 44.5 43.6 42.4 41.2 40.6
-circle 7 ((414, 179)):  35.6 35.6 35.6 35.6 35.6 36.0 37.3 38.5 39.3 40.0 40.1 40.1 40.1 40.1 40.1 40.5 41.4 42.3 43.0 43.8 43.3 42.5 41.7 40.8 40.1
-circle 8 ((65, 295)):  35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6
-circle 9 ((181, 295)):  35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5
-circle 10 ((298, 295)):  35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5
-circle 11 ((414, 294)):  35.3 35.3 35.3 35.4 35.4 35.3 35.4 35.3 35.4 35.4 35.4 35.4 35.3 35.3 35.3 35.4 35.4 35.4 35.4 35.4 35.4 35.4 35.4 35.4 35.4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> import os, math
-[?2004l[?2004h> 
-[?2004l[?2004h> bg = np.array([23, 24, 43])
-[?2004l[?2004h> files = sorted([f for f in os.listdir('/tmp/frames') if f.startswith('g')])
-[?2004l[?2004h> 
-[?2004l[?2004h> centers = [
-[?2004l[?2004h>     (64,64),(181,65),(298,64),(415,65),
-[?2004l[?2004h>     (65,180),(181,179),(298,179),(414,179),
-[?2004l[?2004h>     (65,295),(181,295),(298,295),(414,294),
-[?2004l[?2004h> ]
-[?2004l[?2004h> data = []
-[?2004l[?2004h> for fname in files:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/{fname}'))
-[?2004l[?2004h>     diff = np.abs(img.astype(int) - bg.astype(int)).sum(axis=2)
-[?2004l[?2004h>     mask = diff > 50
-[?2004l[?2004h>     row = []
-[?2004l[?2004h>     for cx, cy in centers:
-[?2004l[?2004h>         x0,x1 = max(0,cx-50), min(480,cx+50)
-[?2004l[?2004h>         y0,y1 = max(0,cy-50), min(360,cy+50)
-[?2004l[?2004h>         sub = mask[y0:y1, x0:x1]
-[?2004l[?2004h>         r = math.sqrt(sub.sum() / math.pi)
-[?2004l[?2004h>         row.append(r)
-[?2004l[?2004h>     data.append(row)
-[?2004l[?2004h> data = np.array(data)
-[?2004l[?2004h> np.save('/tmp/data.npy', data)
-[?2004l[?2004h> print('total frames:', len(data))
-[?2004l[?2004h> # Print circle 0 every frame
-[?2004l[?2004h> for i in [0, 4, 8]:
-[?2004l[?2004h>     print(f'\ncircle {i}:')
-[?2004l[?2004h>     s = data[:, i]
-[?2004l[?2004h>     print(' '.join(f'{v:.1f}' for v in s[:60]))
-[?2004l[?2004h>     print('---')
-[?2004l[?2004h>     print(' '.join(f'{v:.1f}' for v in s[60:120]))
-[?2004l[?2004h> EOF
-[?2004ltotal frames: 481
-
-circle 0:
-35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.5 35.8 35.9 36.0 36.1 36.3 36.5 36.5 36.6 36.9 37.0 37.0
----
-37.2 37.4 37.5 37.5 37.7 37.8 37.8 38.1 38.1 38.2 38.2 38.4 38.5 38.6 38.6 38.7 38.8 38.8 38.9 39.0 39.1 39.2 39.2 39.3 39.3 39.4 39.4 39.4 39.4 39.4 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5 39.5
-
-circle 4:
-35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7
----
-35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.7 35.8 36.0 36.0 36.0 36.1 36.2 36.3 36.4 36.5 36.5 36.7 36.7 36.9 36.9 36.9 37.0 37.0 37.1 37.2 37.3 37.3 37.4 37.5
-
-circle 8:
-35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6
----
-35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6 35.6
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> data = np.load('/tmp/data.npy')
-[?2004l[?2004h> print('frames:', len(data))
-[?2004l[?2004h> # For each circle, find times when it grows/shrinks
-[?2004l[?2004h> for i in [0, 1, 2, 3, 4, 5, 8, 11]:
-[?2004l[?2004h>     s = data[:, i]
-[?2004l[?2004h>     # Detect when radius differs significantly from baseline ~35.5
-[?2004l[?2004h>     print(f'\ncircle {i} baseline={s[:30].mean():.2f} max={s.max():.2f}')
-[?2004l[?2004h>     # find peaks - local maxima above threshold
-[?2004l[?2004h>     above = s > 36.5
-[?2004l[?2004h>     in_burst = False
-[?2004l[?2004h>     start = 0
-[?2004l[?2004h>     for j, a in enumerate(above):
-[?2004l[?2004h>         if a and not in_burst:
-[?2004l[?2004h>             in_burst = True
-[?2004l[?2004h>             start = j
-[?2004l[?2004h>         elif not a and in_burst:
-[?2004l[?2004h>             in_burst = False
-[?2004l[?2004h>             seg = s[start:j]
-[?2004l[?2004h>             print(f'  burst frames {start}-{j} (t={start/24:.2f}-{j/24:.2f}), max={seg.max():.2f} at f{start+seg.argmax()}')
-[?2004l[?2004h>     if in_burst:
-[?2004l[?2004h>         seg = s[start:]
-[?2004l[?2004h>         print(f'  burst frames {start}-end, max={seg.max():.2f} at f{start+seg.argmax()}')
-[?2004l[?2004h> EOF
-[?2004lframes: 481
-
-circle 0 baseline=35.53 max=42.48
-  burst frames 56-332 (t=2.33-13.83), max=42.48 at f192
-  burst frames 440-end, max=39.51 at f475
-
-circle 1 baseline=35.55 max=43.89
-  burst frames 54-331 (t=2.25-13.79), max=43.89 at f192
-  burst frames 438-end, max=40.05 at f479
-
-circle 2 baseline=35.57 max=43.82
-  burst frames 54-331 (t=2.25-13.79), max=43.82 at f192
-  burst frames 438-end, max=40.03 at f480
-
-circle 3 baseline=35.56 max=42.51
-  burst frames 54-332 (t=2.25-13.83), max=42.51 at f192
-  burst frames 438-end, max=39.50 at f479
-
-circle 4 baseline=35.74 max=43.90
-  burst frames 105-end, max=43.90 at f387
-
-circle 5 baseline=35.64 max=45.15
-  burst frames 107-end, max=45.15 at f383
-
-circle 8 baseline=35.58 max=35.58
-
-circle 11 baseline=35.34 max=35.38
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> data = np.load('/tmp/data.npy')
-[?2004l[?2004h> # Print circle 0 every 5 frames
-[?2004l[?2004h> s = data[:, 0]
-[?2004l[?2004h> for t in range(0, 481, 5):
-[?2004l[?2004h>     print(f'f{t:3d} t={t/24:.2f}s r={s[t]:.2f}')
-[?2004l[?2004h> EOF
-[?2004lf  0 t=0.00s r=35.53
-f  5 t=0.21s r=35.53
-f 10 t=0.42s r=35.53
-f 15 t=0.62s r=35.53
-f 20 t=0.83s r=35.53
-f 25 t=1.04s r=35.53
-f 30 t=1.25s r=35.53
-f 35 t=1.46s r=35.53
-f 40 t=1.67s r=35.53
-f 45 t=1.88s r=35.53
-f 50 t=2.08s r=35.86
-f 55 t=2.29s r=36.48
-f 60 t=2.50s r=37.16
-f 65 t=2.71s r=37.78
-f 70 t=2.92s r=38.24
-f 75 t=3.12s r=38.72
-f 80 t=3.33s r=39.08
-f 85 t=3.54s r=39.40
-f 90 t=3.75s r=39.48
-f 95 t=3.96s r=39.50
-f100 t=4.17s r=39.49
-f105 t=4.38s r=39.49
-f110 t=4.58s r=39.49
-f115 t=4.79s r=39.49
-f120 t=5.00s r=39.49
-f125 t=5.21s r=39.49
-f130 t=5.42s r=39.49
-f135 t=5.62s r=39.49
-f140 t=5.83s r=39.49
-f145 t=6.04s r=39.49
-f150 t=6.25s r=40.30
-f155 t=6.46s r=40.50
-f160 t=6.67s r=40.68
-f165 t=6.88s r=41.17
-f170 t=7.08s r=41.34
-f175 t=7.29s r=41.68
-f180 t=7.50s r=41.89
-f185 t=7.71s r=42.10
-f190 t=7.92s r=42.43
-f195 t=8.12s r=42.40
-f200 t=8.33s r=42.10
-f205 t=8.54s r=41.95
-f210 t=8.75s r=41.61
-f215 t=8.96s r=41.38
-f220 t=9.17s r=41.18
-f225 t=9.38s r=40.66
-f230 t=9.58s r=40.59
-f235 t=9.79s r=40.54
-f240 t=10.00s r=39.49
-f245 t=10.21s r=39.49
-f250 t=10.42s r=39.49
-f255 t=10.62s r=39.49
-f260 t=10.83s r=39.49
-f265 t=11.04s r=39.49
-f270 t=11.25s r=39.49
-f275 t=11.46s r=39.49
-f280 t=11.67s r=39.49
-f285 t=11.88s r=39.49
-f290 t=12.08s r=39.49
-f295 t=12.29s r=39.49
-f300 t=12.50s r=39.32
-f305 t=12.71s r=39.08
-f310 t=12.92s r=38.71
-f315 t=13.12s r=38.32
-f320 t=13.33s r=37.68
-f325 t=13.54s r=37.21
-f330 t=13.75s r=36.68
-f335 t=13.96s r=36.01
-f340 t=14.17s r=35.53
-f345 t=14.38s r=35.53
-f350 t=14.58s r=35.53
-f355 t=14.79s r=35.53
-f360 t=15.00s r=35.53
-f365 t=15.21s r=35.53
-f370 t=15.42s r=35.53
-f375 t=15.62s r=35.53
-f380 t=15.83s r=35.53
-f385 t=16.04s r=35.53
-f390 t=16.25s r=35.53
-f395 t=16.46s r=35.53
-f400 t=16.67s r=35.53
-f405 t=16.88s r=35.53
-f410 t=17.08s r=35.53
-f415 t=17.29s r=35.53
-f420 t=17.50s r=35.53
-f425 t=17.71s r=35.53
-f430 t=17.92s r=35.53
-f435 t=18.12s r=36.00
-f440 t=18.33s r=36.61
-f445 t=18.54s r=37.30
-f450 t=18.75s r=37.86
-f455 t=18.96s r=38.40
-f460 t=19.17s r=38.82
-f465 t=19.38s r=39.17
-f470 t=19.58s r=39.38
-f475 t=19.79s r=39.51
-f480 t=20.00s r=39.49
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> data = np.load('/tmp/data.npy')
-[?2004l[?2004h> for ci in [0, 4, 8]:
-[?2004l[?2004h>     s = data[:, ci]
-[?2004l[?2004h>     print(f'\nCircle {ci}:')
-[?2004l[?2004h>     for t in range(0, 481, 5):
-[?2004l[?2004h>         bar = '#' * int((s[t]-35) * 5)
-[?2004l[?2004h>         print(f'  f{t:3d} t={t/24:5.2f}s r={s[t]:5.2f} {bar}')
-[?2004l[?2004h> EOF
-[?2004l
-Circle 0:
-  f  0 t= 0.00s r=35.53 ##
-  f  5 t= 0.21s r=35.53 ##
-  f 10 t= 0.42s r=35.53 ##
-  f 15 t= 0.62s r=35.53 ##
-  f 20 t= 0.83s r=35.53 ##
-  f 25 t= 1.04s r=35.53 ##
-  f 30 t= 1.25s r=35.53 ##
-  f 35 t= 1.46s r=35.53 ##
-  f 40 t= 1.67s r=35.53 ##
-  f 45 t= 1.88s r=35.53 ##
-  f 50 t= 2.08s r=35.86 ####
-  f 55 t= 2.29s r=36.48 #######
-  f 60 t= 2.50s r=37.16 ##########
-  f 65 t= 2.71s r=37.78 #############
-  f 70 t= 2.92s r=38.24 ################
-  f 75 t= 3.12s r=38.72 ##################
-  f 80 t= 3.33s r=39.08 ####################
-  f 85 t= 3.54s r=39.40 #####################
-  f 90 t= 3.75s r=39.48 ######################
-  f 95 t= 3.96s r=39.50 ######################
-  f100 t= 4.17s r=39.49 ######################
-  f105 t= 4.38s r=39.49 ######################
-  f110 t= 4.58s r=39.49 ######################
-  f115 t= 4.79s r=39.49 ######################
-  f120 t= 5.00s r=39.49 ######################
-  f125 t= 5.21s r=39.49 ######################
-  f130 t= 5.42s r=39.49 ######################
-  f135 t= 5.62s r=39.49 ######################
-  f140 t= 5.83s r=39.49 ######################
-  f145 t= 6.04s r=39.49 ######################
-  f150 t= 6.25s r=40.30 ##########################
-  f155 t= 6.46s r=40.50 ###########################
-  f160 t= 6.67s r=40.68 ############################
-  f165 t= 6.88s r=41.17 ##############################
-  f170 t= 7.08s r=41.34 ###############################
-  f175 t= 7.29s r=41.68 #################################
-  f180 t= 7.50s r=41.89 ##################################
-  f185 t= 7.71s r=42.10 ###################################
-  f190 t= 7.92s r=42.43 #####################################
-  f195 t= 8.12s r=42.40 ####################################
-  f200 t= 8.33s r=42.10 ###################################
-  f205 t= 8.54s r=41.95 ##################################
-  f210 t= 8.75s r=41.61 #################################
-  f215 t= 8.96s r=41.38 ###############################
-  f220 t= 9.17s r=41.18 ##############################
-  f225 t= 9.38s r=40.66 ############################
-  f230 t= 9.58s r=40.59 ###########################
-  f235 t= 9.79s r=40.54 ###########################
-  f240 t=10.00s r=39.49 ######################
-  f245 t=10.21s r=39.49 ######################
-  f250 t=10.42s r=39.49 ######################
-  f255 t=10.62s r=39.49 ######################
-  f260 t=10.83s r=39.49 ######################
-  f265 t=11.04s r=39.49 ######################
-  f270 t=11.25s r=39.49 ######################
-  f275 t=11.46s r=39.49 ######################
-  f280 t=11.67s r=39.49 ######################
-  f285 t=11.88s r=39.49 ######################
-  f290 t=12.08s r=39.49 ######################
-  f295 t=12.29s r=39.49 ######################
-  f300 t=12.50s r=39.32 #####################
-  f305 t=12.71s r=39.08 ####################
-  f310 t=12.92s r=38.71 ##################
-  f315 t=13.12s r=38.32 ################
-  f320 t=13.33s r=37.68 #############
-  f325 t=13.54s r=37.21 ###########
-  f330 t=13.75s r=36.68 ########
-  f335 t=13.96s r=36.01 #####
-  f340 t=14.17s r=35.53 ##
-  f345 t=14.38s r=35.53 ##
-  f350 t=14.58s r=35.53 ##
-  f355 t=14.79s r=35.53 ##
-  f360 t=15.00s r=35.53 ##
-  f365 t=15.21s r=35.53 ##
-  f370 t=15.42s r=35.53 ##
-  f375 t=15.62s r=35.53 ##
-  f380 t=15.83s r=35.53 ##
-  f385 t=16.04s r=35.53 ##
-  f390 t=16.25s r=35.53 ##
-  f395 t=16.46s r=35.53 ##
-  f400 t=16.67s r=35.53 ##
-  f405 t=16.88s r=35.53 ##
-  f410 t=17.08s r=35.53 ##
-  f415 t=17.29s r=35.53 ##
-  f420 t=17.50s r=35.53 ##
-  f425 t=17.71s r=35.53 ##
-  f430 t=17.92s r=35.53 ##
-  f435 t=18.12s r=36.00 #####
-  f440 t=18.33s r=36.61 ########
-  f445 t=18.54s r=37.30 ###########
-  f450 t=18.75s r=37.86 ##############
-  f455 t=18.96s r=38.40 ################
-  f460 t=19.17s r=38.82 ###################
-  f465 t=19.38s r=39.17 ####################
-  f470 t=19.58s r=39.38 #####################
-  f475 t=19.79s r=39.51 ######################
-  f480 t=20.00s r=39.49 ######################
-
-Circle 4:
-  f  0 t= 0.00s r=35.74 ###
-  f  5 t= 0.21s r=35.74 ###
-  f 10 t= 0.42s r=35.74 ###
-  f 15 t= 0.62s r=35.74 ###
-  f 20 t= 0.83s r=35.74 ###
-  f 25 t= 1.04s r=35.74 ###
-  f 30 t= 1.25s r=35.74 ###
-  f 35 t= 1.46s r=35.74 ###
-  f 40 t= 1.67s r=35.74 ###
-  f 45 t= 1.88s r=35.74 ###
-  f 50 t= 2.08s r=35.74 ###
-  f 55 t= 2.29s r=35.74 ###
-  f 60 t= 2.50s r=35.74 ###
-  f 65 t= 2.71s r=35.74 ###
-  f 70 t= 2.92s r=35.74 ###
-  f 75 t= 3.12s r=35.74 ###
-  f 80 t= 3.33s r=35.74 ###
-  f 85 t= 3.54s r=35.74 ###
-  f 90 t= 3.75s r=35.74 ###
-  f 95 t= 3.96s r=35.74 ###
-  f100 t= 4.17s r=36.03 #####
-  f105 t= 4.38s r=36.52 #######
-  f110 t= 4.58s r=36.88 #########
-  f115 t= 4.79s r=37.22 ###########
-  f120 t= 5.00s r=37.35 ###########
-  f125 t= 5.21s r=37.70 #############
-  f130 t= 5.42s r=38.02 ###############
-  f135 t= 5.62s r=38.29 ################
-  f140 t= 5.83s r=38.51 #################
-  f145 t= 6.04s r=38.76 ##################
-  f150 t= 6.25s r=38.93 ###################
-  f155 t= 6.46s r=39.18 ####################
-  f160 t= 6.67s r=39.31 #####################
-  f165 t= 6.88s r=39.52 ######################
-  f170 t= 7.08s r=39.75 #######################
-  f175 t= 7.29s r=39.87 ########################
-  f180 t= 7.50s r=40.01 #########################
-  f185 t= 7.71s r=40.05 #########################
-  f190 t= 7.92s r=40.05 #########################
-  f195 t= 8.12s r=40.05 #########################
-  f200 t= 8.33s r=40.05 #########################
-  f205 t= 8.54s r=40.05 #########################
-  f210 t= 8.75s r=40.05 #########################
-  f215 t= 8.96s r=40.05 #########################
-  f220 t= 9.17s r=40.05 #########################
-  f225 t= 9.38s r=40.05 #########################
-  f230 t= 9.58s r=40.05 #########################
-  f235 t= 9.79s r=40.05 #########################
-  f240 t=10.00s r=40.05 #########################
-  f245 t=10.21s r=40.05 #########################
-  f250 t=10.42s r=40.05 #########################
-  f255 t=10.62s r=40.05 #########################
-  f260 t=10.83s r=40.05 #########################
-  f265 t=11.04s r=40.05 #########################
-  f270 t=11.25s r=40.05 #########################
-  f275 t=11.46s r=40.05 #########################
-  f280 t=11.67s r=40.05 #########################
-  f285 t=11.88s r=40.05 #########################
-  f290 t=12.08s r=40.05 #########################
-  f295 t=12.29s r=40.37 ##########################
-  f300 t=12.50s r=40.59 ###########################
-  f305 t=12.71s r=40.71 ############################
-  f310 t=12.92s r=41.16 ##############################
-  f315 t=13.12s r=41.29 ###############################
-  f320 t=13.33s r=41.46 ################################
-  f325 t=13.54s r=41.61 #################################
-  f330 t=13.75s r=41.75 #################################
-  f335 t=13.96s r=41.99 ##################################
-  f340 t=14.17s r=42.35 ####################################
-  f345 t=14.38s r=42.46 #####################################
-  f350 t=14.58s r=42.64 ######################################
-  f355 t=14.79s r=42.84 #######################################
-  f360 t=15.00s r=43.00 ########################################
-  f365 t=15.21s r=43.19 ########################################
-  f370 t=15.42s r=43.36 #########################################
-  f375 t=15.62s r=43.53 ##########################################
-  f380 t=15.83s r=43.85 ############################################
-  f385 t=16.04s r=43.89 ############################################
-  f390 t=16.25s r=43.84 ############################################
-  f395 t=16.46s r=43.72 ###########################################
-  f400 t=16.67s r=43.38 #########################################
-  f405 t=16.88s r=43.30 #########################################
-  f410 t=17.08s r=43.14 ########################################
-  f415 t=17.29s r=42.90 #######################################
-  f420 t=17.50s r=42.59 #####################################
-  f425 t=17.71s r=42.48 #####################################
-  f430 t=17.92s r=42.38 ####################################
-  f435 t=18.12s r=42.25 ####################################
-  f440 t=18.33s r=41.74 #################################
-  f445 t=18.54s r=41.67 #################################
-  f450 t=18.75s r=41.52 ################################
-  f455 t=18.96s r=41.34 ###############################
-  f460 t=19.17s r=40.85 #############################
-  f465 t=19.38s r=40.71 ############################
-  f470 t=19.58s r=40.52 ###########################
-  f475 t=19.79s r=40.39 ##########################
-  f480 t=20.00s r=40.05 #########################
-
-Circle 8:
-  f  0 t= 0.00s r=35.58 ##
-  f  5 t= 0.21s r=35.58 ##
-  f 10 t= 0.42s r=35.58 ##
-  f 15 t= 0.62s r=35.58 ##
-  f 20 t= 0.83s r=35.58 ##
-  f 25 t= 1.04s r=35.58 ##
-  f 30 t= 1.25s r=35.58 ##
-  f 35 t= 1.46s r=35.58 ##
-  f 40 t= 1.67s r=35.58 ##
-  f 45 t= 1.88s r=35.58 ##
-  f 50 t= 2.08s r=35.58 ##
-  f 55 t= 2.29s r=35.58 ##
-  f 60 t= 2.50s r=35.58 ##
-  f 65 t= 2.71s r=35.58 ##
-  f 70 t= 2.92s r=35.58 ##
-  f 75 t= 3.12s r=35.58 ##
-  f 80 t= 3.33s r=35.58 ##
-  f 85 t= 3.54s r=35.58 ##
-  f 90 t= 3.75s r=35.58 ##
-  f 95 t= 3.96s r=35.58 ##
-  f100 t= 4.17s r=35.58 ##
-  f105 t= 4.38s r=35.58 ##
-  f110 t= 4.58s r=35.58 ##
-  f115 t= 4.79s r=35.58 ##
-  f120 t= 5.00s r=35.58 ##
-  f125 t= 5.21s r=35.58 ##
-  f130 t= 5.42s r=35.58 ##
-  f135 t= 5.62s r=35.58 ##
-  f140 t= 5.83s r=35.58 ##
-  f145 t= 6.04s r=35.58 ##
-  f150 t= 6.25s r=35.58 ##
-  f155 t= 6.46s r=35.58 ##
-  f160 t= 6.67s r=35.58 ##
-  f165 t= 6.88s r=35.58 ##
-  f170 t= 7.08s r=35.58 ##
-  f175 t= 7.29s r=35.58 ##
-  f180 t= 7.50s r=35.58 ##
-  f185 t= 7.71s r=35.58 ##
-  f190 t= 7.92s r=35.58 ##
-  f195 t= 8.12s r=35.58 ##
-  f200 t= 8.33s r=35.58 ##
-  f205 t= 8.54s r=35.58 ##
-  f210 t= 8.75s r=35.58 ##
-  f215 t= 8.96s r=35.58 ##
-  f220 t= 9.17s r=35.58 ##
-  f225 t= 9.38s r=35.58 ##
-  f230 t= 9.58s r=35.58 ##
-  f235 t= 9.79s r=35.58 ##
-  f240 t=10.00s r=35.58 ##
-  f245 t=10.21s r=35.58 ##
-  f250 t=10.42s r=35.58 ##
-  f255 t=10.62s r=35.58 ##
-  f260 t=10.83s r=35.58 ##
-  f265 t=11.04s r=35.58 ##
-  f270 t=11.25s r=35.58 ##
-  f275 t=11.46s r=35.58 ##
-  f280 t=11.67s r=35.58 ##
-  f285 t=11.88s r=35.58 ##
-  f290 t=12.08s r=35.58 ##
-  f295 t=12.29s r=35.58 ##
-  f300 t=12.50s r=35.58 ##
-  f305 t=12.71s r=35.58 ##
-  f310 t=12.92s r=35.58 ##
-  f315 t=13.12s r=35.58 ##
-  f320 t=13.33s r=35.58 ##
-  f325 t=13.54s r=35.58 ##
-  f330 t=13.75s r=35.58 ##
-  f335 t=13.96s r=35.58 ##
-  f340 t=14.17s r=35.58 ##
-  f345 t=14.38s r=35.58 ##
-  f350 t=14.58s r=35.58 ##
-  f355 t=14.79s r=35.58 ##
-  f360 t=15.00s r=35.58 ##
-  f365 t=15.21s r=35.58 ##
-  f370 t=15.42s r=35.58 ##
-  f375 t=15.62s r=35.58 ##
-  f380 t=15.83s r=35.58 ##
-  f385 t=16.04s r=35.58 ##
-  f390 t=16.25s r=35.58 ##
-  f395 t=16.46s r=35.58 ##
-  f400 t=16.67s r=35.58 ##
-  f405 t=16.88s r=35.58 ##
-  f410 t=17.08s r=35.58 ##
-  f415 t=17.29s r=35.58 ##
-  f420 t=17.50s r=35.58 ##
-  f425 t=17.71s r=35.58 ##
-  f430 t=17.92s r=35.58 ##
-  f435 t=18.12s r=35.58 ##
-  f440 t=18.33s r=35.58 ##
-  f445 t=18.54s r=35.58 ##
-  f450 t=18.75s r=35.58 ##
-  f455 t=18.96s r=35.58 ##
-  f460 t=19.17s r=35.58 ##
-  f465 t=19.38s r=35.58 ##
-  f470 t=19.58s r=35.58 ##
-  f475 t=19.79s r=35.58 ##
-  f480 t=20.00s r=35.58 ##
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> # View frame 192 (peak top row) and 387 (peak middle)
-[?2004l[?2004h> for f in [1, 48, 96, 144, 192, 240, 288, 336, 384, 432, 480]:
-[?2004l[?2004h>     img = Image.open(f'/tmp/frames/g{f:04d}.png')
-[?2004l[?2004h>     img.save(f'/tmp/inspect_{f:04d}.png')
-[?2004l[?2004h> print('saved')
-[?2004l[?2004h> EOF
-[?2004lsaved
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /tmp/inspect_*.png
-[?2004l-rw-r--r-- 1 agent agent 50858 May 20 20:53 [0m[01;35m/tmp/inspect_0001.png[0m
--rw-r--r-- 1 agent agent 50876 May 20 20:53 [01;35m/tmp/inspect_0048.png[0m
--rw-r--r-- 1 agent agent 43247 May 20 20:53 [01;35m/tmp/inspect_0096.png[0m
--rw-r--r-- 1 agent agent 34102 May 20 20:53 [01;35m/tmp/inspect_0144.png[0m
--rw-r--r-- 1 agent agent 41107 May 20 20:53 [01;35m/tmp/inspect_0192.png[0m
--rw-r--r-- 1 agent agent 28535 May 20 20:53 [01;35m/tmp/inspect_0240.png[0m
--rw-r--r-- 1 agent agent 24176 May 20 20:53 [01;35m/tmp/inspect_0288.png[0m
--rw-r--r-- 1 agent agent 52619 May 20 20:53 [01;35m/tmp/inspect_0336.png[0m
--rw-r--r-- 1 agent agent 54084 May 20 20:53 [01;35m/tmp/inspect_0384.png[0m
--rw-r--r-- 1 agent agent 52144 May 20 20:53 [01;35m/tmp/inspect_0432.png[0m
--rw-r--r-- 1 agent agent 33662 May 20 20:53 [01;35m/tmp/inspect_0480.png[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> # Show frame structure with block characters
-[?2004l[?2004h> for fnum in [1, 96, 192, 288, 384, 480]:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-[?2004l[?2004h>     # Downsample to 60x36 grid 
-[?2004l[?2004h>     h, w, _ = img.shape
-[?2004l[?2004h>     cell_h, cell_w = h // 18, w // 60
-[?2004l[?2004h>     print(f'\n=== frame {fnum} ===')
-[?2004l[?2004h>     for j in range(18):
-[?2004l[?2004h>         line = ''
-[?2004l[?2004h>         for i in range(60):
-[?2004l[?2004h>             px = img[j*cell_h+cell_h//2, i*cell_w+cell_w//2]
-[?2004l[?2004h>             if abs(int(px[0])-23) + abs(int(px[1])-24) + abs(int(px[2])-43) < 30:
-[?2004l[?2004h>                 line += '.'
-[?2004l[?2004h>             else:
-[?2004l[?2004h>                 line += '#'
-[?2004l[?2004h>         print(line)
-[?2004l[?2004h> EOF
-[?2004l
-=== frame 1 ===
-............................................................
-.......###...........###............##............###.......
-....########......#########......########.......########....
-....########......#########......#########.....#########....
-.....######.........######........#######........######.....
-............................................................
-............................................................
-.....######.........#####..........#####.........#####......
-....########......#########......########......#########....
-....########......#########......########......#########....
-......####..........#####.........#####...........####......
-............................................................
-............................................................
-.....######........#######........######........#######.....
-....########......#########......#########.....#########....
-....########.......########......########.......########....
-............................................................
-............................................................
-
-=== frame 96 ===
-............................................................
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-............................................................
-............................................................
-.....######.........#####..........#####.........#####......
-....########......#########......########......#########....
-....########......#########......########......#########....
-......####..........#####.........#####...........####......
-............................................................
-............................................................
-.....######........#######........######........#######.....
-....########......#########......#########.....#########....
-....########.......########......########.......########....
-............................................................
-............................................................
-
-=== frame 192 ===
-............................................................
-....#########.....#########.....##########.....#########....
-....#########....###########....##########....##########....
-....#########.....##########....##########.....#########....
-....#########....###########....##########.....#########....
-............................................................
-............................................................
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-...#########......#########......#########.....#########....
-............................................................
-............................................................
-.....######........#######........######........#######.....
-....########......#########......#########.....#########....
-....########.......########......########.......########....
-............................................................
-............................................................
-
-=== frame 288 ===
-............................................................
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-............................................................
-............................................................
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-............................................................
-............................................................
-.....######........#######........######........#######.....
-....########......#########......#########.....#########....
-....########.......########......########.......########....
-............................................................
-............................................................
-
-=== frame 384 ===
-............................................................
-.......###...........###............##............###.......
-....########......#########......########.......########....
-....########......#########......#########.....#########....
-.....######.........######........#######........######.....
-............................................................
-............................................................
-....#########.....##########....##########.....#########....
-....#########....###########....##########.....#########....
-....#########....###########....##########.....#########....
-....#########.....#########.....##########.....#########....
-............................................................
-............................................................
-.....######........#######........######........#######.....
-....########......#########......#########.....#########....
-....########.......########......########.......########....
-............................................................
-............................................................
-
-=== frame 480 ===
-............................................................
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-....########......#########......#########.....#########....
-............................................................
-............................................................
-....#########.....#########......#########.....#########....
-....#########.....#########......#########.....#########....
-....#########.....#########......#########.....#########....
-....#########.....#########......#########.....#########....
-............................................................
-............................................................
-.....######........#######........######........#######.....
-....########......#########......#########.....#########....
-....########.......########......########.......########....
-............................................................
-............................................................
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> # Look at radii detailed - show row by row
-[?2004l[?2004h> data = np.load('/tmp/data.npy')
-[?2004l[?2004h> # For each frame, show all 12 radii as a 4x3 grid
-[?2004l[?2004h> for t in range(0, 481, 24):  # every second
-[?2004l[?2004h>     print(f't={t/24:5.2f}s', end='  ')
-[?2004l[?2004h>     for r in range(3):
-[?2004l[?2004h>         for c in range(4):
-[?2004l[?2004h>             print(f'{data[t, r*4+c]:5.1f}', end=' ')
-[?2004l[?2004h>         print(' ', end='')
-[?2004l[?2004h>     print()
-[?2004l[?2004h> EOF
-[?2004lt= 0.00s   35.5  35.6  35.6  35.6   35.7  35.6  35.7  35.6   35.6  35.5  35.5  35.3  
-t= 1.00s   35.5  35.6  35.6  35.6   35.7  35.6  35.7  35.7   35.6  35.5  35.5  35.3  
-t= 2.00s   35.5  35.6  35.6  35.6   35.7  35.6  35.7  35.7   35.6  35.5  35.5  35.3  
-t= 3.00s   38.5  38.5  38.5  38.5   35.7  35.6  35.7  35.7   35.6  35.5  35.5  35.4  
-t= 4.00s   39.5  40.1  40.0  39.5   35.7  35.6  35.7  35.7   35.6  35.5  35.5  35.4  
-t= 5.00s   39.5  40.0  40.0  39.5   37.4  37.3  37.4  37.3   35.6  35.5  35.5  35.4  
-t= 6.00s   39.5  40.0  40.0  39.5   38.7  38.7  38.8  38.6   35.6  35.5  35.5  35.3  
-t= 7.00s   41.3  42.0  42.0  41.3   39.6  39.6  39.9  39.6   35.6  35.5  35.5  35.4  
-t= 8.00s   42.5  43.9  43.8  42.5   40.1  40.5  40.6  40.1   35.6  35.5  35.5  35.4  
-t= 9.00s   41.4  42.2  42.2  41.3   40.1  40.6  40.6  40.1   35.6  35.5  35.5  35.4  
-t=10.00s   39.5  40.0  40.0  39.5   40.1  40.6  40.6  40.1   35.6  35.5  35.5  35.3  
-t=11.00s   39.5  40.0  40.0  39.5   40.1  40.6  40.6  40.1   35.6  35.5  35.5  35.3  
-t=12.00s   39.5  40.0  40.0  39.5   40.1  40.6  40.6  40.1   35.6  35.5  35.5  35.3  
-t=13.00s   38.6  38.7  38.7  38.6   41.2  41.6  41.7  41.1   35.6  35.5  35.5  35.4  
-t=14.00s   35.8  35.8  35.7  35.8   42.0  42.7  42.7  42.0   35.6  35.5  35.5  35.4  
-t=15.00s   35.5  35.6  35.6  35.6   43.0  44.0  44.1  43.0   35.6  35.5  35.5  35.4  
-t=16.00s   35.5  35.6  35.6  35.6   43.9  45.1  45.2  43.9   35.6  35.5  35.5  35.4  
-t=17.00s   35.5  35.6  35.6  35.6   43.2  44.1  44.2  43.1   35.6  35.5  35.5  35.4  
-t=18.00s   35.5  35.6  35.6  35.6   42.3  42.9  43.1  42.2   35.6  35.5  35.5  35.4  
-t=19.00s   38.5  38.5  38.5  38.5   41.2  41.8  42.0  41.3   35.6  35.5  35.5  35.4  
-t=20.00s   39.5  40.0  40.0  39.5   40.1  40.6  40.6  40.1   35.6  35.5  35.5  35.4  
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> # Higher res zoom in on top-left circle at peak (frame 192)
-[?2004l[?2004h> img = np.array(Image.open(f'/tmp/frames/g0192.png'))
-[?2004l[?2004h> # Look at circle 0 area (center 64,64), zoom in
-[?2004l[?2004h> for j in range(20, 110):
-[?2004l[?2004h>     line = ''
-[?2004l[?2004h>     for i in range(0, 130):
-[?2004l[?2004h>         px = img[j, i]
-[?2004l[?2004h>         if abs(int(px[0])-23) + abs(int(px[1])-24) + abs(int(px[2])-43) < 30:
-[?2004l[?2004h>             line += '.'
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             line += '#'
-[?2004l[?2004h>     print(line)
-[?2004l[?2004h> EOF
-[?2004l..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-.....................................................................................................#............................
-..................................................................................................................................
-..............................########################################################################............................
-..............................########################################################################............................
-..............................##########################################################################..........................
-..............................##########################################################################..........................
-..............................##########################################################################.#........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................#############################################################################.......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................#############################################################################.......................
-..............................#############################################################################.......................
-..............................#############################################################################.......................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................##########################################################################..........................
-..............................##########################################################################..........................
-..............................#########################################################################...........................
-..............................########################################################################.#..........................
-..............................#########################################################################...........................
-..............................########################################################################............................
-..............................########################################################################............................
-..............................########################################################################............................
-..............................##########################################################################..........................
-..............................##########################################################################..........................
-..............................##########################################################################..........................
-..............................###########################################################################.........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................#############################################################################.......................
-..............................############################################################################........................
-..............................#############################################################################.......................
-..............................#############################################################################.......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................##############################################################################......................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................############################################################################........................
-..............................##########################################################################..........................
-..............................##########################################################################..........................
-..............................########################################################################............................
-..............................########################################################################............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-................................##############################......##############################................................
-................................##############################......##############################................................
-....................................########################...........#########################..................................
-....................................########################............########################..................................
-..........................................##########..........................##########..........................................
-............................................######............................##########..........................................
-..................................................................................................................................
-..................................................................................................................................
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> # Look at baseline circle 0 at frame 1
-[?2004l[?2004h> img = np.array(Image.open(f'/tmp/frames/g0001.png'))
-[?2004l[?2004h> for j in range(20, 110):
-[?2004l[?2004h>     line = ''
-[?2004l[?2004h>     for i in range(0, 130):
-[?2004l[?2004h>         px = img[j, i]
-[?2004l[?2004h>         if abs(int(px[0])-23) + abs(int(px[1])-24) + abs(int(px[2])-43) < 30:
-[?2004l[?2004h>             line += '.'
-[?2004l[?2004h>         else:
-[?2004l[?2004h>             line += '#'
-[?2004l[?2004h>     print(line)
-[?2004l[?2004h> EOF
-[?2004l..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-.....................................................................#............................................................
-........................................................######################....................................................
-......................................................######################......................................................
-................................................##################################................................................
-................................................##################################................................................
-..............................................######################################..............................................
-..............................................######################################..............................................
-..........................................##############################################..........................................
-..........................................##############################################..........................................
-........................................################################################..........................................
-........................................##################################################........................................
-......................................######################################################......................................
-......................................######################################################......................................
-....................................##########################################################....................................
-....................................##########################################################....................................
-....................................##########################################################....................................
-...................................###########################################################....................................
-..................................##############################################################..................................
-..................................##############################################################..................................
-................................##################################################################................................
-................................##################################################################................................
-................................##################################################################................................
-................................##################################################################................................
-................................##################################################################................................
-................................##################################################################................................
-...............................#####################################################################..............................
-...............................#####################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-.............................#######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-..............................######################################################################..............................
-................................##################################################################................................
-................................##################################################################................................
-................................##################################################################................................
-................................##################################################################................................
-................................#################################################################.................................
-................................################################################################..................................
-..................................##############################################################..................................
-..................................##############################################################..................................
-....................................###########################################################...................................
-....................................##########################################################....................................
-....................................##########################################################....................................
-....................................##########################################################....................................
-......................................######################################################......................................
-.......................................#####################################################......................................
-........................................##################################################........................................
-........................................##################################################........................................
-..........................................#############################################...........................................
-...........................................#############################################..........................................
-..............................................#######################################.............................................
-.............................................########################################.............................................
-.................................................#################################................................................
-................................................################################..................................................
-......................................................######################......................................................
-......................................................######################..##..................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-..................................................................................................................................
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> # Measure circle 0 width precisely at different frames
-[?2004l[?2004h> for fnum in [1, 96, 144, 192, 240, 288, 336]:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-[?2004l[?2004h>     # find leftmost and rightmost non-bg pixel in horizontal scan through center y=64
-[?2004l[?2004h>     row = img[64]
-[?2004l[?2004h>     diff = np.abs(row.astype(int) - np.array([23,24,43])).sum(axis=1)
-[?2004l[?2004h>     nonbg = np.where(diff > 50)[0]
-[?2004l[?2004h>     # Get pixels for circle 0 only (x < 120)
-[?2004l[?2004h>     c0 = nonbg[nonbg < 120]
-[?2004l[?2004h>     if len(c0)>0:
-[?2004l[?2004h>         w = c0.max() - c0.min() + 1
-[?2004l[?2004h>         print(f'f{fnum}: circle 0 width = {w}, x={c0.min()}-{c0.max()}')
-[?2004l[?2004h>     # Height at x=64
-[?2004l[?2004h>     col = img[:, 64]
-[?2004l[?2004h>     diff = np.abs(col.astype(int) - np.array([23,24,43])).sum(axis=1)
-[?2004l[?2004h>     nonbg = np.where(diff > 50)[0]
-[?2004l[?2004h>     c0y = nonbg[nonbg < 120]
-[?2004l[?2004h>     if len(c0y)>0:
-[?2004l[?2004h>         h = c0y.max() - c0y.min() + 1
-[?2004l[?2004h>         print(f'        circle 0 height = {h}, y={c0y.min()}-{c0y.max()}')
-[?2004l[?2004h> EOF
-[?2004lf1: circle 0 width = 70, x=30-99
-        circle 0 height = 70, y=30-99
-f96: circle 0 width = 70, x=30-99
-        circle 0 height = 70, y=30-99
-f144: circle 0 width = 70, x=30-99
-        circle 0 height = 70, y=30-99
-f192: circle 0 width = 72, x=30-101
-        circle 0 height = 72, y=30-101
-f240: circle 0 width = 70, x=30-99
-        circle 0 height = 70, y=30-99
-f288: circle 0 width = 70, x=30-99
-        circle 0 height = 70, y=30-99
-f336: circle 0 width = 70, x=30-99
-        circle 0 height = 70, y=30-99
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> # Measure all circles in row 0 and row 1 width and corner radius
-[?2004l[?2004h> for fnum in [1, 96, 192, 384, 432, 480]:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-[?2004l[?2004h>     print(f'\n=== frame {fnum} ===')
-[?2004l[?2004h>     # For each circle in row 0 (y=64) and row 1 (y=180)
-[?2004l[?2004h>     for row_idx, cy in [('R0', 64), ('R1', 180)]:
-[?2004l[?2004h>         for col_idx, cx in enumerate([64, 181, 298, 415]):
-[?2004l[?2004h>             # Measure width at center y
-[?2004l[?2004h>             row = img[cy]
-[?2004l[?2004h>             diff = np.abs(row.astype(int) - np.array([23,24,43])).sum(axis=1)
-[?2004l[?2004h>             nonbg = np.where(diff > 50)[0]
-[?2004l[?2004h>             mine = nonbg[(nonbg >= cx-55) & (nonbg <= cx+55)]
-[?2004l[?2004h>             if len(mine):
-[?2004l[?2004h>                 w = mine.max() - mine.min() + 1
-[?2004l[?2004h>             else: w = 0
-[?2004l[?2004h>             # Measure width at top of shape (y - 25)
-[?2004l[?2004h>             top_row = img[cy - 25]
-[?2004l[?2004h>             diff = np.abs(top_row.astype(int) - np.array([23,24,43])).sum(axis=1)
-[?2004l[?2004h>             nonbg = np.where(diff > 50)[0]
-[?2004l[?2004h>             mine_top = nonbg[(nonbg >= cx-55) & (nonbg <= cx+55)]
-[?2004l[?2004h>             wt = (mine_top.max() - mine_top.min() + 1) if len(mine_top) else 0
-[?2004l[?2004h>             print(f'  {row_idx}C{col_idx} (cx={cx}): center_w={w}, top_w={wt}, ratio={wt/w if w else 0:.3f}')
-[?2004l[?2004h> EOF
-[?2004l
-=== frame 1 ===
-  R0C0 (cx=64): center_w=70, top_w=49, ratio=0.700
-  R0C1 (cx=181): center_w=71, top_w=48, ratio=0.676
-  R0C2 (cx=298): center_w=71, top_w=50, ratio=0.704
-  R0C3 (cx=415): center_w=70, top_w=49, ratio=0.700
-  R1C0 (cx=64): center_w=70, top_w=51, ratio=0.729
-  R1C1 (cx=181): center_w=71, top_w=52, ratio=0.732
-  R1C2 (cx=298): center_w=72, top_w=51, ratio=0.708
-  R1C3 (cx=415): center_w=70, top_w=52, ratio=0.743
-
-=== frame 96 ===
-  R0C0 (cx=64): center_w=70, top_w=70, ratio=1.000
-  R0C1 (cx=181): center_w=72, top_w=72, ratio=1.000
-  R0C2 (cx=298): center_w=72, top_w=71, ratio=0.986
-  R0C3 (cx=415): center_w=70, top_w=70, ratio=1.000
-  R1C0 (cx=64): center_w=70, top_w=51, ratio=0.729
-  R1C1 (cx=181): center_w=71, top_w=52, ratio=0.732
-  R1C2 (cx=298): center_w=72, top_w=51, ratio=0.708
-  R1C3 (cx=415): center_w=70, top_w=52, ratio=0.743
-
-=== frame 192 ===
-  R0C0 (cx=64): center_w=72, top_w=76, ratio=1.056
-  R0C1 (cx=181): center_w=72, top_w=83, ratio=1.153
-  R0C2 (cx=298): center_w=72, top_w=83, ratio=1.153
-  R0C3 (cx=415): center_w=72, top_w=76, ratio=1.056
-  R1C0 (cx=64): center_w=70, top_w=70, ratio=1.000
-  R1C1 (cx=181): center_w=71, top_w=72, ratio=1.014
-  R1C2 (cx=298): center_w=72, top_w=72, ratio=1.000
-  R1C3 (cx=415): center_w=70, top_w=70, ratio=1.000
-
-=== frame 384 ===
-  R0C0 (cx=64): center_w=70, top_w=49, ratio=0.700
-  R0C1 (cx=181): center_w=71, top_w=48, ratio=0.676
-  R0C2 (cx=298): center_w=71, top_w=50, ratio=0.704
-  R0C3 (cx=415): center_w=70, top_w=49, ratio=0.700
-  R1C0 (cx=64): center_w=72, top_w=76, ratio=1.056
-  R1C1 (cx=181): center_w=74, top_w=83, ratio=1.122
-  R1C2 (cx=298): center_w=72, top_w=83, ratio=1.153
-  R1C3 (cx=415): center_w=72, top_w=76, ratio=1.056
-
-=== frame 432 ===
-  R0C0 (cx=64): center_w=70, top_w=49, ratio=0.700
-  R0C1 (cx=181): center_w=71, top_w=48, ratio=0.676
-  R0C2 (cx=298): center_w=71, top_w=50, ratio=0.704
-  R0C3 (cx=415): center_w=70, top_w=49, ratio=0.700
-  R1C0 (cx=64): center_w=72, top_w=74, ratio=1.028
-  R1C1 (cx=181): center_w=72, top_w=78, ratio=1.083
-  R1C2 (cx=298): center_w=72, top_w=78, ratio=1.083
-  R1C3 (cx=415): center_w=70, top_w=74, ratio=1.057
-
-=== frame 480 ===
-  R0C0 (cx=64): center_w=70, top_w=70, ratio=1.000
-  R0C1 (cx=181): center_w=72, top_w=72, ratio=1.000
-  R0C2 (cx=298): center_w=72, top_w=72, ratio=1.000
-  R0C3 (cx=415): center_w=70, top_w=70, ratio=1.000
-  R1C0 (cx=64): center_w=70, top_w=72, ratio=1.029
-  R1C1 (cx=181): center_w=72, top_w=72, ratio=1.000
-  R1C2 (cx=298): center_w=72, top_w=72, ratio=1.000
-  R1C3 (cx=415): center_w=70, top_w=70, ratio=1.000
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> bg = np.array([23,24,43])
-[?2004l[?2004h> for fnum in [1, 96, 192, 384, 432, 480]:
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-[?2004l[?2004h>     diff = np.abs(img.astype(int) - bg).sum(axis=2)
-[?2004l[?2004h>     mask = diff > 50
-[?2004l[?2004h>     labels, n = ndimage.label(mask)
-[?2004l[?2004h>     print(f'\n=== frame {fnum}: {n} comps ===')
-[?2004l[?2004h>     bboxes = []
-[?2004l[?2004h>     for i in range(1, n+1):
-[?2004l[?2004h>         coords = np.where(labels == i)
-[?2004l[?2004h>         size = len(coords[0])
-[?2004l[?2004h>         if size > 500:
-[?2004l[?2004h>             ymin, ymax = coords[0].min(), coords[0].max()
-[?2004l[?2004h>             xmin, xmax = coords[1].min(), coords[1].max()
-[?2004l[?2004h>             cx, cy = (xmin+xmax)/2, (ymin+ymax)/2
-[?2004l[?2004h>             bboxes.append((cx, cy, xmax-xmin+1, ymax-ymin+1, size))
-[?2004l[?2004h>     # Sort by y, then x
-[?2004l[?2004h>     bboxes.sort(key=lambda b: (b[1], b[0]))
-[?2004l[?2004h>     for cx, cy, w, h, s in bboxes:
-[?2004l[?2004h>         # Calculate corner radius from area: A = w*h - (4 - pi)*r^2
-[?2004l[?2004h>         import math
-[?2004l[?2004h>         # Solve for r: r^2 = (w*h - A) / (4 - pi)
-[?2004l[?2004h>         r2 = (w*h - s) / (4 - math.pi)
-[?2004l[?2004h>         r = math.sqrt(max(0, r2))
-[?2004l[?2004h>         print(f'  c=({cx:.0f},{cy:.0f}) w={w} h={h} area={s} cornerR={r:.1f}')
-[?2004l[?2004h> EOF
-[?2004l
-=== frame 1: 15 comps ===
-  c=(64,64) w=70 h=70 area=3967 cornerR=33.0
-  c=(181,64) w=71 h=70 area=3970 cornerR=34.1
-  c=(298,64) w=71 h=70 area=3974 cornerR=34.1
-  c=(414,64) w=70 h=70 area=3972 cornerR=32.9
-  c=(64,180) w=70 h=72 area=4013 cornerR=34.6
-  c=(181,180) w=71 h=72 area=3991 cornerR=36.1
-  c=(298,180) w=72 h=72 area=4003 cornerR=37.1
-  c=(414,180) w=70 h=72 area=3990 cornerR=35.0
-  c=(64,294) w=70 h=70 area=3976 cornerR=32.8
-  c=(182,294) w=72 h=70 area=3950 cornerR=35.6
-  c=(298,294) w=71 h=70 area=3962 cornerR=34.3
-  c=(414,294) w=70 h=70 area=3921 cornerR=33.8
-
-=== frame 96: 12 comps ===
-  c=(64,64) w=70 h=71 area=4901 cornerR=9.0
-  c=(180,64) w=74 h=70 area=5041 cornerR=12.7
-  c=(298,64) w=72 h=70 area=5021 cornerR=4.7
-  c=(414,64) w=71 h=72 area=4904 cornerR=15.6
-  c=(64,180) w=70 h=72 area=4013 cornerR=34.6
-  c=(181,180) w=71 h=72 area=3990 cornerR=36.2
-  c=(298,180) w=72 h=72 area=4002 cornerR=37.1
-  c=(414,180) w=70 h=72 area=3993 cornerR=34.9
-  c=(64,294) w=70 h=70 area=3976 cornerR=32.8
-  c=(182,294) w=72 h=70 area=3949 cornerR=35.7
-  c=(298,294) w=71 h=70 area=3961 cornerR=34.3
-  c=(414,294) w=70 h=70 area=3931 cornerR=33.6
-
-=== frame 192: 15 comps ===
-  c=(68,68) w=78 h=78 area=5658 cornerR=22.3
-  c=(181,68) w=85 h=78 area=6031 cornerR=26.4
-  c=(298,68) w=85 h=78 area=6011 cornerR=26.9
-  c=(410,68) w=78 h=78 area=5662 cornerR=22.2
-  c=(64,180) w=70 h=72 area=5040 cornerR=0.0
-  c=(182,180) w=72 h=72 area=5140 cornerR=7.2
-  c=(298,180) w=72 h=72 area=5178 cornerR=2.6
-  c=(414,180) w=70 h=72 area=5040 cornerR=0.0
-  c=(64,294) w=70 h=70 area=3976 cornerR=32.8
-  c=(182,294) w=72 h=70 area=3949 cornerR=35.7
-  c=(298,294) w=71 h=70 area=3961 cornerR=34.3
-  c=(414,294) w=70 h=70 area=3932 cornerR=33.6
-
-=== frame 384: 18 comps ===
-  c=(64,64) w=70 h=70 area=3967 cornerR=33.0
-  c=(181,64) w=71 h=70 area=3970 cornerR=34.1
-  c=(298,64) w=71 h=70 area=3974 cornerR=34.1
-  c=(414,64) w=70 h=70 area=3972 cornerR=32.9
-  c=(68,180) w=78 h=84 area=6052 cornerR=24.1
-  c=(181,180) w=85 h=84 area=6403 cornerR=29.3
-  c=(298,180) w=86 h=84 area=6413 cornerR=30.7
-  c=(410,180) w=78 h=86 area=6036 cornerR=28.0
-  c=(64,294) w=70 h=70 area=3976 cornerR=32.8
-  c=(182,294) w=72 h=70 area=3949 cornerR=35.7
-  c=(298,294) w=71 h=70 area=3961 cornerR=34.3
-  c=(414,294) w=70 h=70 area=3932 cornerR=33.6
-
-=== frame 432: 17 comps ===
-  c=(64,64) w=70 h=70 area=3967 cornerR=33.0
-  c=(181,64) w=71 h=70 area=3970 cornerR=34.1
-  c=(298,64) w=71 h=70 area=3974 cornerR=34.1
-  c=(414,64) w=70 h=70 area=3972 cornerR=32.9
-  c=(66,180) w=74 h=80 area=5641 cornerR=18.0
-  c=(182,180) w=80 h=80 area=5798 cornerR=26.5
-  c=(298,180) w=80 h=80 area=5843 cornerR=25.5
-  c=(412,180) w=74 h=80 area=5615 cornerR=18.8
-  c=(64,294) w=70 h=70 area=3976 cornerR=32.8
-  c=(182,294) w=72 h=70 area=3949 cornerR=35.7
-  c=(298,294) w=71 h=70 area=3961 cornerR=34.3
-  c=(414,294) w=70 h=70 area=3932 cornerR=33.6
-
-=== frame 480: 13 comps ===
-  c=(298,64) w=72 h=71 area=5026 cornerR=10.0
-  c=(414,64) w=70 h=71 area=4902 cornerR=8.9
-  c=(64,64) w=70 h=70 area=4900 cornerR=0.0
-  c=(182,64) w=72 h=70 area=5040 cornerR=0.0
-  c=(66,180) w=72 h=72 area=5100 cornerR=9.9
-  c=(182,180) w=72 h=72 area=5179 cornerR=2.4
-  c=(298,180) w=72 h=72 area=5183 cornerR=1.1
-  c=(414,180) w=72 h=72 area=5063 cornerR=11.9
-  c=(64,294) w=70 h=70 area=3976 cornerR=32.8
-  c=(182,294) w=72 h=70 area=3949 cornerR=35.7
-  c=(298,294) w=71 h=70 area=3961 cornerR=34.3
-  c=(414,294) w=70 h=70 area=3932 cornerR=33.6
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/reference-documentation/
-[?2004l[0m[01;34mdocs.re.video[0m  [01;34mgithub.com[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/reference-documentation/docs.re.video/ | head
-[?2004l3d-animations-with-threejs.md
-api
-code-animations.md
-code-snippets
-common-issues
-configuration.md
-custom-components.md
-custom-font.md
-designing-animations.md
-emojis.md
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ find /app/reference-documentation -name '*.md' | head -30
-[?2004l/app/reference-documentation/github.com/redotvideo/revideo/README.md
-/app/reference-documentation/docs.re.video/layouts.md
-/app/reference-documentation/docs.re.video/understanding-scene-flow.md
-/app/reference-documentation/docs.re.video/positioning.md
-/app/reference-documentation/docs.re.video/project-structure.md
-/app/reference-documentation/docs.re.video/3d-animations-with-threejs.md
-/app/reference-documentation/docs.re.video/rive-animations.md
-/app/reference-documentation/docs.re.video/code-snippets/moving-manipulating-objects.md
-/app/reference-documentation/docs.re.video/code-snippets/streaming-text.md
-/app/reference-documentation/docs.re.video/code-snippets/changing-object-size-over-time-with-signals.md
-/app/reference-documentation/docs.re.video/logical-separation.md
-/app/reference-documentation/docs.re.video/flow.md
-/app/reference-documentation/docs.re.video/logging.md
-/app/reference-documentation/docs.re.video/code-animations.md
-/app/reference-documentation/docs.re.video/designing-animations.md
-/app/reference-documentation/docs.re.video/transitions.md
-/app/reference-documentation/docs.re.video/hls-video.md
-/app/reference-documentation/docs.re.video/emojis.md
-/app/reference-documentation/docs.re.video/hierarchy.md
-/app/reference-documentation/docs.re.video/common-issues/ffmpeg.md
-/app/reference-documentation/docs.re.video/common-issues/slow-rendering.md
-/app/reference-documentation/docs.re.video/custom-font.md
-/app/reference-documentation/docs.re.video/tweening-guide.md
-/app/reference-documentation/docs.re.video/api/core/tweening.md
-/app/reference-documentation/docs.re.video/api/core/flow.md
-/app/reference-documentation/docs.re.video/api/core/types.md
-/app/reference-documentation/docs.re.video/api/core/signals.md
-/app/reference-documentation/docs.re.video/api/renderer/renderVideo.md
-/app/reference-documentation/docs.re.video/api/2d/components/SVG.md
-/app/reference-documentation/docs.re.video/api/2d/components/Circle.md
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls /app/reference-documentation/docs.re.video/api/2d/components/
-[?2004lAudio.md   Circle.md  CubicBezier.md  Grid.md  Img.md   Latex.md   Line.md   Node.md  Polygon.md     Ray.md   Rive.md  Shape.md   Txt.md    View2D.md
-Bezier.md  Code.md    Curve.md        Icon.md  Knot.md  Layout.md  Media.md  Path.md  QuadBezier.md  Rect.md  SVG.md   Spline.md  Video.md
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/reference-documentation/docs.re.video/code-snippets/changing-object-size-over-time-with-signals.md
-[?2004l# Changing Object Sizes with Signals
-
-You can use signals to change values in your animation over time. Below you can find an example that uses signals to change the size of a circle over time.
-
-```typescript
-import ...
-export default makeScene2D(function* (view) {
-  const circleSize = createSignal(50); // initial size of 50
-  yield view.add(
-    <>
-      <Circle fill={'green'} size={circleSize} />
-      <Txt fontSize={40} x={-300}>
-        {() => `size: ${circleSize().toFixed(1)}`}
-      </Txt>
-    </>,
-  );
-  yield* circleSize(200, 2); // change size to 200 over two seconds
-});
-```
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/reference-documentation/docs.re.video/tweening-guide.md
-[?2004l# Tweening
-
-_Note: These docs were adopted from the original Motion Canvas docs_
-
-Tweens are one of the fundamental building blocks of animation. They are a special type of generators that animate between two values over given time.
-
-## `tween` function
-
-The simplest way to create a tween is via the `tween` function:
-
-```javascript
-import {Circle, makeScene2D} from '@revideo/2d';
-import {createRef, map, tween} from '@revideo/core';
-
-export default makeScene2D(function* (view) {
-  const circle = createRef<Circle>();
-  view.add(
-    <Circle
-      ref={circle}
-      x={-300}
-      width={240}
-      height={240}
-      fill="#e13238"
-    />,
-  );
-  yield* tween(2, value => {
-    circle().position.x(map(-300, 300, value));
-  });
-});
-```
-
-In the example above, we animate the x coordinate of our circle from `-300` to `300` over a span of `2` seconds.
-
-The `tween` function takes two parameters. The first one specifies the tween duration in seconds. The second is a callback function that will be called each frame the tween takes place. The `value` parameter it receives is a number ranging from `0` to `1`, informing us about the progress of the tween. We can use it to calculate the values that our tween animates. In the case of our circle, we use the `map` function to map the `value` range from `[0, 1]` to `[-300, 300]` and set it as the `x` coordinate.
-
-### Timing functions
-
-At the moment, our animation feels a bit unnatural. The speed with which the `value` parameter changes is constant, which in turn makes the circle move with constant speed. In real life, however, objects have inertia - they take time to speed up and slow down. We can simulate this behavior with timing functions.
-
-A timing function takes a number in the range `[0, 1]` and returns another number in the same range but with a modified rate of change. Motion Canvas provides all the most popular timing functions but since it's a normal JavaScript function you can create your own.
-
-Let's use the `easeInOutCubic` function to fix our animation:
-
-```javascript
-yield * tween(2, value => {
-  circle().position.x(map(-300, 300, easeInOutCubic(value)));
-});
-```
-
-Because using timing functions to map a range of values is a really common pattern, it's possible to skip `map` entirely and pass the range to the timing function itself:
-
-```javascript
-// This:
-map(-300, 300, easeInOutCubic(value));
-// Can be simplified to:
-easeInOutCubic(value, -300, 300);
-```
-
-### Interpolation functions
-
-So far, we've only animated a single, numeric value. The `map` function can be used to interpolate between two numbers but to animate more complex types we'll need to use interpolation functions. Consider the following example:
-
-```javascript
-yield * tween(2, value => {
-  circle().fill(
-    Color.lerp(
-      new Color('#e6a700'),
-      new Color('#e13238'),
-      easeInOutCubic(value),
-    ),
-  );
-});
-```
-
-`Color.lerp` is a static function that interpolates between two colors.
-
-**tip:** All complex types in Motion Canvas provide a static method called `lerp` that interpolates between two instances of said type.
-
-Aside from the default linear interpolation, some types offer more advanced functions such as the `Vector2.arcLerp`. It makes the object follow a curved path from point a to b:
-
-```javascript
-yield * tween(2, value => {
-  circle().position(
-    Vector2.arcLerp(
-      new Vector2(-300, 200),
-      new Vector2(300, -200),
-      easeInOutCubic(value),
-    ),
-  );
-});
-```
-
-### Tweening properties
-
-The `tween` function is useful when we need to orchestrate complex animations. However, there's a better way of tweening individual properties. The following tween:
-
-```javascript
-yield * tween(2, value => {
-  circle().color(
-    Color.lerp(
-      new Color('#e6a700'),
-      new Color('#e13238'),
-      easeInOutCubic(value),
-    ),
-  );
-});
-```
-
-Can be written as:
-
-```javascript
-yield * circle().color('#e13238', 2);
-```
-
-Here, we use a `SignalTween` signature that looks similar to a setter, except it accepts the transition duration as its second argument.
-
-We can chain multiple tweens together by calling the `to()` method on the returned object:
-
-```javascript
-yield * circle().color('#e13238', 2).to('#e6a700', 2);
-```
-
-By default, property tweens use `easeInOutCubic` as the timing function. We can override that by providing a third argument:
-
-```javascript
-yield * circle().color(
-  '#e13238',
-  2,
-  easeOutQuad,
-);
-```
-
-Similarly, we can pass a custom interpolation function as the fourth argument:
-
-```javascript
-yield * circle().position(
-  new Vector2(300, -200),
-  2,
-  easeInOutCubic,
-  Vector2.arcLerp,
-);
-```
-
-## `spring` function
-
-The `spring` function allows us to interpolate between two values using Hooke's law. We need to provide it with the description of our spring and the `from` and `to` values.
-
-```javascript
-import {Circle, makeScene2D} from '@revideo/2d';
-import {PlopSpring, SmoothSpring, createRef, spring} from '@revideo/core';
-
-export default makeScene2D(function* (view) {
-  const circle = createRef<Circle>();
-  view.add(
-    <Circle
-      ref={circle}
-      x={-400}
-      size={240}
-      fill={'#e13238'}
-    />,
-  );
-  yield* spring(PlopSpring, -400, 400, 1, value => {
-    circle().position.x(value);
-  });
-  yield* spring(SmoothSpring, 400, -400, value => {
-    circle().position.x(value);
-  });
-});
-```
-
-### Spring description
-
-The first argument of the `spring` function expects an object that describes the physical properties of our spring:
-
-```javascript
-const MySpring = {
-  mass: 0.04,
-  stiffness: 10.0,
-  damping: 0.7,
-  initialVelocity: 8.0,
-};
-```
-
-- `mass` - Describes the inertia of the spring.
-- `stiffness` - The coefficient of the spring (k in Hooke's equation).
-- `damping` - Causes the spring to lose energy and settle. Set to `0` for indefinite oscillation.
-- `initialVelocity` - The initial velocity of the spring.
-
-### Settle tolerance
-
-The optional `settleTolerance` argument defines the minimal distance from the `to` value the spring should reach to be considered settled:
-
-```javascript
-yield * spring(PlopSpring, -400, 400, 1 /*...*/)
-//                               here ^
-```
-
-## Saving and restoring states
-
-All nodes provide a `save` method which allows us to save a snapshot of the node's current state. We can then use the `restore` method to restore the node to the previously saved state.
-
-```javascript
-circle().save();
-yield * circle().position(new Vector2(300, -200), 2);
-yield * circle().restore(1);
-```
-
-It is also possible to provide a custom timing function to the `restore` method:
-
-```javascript
-yield * circle().restore(1, linear);
-```
-
-Node states get stored on a stack. This makes it possible to save more than one state by invoking the `save` method multiple times. When calling `restore`, the node will be restored to the most recently saved state by popping the top entry in the state stack.
-
-```javascript
-import {Circle, makeScene2D} from '@revideo/2d';
-import {all, createRef} from '@revideo/core';
-
-export default makeScene2D(function* (view) {
-  const circle = createRef<Circle>();
-  view.add(
-    <Circle
-      ref={circle}
-      size={150}
-      position={[-300, -300]}
-      fill={'#e13238'}
-    />,
-  );
-  circle().save();
-  yield* all(circle().position.x(0, 1), circle().scale(1.5, 1));
-  circle().save();
-  yield* all(circle().position.y(0, 1), circle().scale(0.5, 1));
-  circle().save();
-  yield* all(circle().position.x(300, 1), circle().scale(1, 1));
-  yield* circle().restore(1);
-  yield* circle().restore(1);
-  yield* circle().restore(1);
-});
-```
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/reference-documentation/docs.re.video/api/2d/components/Rect.md | head -100
-[?2004l# Rect Component Documentation
-
-## Overview
-
-The `Rect` class extends `Curve` and represents a rectangular shape component in Revideo's 2D animation library. It serves as a foundational element for creating rectangular shapes with extensive customization options.
-
-## Key Features
-
-**Shape Properties:**
-- Rounded corners via the `radius` signal, supporting individual corner radii
-- Smooth corner rendering through `smoothCorners` and `cornerSharpness` properties
-- Full inheritance of curve properties including stroke, fill, and drawing options
-
-**Layout & Transform:**
-The component supports comprehensive positioning through signals like `absolutePosition`, `position`, `scale`, `rotation`, and `skew`. Edge positioning helpers include `top`, `bottom`, `left`, `right`, and corner-specific accessors like `topLeft` and `bottomRight`.
-
-**Styling:**
-Inherits extensive styling capabilities including fill colors, stroke properties, opacity, shadows, and filters. The component supports text properties like `fontFamily`, `fontSize`, and `textAlign`.
-
-**Child Management:**
-Full support for hierarchical composition with methods including `add()`, `insert()`, `remove()`, and `removeChildren()`.
-
-## Notable Methods
-
-The component provides transformation utilities (`localToWorld()`, `worldToLocal()`), state management (`save()`, `restore()`, `getState()`, `applyState()`), and rendering functionality. Specialized curve methods include `arcLength()`, `getPointAtPercentage()`, and distance/percentage conversion utilities.
-
-**Clone Operations:**
-Three cloning strategies are available: `clone()` (preserves reactivity), `snapshotClone()` (captures current values), and `reactiveClone()` (creates dynamically synchronized copies).
-
-## Properties
-
-### Core Properties
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `position` | `Vector2Signal` | Represents the position of this node in local space of its parent |
-| `x` | `SimpleSignal<number>` | X-axis position (accessor) |
-| `y` | `SimpleSignal<number>` | Y-axis position (accessor) |
-| `size` | `Vector2LengthSignal` | Represents the size of this node where x=width, y=height |
-| `width` | `SignalLength` | Width dimension (accessor) |
-| `height` | `SignalLength` | Height dimension (accessor) |
-| `scale` | `Vector2Signal` | Represents the scale of this node in local space of its parent |
-| `rotation` | `SimpleSignal<number>` | Rotation in degrees relative to parent |
-| `opacity` | `SimpleSignal<number>` | Range 0-1, clamped value |
-| `offset` | `Vector2Signal` | Represents the offset of this node's origin (pivot point for transforms) |
-
-### Visual Properties
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `fill` | `CanvasStyleSignal` | Fill color/style |
-| `stroke` | `CanvasStyleSignal` | Stroke color/style |
-| `lineWidth` | `SimpleSignal<number>` | Stroke width in pixels |
-| `radius` | `SpacingSignal` | Rounds the corners of this rectangle |
-| `smoothCorners` | `SimpleSignal<boolean>` | Enables corner smoothing using Bézier curves |
-| `cornerSharpness` | `SimpleSignal<number>` | Controls smoothing curve sharpness (0-1 range) |
-| `lineCap` | `SimpleSignal<CanvasLineCap>` | Line ending style |
-| `lineJoin` | `SimpleSignal<CanvasLineJoin>` | Line joining style |
-| `lineDash` | `SimpleSignal<number[]>` | Dash pattern array |
-| `lineDashOffset` | `SimpleSignal<number>` | Dash pattern offset |
-
-### Layout & Positioning
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `clip` | `SimpleSignal<boolean>` | Enable clipping to bounds |
-| `absolutePosition` | `SimpleVector2Signal` | A helper signal for operating on the position in world space |
-| `absoluteRotation` | `SimpleSignal<number>` | Rotation in world space |
-| `absoluteScale` | `SimpleVector2Signal` | Scale in world space |
-| `middle` | `SimpleVector2Signal` | Center position |
-| `top` | `SimpleVector2Signal` | Top edge position |
-| `bottom` | `SimpleVector2Signal` | Bottom edge position |
-| `left` | `SimpleVector2Signal` | Left edge position |
-| `right` | `SimpleVector2Signal` | Right edge position |
-| `topLeft` | `SimpleVector2Signal` | Top-left corner position |
-| `topRight` | `SimpleVector2Signal` | Top-right corner position |
-| `bottomLeft` | `SimpleVector2Signal` | Bottom-left corner position |
-| `bottomRight` | `SimpleVector2Signal` | Bottom-right corner position |
-
-### Flex Layout
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `layout` | `SimpleSignal<LayoutMode>` | Layout mode configuration |
-| `direction` | `SimpleSignal<FlexDirection>` | Flex direction |
-| `justifyContent` | `SimpleSignal<FlexContent>` | Main axis alignment |
-| `alignItems` | `SimpleSignal<FlexItems>` | Cross axis alignment |
-| `alignContent` | `SimpleSignal<FlexContent>` | Multi-line alignment |
-| `alignSelf` | `SimpleSignal<FlexItems>` | Individual item alignment |
-| `gap` | `Vector2LengthSignal` | Space between flex items |
-| `padding` | `SpacingSignal` | Internal spacing |
-| `margin` | `SpacingSignal` | External spacing |
-| `basis` | `SimpleSignal<FlexBasis>` | Default item size |
-| `grow` | `SimpleSignal<number>` | Growth factor |
-| `shrink` | `SimpleSignal<number>` | Shrink factor |
-| `wrap` | `SimpleSignal<FlexWrap>` | Wrapping behavior |
-
-### Effects & Styling
-
-| Property | Type | Description |
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ grep -i 'radius' /app/reference-documentation/docs.re.video/api/2d/components/Rect.md | head -20
-[?2004l- Rounded corners via the `radius` signal, supporting individual corner radii
-| `radius` | `SpacingSignal` | Rounds the corners of this rectangle |
-| `shadowBlur` | `SimpleSignal<number>` | Shadow blur radius |
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /app/src/project.tsx << 'EOF'
-[?2004l[?2004h> import {makeProject, createRef, all, waitFor} from '@revideo/core';
-[?2004l[?2004h> import {makeScene2D, Rect} from '@revideo/2d';
-[?2004l[?2004h> 
-[?2004l[?2004h> const scene = makeScene2D('scene', function* (view) {
-[?2004l[?2004h>   view.fill('#17182b');
-[?2004l[?2004h> 
-[?2004l[?2004h>   // Grid: 4 columns x 3 rows. View origin is center, view size 480x360.
-[?2004l[?2004h>   // Image coords cy: 64, 180, 295 -> screen y: -116, 0, 115
-[?2004l[?2004h>   // Image coords cx: 64, 181, 298, 415 -> screen x: -176, -59, 58, 175
-[?2004l[?2004h>   const cx = [-176, -59, 58, 175];
-[?2004l[?2004h>   const cy = [-116, 0, 115];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const colors = [
-[?2004l[?2004h>     ['#f33030', '#30c331', '#3092f2', '#f3c404'], // row 0
-[?2004l[?2004h>     ['#f132f0', '#02c4c2', '#f18303', '#62f462'], // row 1
-[?2004l[?2004h>     ['#c231f3', '#32f5c6', '#f26362', '#95c5f6'], // row 2
-[?2004l[?2004h>   ];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const refs: any[][] = [[], [], []];
-[?2004l[?2004h>   for (let r = 0; r < 3; r++) {
-[?2004l[?2004h>     for (let c = 0; c < 4; c++) {
-[?2004l[?2004h>       const ref = createRef<Rect>();
-[?2004l[?2004h>       view.add(
-[?2004l[?2004h>         <Rect
-[?2004l[?2004h>           ref={ref}
-[?2004l[?2004h>           x={cx[c]}
-[?2004l[?2004h>           y={cy[r]}
-[?2004l[?2004h>           width={70}
-[?2004l[?2004h>           height={70}
-[?2004l[?2004h>           radius={35}
-[?2004l[?2004h>           fill={colors[r][c]}
-[?2004l[?2004h>         />,
-[?2004l[?2004h>       );
-[?2004l[?2004h>       refs[r].push(ref);
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   // Row 0 animation: 2s per phase, repeating cycle.
-[?2004l[?2004h>   // Phases:
-[?2004l[?2004h>   //   0-2s: baseline (70, r35)
-[?2004l[?2004h>   //   2-4s: morph to (70, r10) — first stage
-[?2004l[?2004h>   //   4-6s: hold (70, r10)
-[?2004l[?2004h>   //   6-8s: morph to (85, r25) — peak
-[?2004l[?2004h>   //   8-10s: back to (70, r10)
-[?2004l[?2004h>   //   10-12s: hold (70, r10)
-[?2004l[?2004h>   //   12-14s: back to baseline (70, r35)
-[?2004l[?2004h>   //   14-18s: hold baseline
-[?2004l[?2004h>   //   18-20s: morph again to (70, r10) — start cycle 2
-[?2004l[?2004h>   //
-[?2004l[?2004h>   // Row 1 animation: 4s per phase (2x slower):
-[?2004l[?2004h>   //   0-4s: baseline
-[?2004l[?2004h>   //   4-8s: morph to (70, r10)
-[?2004l[?2004h>   //   8-12s: hold
-[?2004l[?2004h>   //   12-16s: morph to (85, r25)
-[?2004l[?2004h>   //   16-20s: morph back to (70, r10)
-[?2004l[?2004h> 
-[?2004l[?2004h>   function* animateRow(row: number) {
-[?2004l[?2004h>     const rs = refs[row];
-[?2004l[?2004h>     if (row === 0) {
-[?2004l[?2004h>       yield* waitFor(2);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(10, 2)));
-[?2004l[?2004h>       yield* waitFor(2);
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(85, 2)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(25, 2)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(70, 2)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(10, 2)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>       yield* waitFor(2);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(35, 2)));
-[?2004l[?2004h>       yield* waitFor(4);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(10, 2)));
-[?2004l[?2004h>     } else if (row === 1) {
-[?2004l[?2004h>       yield* waitFor(4);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(10, 4)));
-[?2004l[?2004h>       yield* waitFor(4);
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(85, 4)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(25, 4)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(70, 4)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(10, 4)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>     }
-[?2004l[?2004h>     // row 2: no animation
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   yield* all(animateRow(0), animateRow(1), animateRow(2));
-[?2004l[?2004h> });
-[?2004l[?2004h> 
-[?2004l[?2004h> export default makeProject({
-[?2004l[?2004h>   scenes: [scene],
-[?2004l[?2004h>   settings: {
-[?2004l[?2004h>     shared: {
-[?2004l[?2004h>       size: {x: 480, y: 360},
-[?2004l[?2004h>     },
-[?2004l[?2004h>     rendering: {
-[?2004l[?2004h>       fps: 24,
-[?2004l[?2004h>     },
-[?2004l[?2004h>   },
-[?2004l[?2004h> });
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -30
-[?2004l
-> revideo-task@0.0.0 render
-> tsc && node dist/render.js
-
-Rendering video...
-Worker 0: JSHandle:finished downloading
-Render progress, worker 0: 13% 
-Render progress, worker 0: 79% 
-Rendered video to output/video.mp4
-npm notice
-npm notice New major version of npm available! 10.9.8 -> 11.15.0
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.15.0
-npm notice To update run: npm install -g npm@11.15.0
-npm notice
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /app/output/
-[?2004ltotal 311
-drwxr-xr-x 1 agent agent    120 May 20 20:58 [0m[01;34m.[0m
-drwxr-xr-x 1 agent agent    100 May 20 20:58 [01;34m..[0m
--rw-r--r-- 1 agent agent 318028 May 20 20:58 [01;35mvideo.mp4[0m
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ mkdir -p /tmp/oframes && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -3
-[?2004l      encoder         : Lavc59.37.100 png
-frame=    1 fps=0.0 q=0.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=  481 fps=0.0 q=-0.0 Lsize=N/A time=00:00:20.04 bitrate=N/A speed=61.2x    
-video:22330kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> import os
-[?2004l[?2004h> # Compare frame by frame
-[?2004l[?2004h> frames_ref = sorted([f for f in os.listdir('/tmp/frames') if f.startswith('g')])
-[?2004l[?2004h> frames_out = sorted(os.listdir('/tmp/oframes'))
-[?2004l[?2004h> print(f'ref: {len(frames_ref)}, out: {len(frames_out)}')
-[?2004l[?2004h> 
-[?2004l[?2004h> diffs = []
-[?2004l[?2004h> for i in range(min(len(frames_ref), len(frames_out))):
-[?2004l[?2004h>     r = np.array(Image.open(f'/tmp/frames/{frames_ref[i]}')).astype(int)
-[?2004l[?2004h>     o = np.array(Image.open(f'/tmp/oframes/{frames_out[i]}')).astype(int)
-[?2004l[?2004h>     if r.shape != o.shape:
-[?2004l[?2004h>         print(f'shape mismatch frame {i}: ref={r.shape}, out={o.shape}')
-[?2004l[?2004h>         break
-[?2004l[?2004h>     diffs.append(np.abs(r-o).mean())
-[?2004l[?2004h> print(f'mean abs diff per frame stats: min={min(diffs):.2f}, max={max(diffs):.2f}, mean={np.mean(diffs):.2f}')
-[?2004l[?2004h> # Print diffs every 24 frames
-[?2004l[?2004h> for i in range(0, len(diffs), 24):
-[?2004l[?2004h>     print(f'  f{i} t={i/24:.2f}s diff={diffs[i]:.2f}')
-[?2004l[?2004h> EOF
-[?2004lref: 481, out: 481
-mean abs diff per frame stats: min=4.32, max=7.03, mean=5.53
-  f0 t=0.00s diff=4.32
-  f24 t=1.00s diff=4.33
-  f48 t=2.00s diff=4.33
-  f72 t=3.00s diff=4.58
-  f96 t=4.00s diff=4.66
-  f120 t=5.00s diff=5.42
-  f144 t=6.00s diff=5.05
-  f168 t=7.00s diff=5.82
-  f192 t=8.00s diff=6.89
-  f216 t=9.00s diff=5.97
-  f240 t=10.00s diff=5.05
-  f264 t=11.00s diff=5.05
-  f288 t=12.00s diff=5.05
-  f312 t=13.00s diff=5.58
-  f336 t=14.00s diff=5.66
-  f360 t=15.00s diff=6.60
-  f384 t=16.00s diff=6.31
-  f408 t=17.00s diff=6.62
-  f432 t=18.00s diff=5.66
-  f456 t=19.00s diff=5.62
-  f480 t=20.00s diff=5.00
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> # Compare baseline frame 1 - circles' colors
-[?2004l[?2004h> ref = np.array(Image.open('/tmp/frames/g0001.png'))
-[?2004l[?2004h> out = np.array(Image.open('/tmp/oframes/o0001.png'))
-[?2004l[?2004h> 
-[?2004l[?2004h> centers = [
-[?2004l[?2004h>     (64,64),(181,65),(298,64),(415,65),
-[?2004l[?2004h>     (65,180),(181,179),(298,179),(414,179),
-[?2004l[?2004h>     (65,295),(181,295),(298,295),(414,294),
-[?2004l[?2004h> ]
-[?2004l[?2004h> for i, (cx, cy) in enumerate(centers):
-[?2004l[?2004h>     rc = ref[cy, cx]
-[?2004l[?2004h>     oc = out[cy, cx]
-[?2004l[?2004h>     print(f'#{i} ({cx},{cy}): ref={rc} out={oc} diff={np.abs(rc.astype(int)-oc.astype(int)).sum()}')
-[?2004l[?2004h> # Check background
-[?2004l[?2004h> print(f'bg: ref={ref[0,0]} out={out[0,0]}')
-[?2004l[?2004h> EOF
-[?2004l#0 (64,64): ref=[253  50  48] out=[242  48  48] diff=13
-#1 (181,65): ref=[ 49 203  51] out=[ 45 194  44] diff=20
-#2 (298,64): ref=[ 50 151 254] out=[ 49 145 238] diff=23
-#3 (415,65): ref=[253 203   0] out=[242 195   4] diff=23
-#4 (65,180): ref=[253  51 251] out=[240  50 239] diff=26
-#5 (181,179): ref=[  0 204 201] out=[  1 195 191] diff=20
-#6 (298,179): ref=[251 137   0] out=[239 130   1] diff=20
-#7 (414,179): ref=[ 99 255 101] out=[ 96 242  96] diff=21
-#8 (65,295): ref=[201  50 252] out=[192  49 241] diff=21
-#9 (181,295): ref=[ 50 253 204] out=[ 48 244 197] diff=18
-#10 (298,295): ref=[250 103 100] out=[240 100  95] diff=18
-#11 (414,294): ref=[152 203 254] out=[148 197 242] diff=22
-bg: ref=[23 24 43] out=[20 21 40]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 << 'EOF'
-[?2004l[?2004h> # Compute what RGB I'd need to feed into mp4 encoding to get the ref colors out.
-[?2004l[?2004h> # YUV TV range encoding: ref colors are stored in TV range (16-235).
-[?2004l[?2004h> # When decoded with full RGB output, they get scaled back.
-[?2004l[?2004h> # Likely the source colors were full pure colors.
-[?2004l[?2004h> # Let me just guess CSS-named or hex colors:
-[?2004l[?2004h> colors = [
-[?2004l[?2004h>     (253, 50, 48),    # red
-[?2004l[?2004h>     (49, 203, 51),    # green
-[?2004l[?2004h>     (50, 151, 254),   # blue
-[?2004l[?2004h>     (253, 203, 0),    # yellow/gold
-[?2004l[?2004h>     (253, 51, 251),   # magenta
-[?2004l[?2004h>     (0, 204, 201),    # dark turquoise
-[?2004l[?2004h>     (251, 137, 0),    # orange
-[?2004l[?2004h>     (99, 255, 101),   # lime green
-[?2004l[?2004h>     (201, 50, 252),   # blueviolet/purple
-[?2004l[?2004h>     (50, 253, 204),   # aquamarine
-[?2004l[?2004h>     (250, 103, 100),  # salmon/coral
-[?2004l[?2004h>     (152, 203, 254),  # lightskyblue
-[?2004l[?2004h> ]
-[?2004l[?2004h> for c in colors:
-[?2004l[?2004h>     print(f'#{c[0]:02x}{c[1]:02x}{c[2]:02x}')
-[?2004l[?2004h> EOF
-[?2004lSyntaxError: encoding problem: ref
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/colors.py << 'PYEOF'
-[?2004l[?2004h> colors = [
-[?2004l[?2004h>     (253, 50, 48), (49, 203, 51), (50, 151, 254), (253, 203, 0),
-[?2004l[?2004h>     (253, 51, 251), (0, 204, 201), (251, 137, 0), (99, 255, 101),
-[?2004l[?2004h>     (201, 50, 252), (50, 253, 204), (250, 103, 100), (152, 203, 254),
-[?2004l[?2004h> ]
-[?2004l[?2004h> names = ['red', 'green', 'blue', 'yellow', 'magenta', 'teal', 'orange', 'lime', 'purple', 'mint', 'pink', 'lightblue']
-[?2004l[?2004h> for c, n in zip(colors, names):
-[?2004l[?2004h>     print(f'{n}: rgb{c} hex=#{c[0]:02x}{c[1]:02x}{c[2]:02x}')
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/colors.py
-[?2004lred: rgb(253, 50, 48) hex=#fd3230
-green: rgb(49, 203, 51) hex=#31cb33
-blue: rgb(50, 151, 254) hex=#3297fe
-yellow: rgb(253, 203, 0) hex=#fdcb00
-magenta: rgb(253, 51, 251) hex=#fd33fb
-teal: rgb(0, 204, 201) hex=#00ccc9
-orange: rgb(251, 137, 0) hex=#fb8900
-lime: rgb(99, 255, 101) hex=#63ff65
-purple: rgb(201, 50, 252) hex=#c932fc
-mint: rgb(50, 253, 204) hex=#32fdcc
-pink: rgb(250, 103, 100) hex=#fa6764
-lightblue: rgb(152, 203, 254) hex=#98cbfe
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/adjust_colors.py << 'PYEOF'
-[?2004l[?2004h> # Target (ref) colors and my current output colors
-[?2004l[?2004h> ref = [
-[?2004l[?2004h>     (253, 50, 48), (49, 203, 51), (50, 151, 254), (253, 203, 0),
-[?2004l[?2004h>     (253, 51, 251), (0, 204, 201), (251, 137, 0), (99, 255, 101),
-[?2004l[?2004h>     (201, 50, 252), (50, 253, 204), (250, 103, 100), (152, 203, 254),
-[?2004l[?2004h> ]
-[?2004l[?2004h> out = [
-[?2004l[?2004h>     (242, 48, 48), (45, 194, 44), (49, 145, 238), (242, 195, 4),
-[?2004l[?2004h>     (240, 50, 239), (1, 195, 191), (239, 130, 1), (96, 242, 96),
-[?2004l[?2004h>     (192, 49, 241), (48, 244, 197), (240, 100, 95), (148, 197, 242),
-[?2004l[?2004h> ]
-[?2004l[?2004h> # Multiplicative + additive correction: To make out look like ref, need to boost
-[?2004l[?2004h> # Per-channel: ref/out ratio
-[?2004l[?2004h> for r, o in zip(ref, out):
-[?2004l[?2004h>     print(f'ref={r} out={o} target_brighter_by R={r[0]-o[0]} G={r[1]-o[1]} B={r[2]-o[2]}')
-[?2004l[?2004h> # Average per channel
-[?2004l[?2004h> import statistics
-[?2004l[?2004h> dr = statistics.mean(r[0]-o[0] for r,o in zip(ref,out))
-[?2004l[?2004h> dg = statistics.mean(r[1]-o[1] for r,o in zip(ref,out))
-[?2004l[?2004h> db = statistics.mean(r[2]-o[2] for r,o in zip(ref,out))
-[?2004l[?2004h> print(f'avg diff R={dr:.1f} G={dg:.1f} B={db:.1f}')
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/adjust_colors.py
-[?2004lref=(253, 50, 48) out=(242, 48, 48) target_brighter_by R=11 G=2 B=0
-ref=(49, 203, 51) out=(45, 194, 44) target_brighter_by R=4 G=9 B=7
-ref=(50, 151, 254) out=(49, 145, 238) target_brighter_by R=1 G=6 B=16
-ref=(253, 203, 0) out=(242, 195, 4) target_brighter_by R=11 G=8 B=-4
-ref=(253, 51, 251) out=(240, 50, 239) target_brighter_by R=13 G=1 B=12
-ref=(0, 204, 201) out=(1, 195, 191) target_brighter_by R=-1 G=9 B=10
-ref=(251, 137, 0) out=(239, 130, 1) target_brighter_by R=12 G=7 B=-1
-ref=(99, 255, 101) out=(96, 242, 96) target_brighter_by R=3 G=13 B=5
-ref=(201, 50, 252) out=(192, 49, 241) target_brighter_by R=9 G=1 B=11
-ref=(50, 253, 204) out=(48, 244, 197) target_brighter_by R=2 G=9 B=7
-ref=(250, 103, 100) out=(240, 100, 95) target_brighter_by R=10 G=3 B=5
-ref=(152, 203, 254) out=(148, 197, 242) target_brighter_by R=4 G=6 B=12
-avg diff R=6.6 G=6.2 B=6.7
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /app/src/project.tsx << 'EOF'
-[?2004l[?2004h> import {makeProject, createRef, all, waitFor} from '@revideo/core';
-[?2004l[?2004h> import {makeScene2D, Rect} from '@revideo/2d';
-[?2004l[?2004h> 
-[?2004l[?2004h> const scene = makeScene2D('scene', function* (view) {
-[?2004l[?2004h>   view.fill('#191a2d');
-[?2004l[?2004h> 
-[?2004l[?2004h>   const cx = [-176, -59, 58, 175];
-[?2004l[?2004h>   const cy = [-116, 0, 115];
-[?2004l[?2004h> 
-[?2004l[?2004h>   // Brighter, more saturated colors to match reference after YUV encoding.
-[?2004l[?2004h>   const colors = [
-[?2004l[?2004h>     ['#ff3030', '#33d033', '#3399ff', '#ffcc00'], // row 0: red, green, blue, yellow
-[?2004l[?2004h>     ['#ff33ff', '#00d0cd', '#ff8a00', '#66ff66'], // row 1: magenta, teal, orange, lime
-[?2004l[?2004h>     ['#cc33ff', '#33ffcc', '#ff6666', '#99ccff'], // row 2: purple, mint, pink, lightblue
-[?2004l[?2004h>   ];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const refs: any[][] = [[], [], []];
-[?2004l[?2004h>   for (let r = 0; r < 3; r++) {
-[?2004l[?2004h>     for (let c = 0; c < 4; c++) {
-[?2004l[?2004h>       const ref = createRef<Rect>();
-[?2004l[?2004h>       view.add(
-[?2004l[?2004h>         <Rect
-[?2004l[?2004h>           ref={ref}
-[?2004l[?2004h>           x={cx[c]}
-[?2004l[?2004h>           y={cy[r]}
-[?2004l[?2004h>           width={70}
-[?2004l[?2004h>           height={70}
-[?2004l[?2004h>           radius={35}
-[?2004l[?2004h>           fill={colors[r][c]}
-[?2004l[?2004h>         />,
-[?2004l[?2004h>       );
-[?2004l[?2004h>       refs[r].push(ref);
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   function* animateRow(row: number) {
-[?2004l[?2004h>     const rs = refs[row];
-[?2004l[?2004h>     if (row === 0) {
-[?2004l[?2004h>       yield* waitFor(2);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(10, 2)));
-[?2004l[?2004h>       yield* waitFor(2);
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(85, 2)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(25, 2)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(70, 2)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(10, 2)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>       yield* waitFor(2);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(35, 2)));
-[?2004l[?2004h>       yield* waitFor(4);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(10, 2)));
-[?2004l[?2004h>     } else if (row === 1) {
-[?2004l[?2004h>       yield* waitFor(4);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(10, 4)));
-[?2004l[?2004h>       yield* waitFor(4);
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(85, 4)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(25, 4)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>       yield* all(
-[?2004l[?2004h>         ...rs.map(r => r().size(70, 4)),
-[?2004l[?2004h>         ...rs.map(r => r().radius(10, 4)),
-[?2004l[?2004h>       );
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   yield* all(animateRow(0), animateRow(1), animateRow(2));
-[?2004l[?2004h> });
-[?2004l[?2004h> 
-[?2004l[?2004h> export default makeProject({
-[?2004l[?2004h>   scenes: [scene],
-[?2004l[?2004h>   settings: {
-[?2004l[?2004h>     shared: {
-[?2004l[?2004h>       size: {x: 480, y: 360},
-[?2004l[?2004h>     },
-[?2004l[?2004h>     rendering: {
-[?2004l[?2004h>       fps: 24,
-[?2004l[?2004h>     },
-[?2004l[?2004h>   },
-[?2004l[?2004h> });
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -5
-[?2004lRendering video...
-Worker 0: JSHandle:finished downloading
-Render progress, worker 0: 11% 
-Render progress, worker 0: 74% 
-Rendered video to output/video.mp4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm /tmp/oframes/* && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -2
-[?2004lframe=    1 fps=0.0 q=0.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=  481 fps=0.0 q=-0.0 Lsize=N/A time=00:00:20.04 bitrate=N/A speed=  95x    
-video:22470kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/cmp.py << 'PYEOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> import os
-[?2004l[?2004h> frames_ref = sorted([f for f in os.listdir('/tmp/frames') if f.startswith('g')])
-[?2004l[?2004h> frames_out = sorted(os.listdir('/tmp/oframes'))
-[?2004l[?2004h> diffs = []
-[?2004l[?2004h> for i in range(min(len(frames_ref), len(frames_out))):
-[?2004l[?2004h>     r = np.array(Image.open(f'/tmp/frames/{frames_ref[i]}')).astype(int)
-[?2004l[?2004h>     o = np.array(Image.open(f'/tmp/oframes/{frames_out[i]}')).astype(int)
-[?2004l[?2004h>     diffs.append(np.abs(r-o).mean())
-[?2004l[?2004h> print(f'min={min(diffs):.2f} max={max(diffs):.2f} mean={np.mean(diffs):.2f}')
-[?2004l[?2004h> for i in range(0, len(diffs), 24):
-[?2004l[?2004h>     print(f'  f{i} t={i/24:.2f}s diff={diffs[i]:.2f}')
-[?2004l[?2004h> # Show centers comparison
-[?2004l[?2004h> ref = np.array(Image.open('/tmp/frames/g0001.png'))
-[?2004l[?2004h> out = np.array(Image.open('/tmp/oframes/o0001.png'))
-[?2004l[?2004h> centers = [(64,64),(181,65),(298,64),(415,65),(65,180),(181,179),(298,179),(414,179),(65,295),(181,295),(298,295),(414,294)]
-[?2004l[?2004h> for i, (cx, cy) in enumerate(centers):
-[?2004l[?2004h>     print(f'#{i}: ref={ref[cy,cx]} out={out[cy,cx]}')
-[?2004l[?2004h> print(f'bg: ref={ref[0,0]} out={out[0,0]}')
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/cmp.py
-[?2004lmin=1.80 max=4.49 mean=2.91
-  f0 t=0.00s diff=1.80
-  f24 t=1.00s diff=1.80
-  f48 t=2.00s diff=1.80
-  f72 t=3.00s diff=2.04
-  f96 t=4.00s diff=2.04
-  f120 t=5.00s diff=2.78
-  f144 t=6.00s diff=2.37
-  f168 t=7.00s diff=3.30
-  f192 t=8.00s diff=4.32
-  f216 t=9.00s diff=3.32
-  f240 t=10.00s diff=2.25
-  f264 t=11.00s diff=2.27
-  f288 t=12.00s diff=2.27
-  f312 t=13.00s diff=2.89
-  f336 t=14.00s diff=3.09
-  f360 t=15.00s diff=4.15
-  f384 t=16.00s diff=3.75
-  f408 t=17.00s diff=4.15
-  f432 t=18.00s diff=3.10
-  f456 t=19.00s diff=2.91
-  f480 t=20.00s diff=2.26
-#0: ref=[253  50  48] out=[255  48  47]
-#1: ref=[ 49 203  51] out=[ 48 208  50]
-#2: ref=[ 50 151 254] out=[ 50 152 249]
-#3: ref=[253 203   0] out=[253 204   0]
-#4: ref=[253  51 251] out=[253  51 251]
-#5: ref=[  0 204 201] out=[  0 206 203]
-#6: ref=[251 137   0] out=[254 137   0]
-#7: ref=[ 99 255 101] out=[ 99 255 101]
-#8: ref=[201  50 252] out=[201  50 252]
-#9: ref=[ 50 253 204] out=[ 50 253 204]
-#10: ref=[250 103 100] out=[252 102  98]
-#11: ref=[152 203 254] out=[152 203 254]
-bg: ref=[23 24 43] out=[23 24 43]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/inspect.py << 'PYEOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> bg = np.array([23,24,43])
-[?2004l[?2004h> for fnum in [192, 360]:
-[?2004l[?2004h>     ref = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-[?2004l[?2004h>     out = np.array(Image.open(f'/tmp/oframes/o{fnum:04d}.png'))
-[?2004l[?2004h>     print(f'\n=== frame {fnum} ===')
-[?2004l[?2004h>     for img, name in [(ref, 'ref'), (out, 'out')]:
-[?2004l[?2004h>         diff = np.abs(img.astype(int) - bg).sum(axis=2)
-[?2004l[?2004h>         mask = diff > 50
-[?2004l[?2004h>         labels, n = ndimage.label(mask)
-[?2004l[?2004h>         bboxes = []
-[?2004l[?2004h>         for i in range(1, n+1):
-[?2004l[?2004h>             coords = np.where(labels == i)
-[?2004l[?2004h>             size = len(coords[0])
-[?2004l[?2004h>             if size > 500:
-[?2004l[?2004h>                 ymin, ymax = coords[0].min(), coords[0].max()
-[?2004l[?2004h>                 xmin, xmax = coords[1].min(), coords[1].max()
-[?2004l[?2004h>                 cx, cy = (xmin+xmax)/2, (ymin+ymax)/2
-[?2004l[?2004h>                 bboxes.append((cx, cy, xmax-xmin+1, ymax-ymin+1, size))
-[?2004l[?2004h>         bboxes.sort(key=lambda b: (b[1], b[0]))
-[?2004l[?2004h>         print(f'  {name}:')
-[?2004l[?2004h>         for cx, cy, w, h, s in bboxes[:8]:
-[?2004l[?2004h>             import math
-[?2004l[?2004h>             r2 = (w*h - s) / (4 - math.pi)
-[?2004l[?2004h>             r = math.sqrt(max(0, r2))
-[?2004l[?2004h>             print(f'    c=({cx:.0f},{cy:.0f}) w={w} h={h} area={s} cornerR={r:.1f}')
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/inspect.py
-[?2004lTraceback (most recent call last):
-  File "/tmp/inspect.py", line 3, in <module>
-    from scipy import ndimage
-  File "/usr/local/lib/python3.11/dist-packages/scipy/__init__.py", line 64, in <module>
-    from scipy._lib import _pep440
-  File "/usr/local/lib/python3.11/dist-packages/scipy/_lib/__init__.py", line 12, in <module>
-    from scipy._lib._testutils import PytestTester
-  File "/usr/local/lib/python3.11/dist-packages/scipy/_lib/_testutils.py", line 6, in <module>
-    import inspect
-  File "/tmp/inspect.py", line 3, in <module>
-    from scipy import ndimage
-  File "/usr/local/lib/python3.11/dist-packages/scipy/ndimage/__init__.py", line 157, in <module>
-    from ._support_alternative_backends import *
-  File "/usr/local/lib/python3.11/dist-packages/scipy/ndimage/_support_alternative_backends.py", line 2, in <module>
-    from scipy._lib._array_api import (
-  File "/usr/local/lib/python3.11/dist-packages/scipy/_lib/_array_api.py", line 24, in <module>
-    from scipy._lib.array_api_compat import (
-  File "/usr/local/lib/python3.11/dist-packages/scipy/_lib/array_api_compat/numpy/__init__.py", line 4, in <module>
-    from .._internal import clone_module
-  File "/usr/local/lib/python3.11/dist-packages/scipy/_lib/array_api_compat/_internal.py", line 8, in <module>
-    from inspect import signature
-ImportError: cannot import name 'signature' from partially initialized module 'inspect' (most likely due to a circular import) (/tmp/inspect.py)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ mv /tmp/inspect.py /tmp/compare_frames.py && python3 /tmp/compare_frames.py
-[?2004l
-=== frame 192 ===
-  ref:
-    c=(68,68) w=78 h=78 area=5658 cornerR=22.3
-    c=(181,68) w=85 h=78 area=6031 cornerR=26.4
-    c=(298,68) w=85 h=78 area=6011 cornerR=26.9
-    c=(410,68) w=78 h=78 area=5662 cornerR=22.2
-    c=(64,180) w=70 h=72 area=5040 cornerR=0.0
-    c=(182,180) w=72 h=72 area=5140 cornerR=7.2
-    c=(298,180) w=72 h=72 area=5178 cornerR=2.6
-    c=(414,180) w=70 h=72 area=5040 cornerR=0.0
-  out:
-    c=(64,64) w=86 h=88 area=6901 cornerR=27.9
-    c=(180,64) w=86 h=88 area=6922 cornerR=27.4
-    c=(298,64) w=86 h=88 area=6876 cornerR=28.4
-    c=(414,64) w=86 h=88 area=6932 cornerR=27.2
-    c=(64,180) w=72 h=72 area=5062 cornerR=11.9
-    c=(180,180) w=71 h=72 area=4953 cornerR=13.6
-    c=(298,180) w=72 h=72 area=5065 cornerR=11.8
-    c=(414,180) w=70 h=72 area=4953 cornerR=10.1
-
-=== frame 360 ===
-  ref:
-    c=(64,64) w=70 h=70 area=3967 cornerR=33.0
-    c=(181,64) w=71 h=70 area=3970 cornerR=34.1
-    c=(298,64) w=71 h=70 area=3974 cornerR=34.1
-    c=(414,64) w=70 h=70 area=3972 cornerR=32.9
-    c=(68,180) w=76 h=80 area=5798 cornerR=18.1
-    c=(412,180) w=76 h=82 area=5778 cornerR=23.0
-    c=(181,180) w=81 h=81 area=6041 cornerR=24.6
-    c=(298,180) w=81 h=81 area=6049 cornerR=24.4
-  out:
-    c=(64,64) w=72 h=72 area=4014 cornerR=36.9
-    c=(180,64) w=70 h=72 area=3983 cornerR=35.1
-    c=(298,64) w=72 h=72 area=4020 cornerR=36.8
-    c=(414,64) w=70 h=72 area=4003 cornerR=34.8
-    c=(64,180) w=84 h=84 area=6673 cornerR=21.1
-    c=(180,180) w=86 h=84 area=6718 cornerR=24.3
-    c=(298,180) w=84 h=84 area=6674 cornerR=21.1
-    c=(414,180) w=86 h=84 area=6740 cornerR=23.7
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ sed -i 's/r => r().size(85, 2)/r => r().size(80, 2)/g; s/r => r().size(85, 4)/r => r().size(80, 4)/g; s/r => r().radius(25, 2)/r => r().radius(22, 2)/g; s/r => r().radius(25, 4)/r => r().radius(22, 4)/g; s/r => r().radius(10, 2)/r => r().radius(5, 2)/g; s/r => r().radius(10, 4)/r => r().radius(5, 4)/g' /app/src/project.tsx
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/src/project.tsx | grep 'radius\|size'
-[?2004l          radius={35}
-      yield* all(...rs.map(r => r().radius(5, 2)));
-        ...rs.map(r => r().size(80, 2)),
-        ...rs.map(r => r().radius(22, 2)),
-        ...rs.map(r => r().size(70, 2)),
-        ...rs.map(r => r().radius(5, 2)),
-      yield* all(...rs.map(r => r().radius(35, 2)));
-      yield* all(...rs.map(r => r().radius(5, 2)));
-      yield* all(...rs.map(r => r().radius(5, 4)));
-        ...rs.map(r => r().size(80, 4)),
-        ...rs.map(r => r().radius(22, 4)),
-        ...rs.map(r => r().size(70, 4)),
-        ...rs.map(r => r().radius(5, 4)),
-      size: {x: 480, y: 360},
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -3
-[?2004lRender progress, worker 0: 14% 
-Render progress, worker 0: 78% 
-Rendered video to output/video.mp4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm /tmp/oframes/* && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -1
-[?2004lvideo:20964kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/cmp.py
-[?2004lmin=1.80 max=3.72 mean=2.62
-  f0 t=0.00s diff=1.80
-  f24 t=1.00s diff=1.80
-  f48 t=2.00s diff=1.80
-  f72 t=3.00s diff=1.94
-  f96 t=4.00s diff=1.93
-  f120 t=5.00s diff=2.63
-  f144 t=6.00s diff=2.16
-  f168 t=7.00s diff=3.08
-  f192 t=8.00s diff=3.72
-  f216 t=9.00s diff=2.92
-  f240 t=10.00s diff=1.96
-  f264 t=11.00s diff=1.98
-  f288 t=12.00s diff=1.98
-  f312 t=13.00s diff=2.72
-  f336 t=14.00s diff=2.79
-  f360 t=15.00s diff=3.26
-  f384 t=16.00s diff=3.63
-  f408 t=17.00s diff=3.34
-  f432 t=18.00s diff=2.84
-  f456 t=19.00s diff=2.82
-  f480 t=20.00s diff=1.99
-#0: ref=[253  50  48] out=[255  48  47]
-#1: ref=[ 49 203  51] out=[ 48 208  50]
-#2: ref=[ 50 151 254] out=[ 50 152 249]
-#3: ref=[253 203   0] out=[253 204   0]
-#4: ref=[253  51 251] out=[253  51 251]
-#5: ref=[  0 204 201] out=[  0 206 203]
-#6: ref=[251 137   0] out=[254 137   0]
-#7: ref=[ 99 255 101] out=[ 99 255 101]
-#8: ref=[201  50 252] out=[201  50 252]
-#9: ref=[ 50 253 204] out=[ 50 253 204]
-#10: ref=[250 103 100] out=[252 102  98]
-#11: ref=[152 203 254] out=[152 203 254]
-bg: ref=[23 24 43] out=[23 24 43]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/compare_frames.py
-[?2004l
-=== frame 192 ===
-  ref:
-    c=(68,68) w=78 h=78 area=5658 cornerR=22.3
-    c=(181,68) w=85 h=78 area=6031 cornerR=26.4
-    c=(298,68) w=85 h=78 area=6011 cornerR=26.9
-    c=(410,68) w=78 h=78 area=5662 cornerR=22.2
-    c=(64,180) w=70 h=72 area=5040 cornerR=0.0
-    c=(182,180) w=72 h=72 area=5140 cornerR=7.2
-    c=(298,180) w=72 h=72 area=5178 cornerR=2.6
-    c=(414,180) w=70 h=72 area=5040 cornerR=0.0
-  out:
-    c=(64,64) w=80 h=80 area=6054 cornerR=20.1
-    c=(180,64) w=82 h=80 area=6155 cornerR=21.7
-    c=(298,64) w=80 h=80 area=6056 cornerR=20.0
-    c=(414,64) w=82 h=80 area=6163 cornerR=21.5
-    c=(64,180) w=72 h=72 area=5145 cornerR=6.7
-    c=(180,180) w=70 h=72 area=5022 cornerR=4.6
-    c=(298,180) w=72 h=72 area=5144 cornerR=6.8
-    c=(414,180) w=70 h=72 area=5024 cornerR=4.3
-
-=== frame 360 ===
-  ref:
-    c=(64,64) w=70 h=70 area=3967 cornerR=33.0
-    c=(181,64) w=71 h=70 area=3970 cornerR=34.1
-    c=(298,64) w=71 h=70 area=3974 cornerR=34.1
-    c=(414,64) w=70 h=70 area=3972 cornerR=32.9
-    c=(68,180) w=76 h=80 area=5798 cornerR=18.1
-    c=(412,180) w=76 h=82 area=5778 cornerR=23.0
-    c=(181,180) w=81 h=81 area=6041 cornerR=24.6
-    c=(298,180) w=81 h=81 area=6049 cornerR=24.4
-  out:
-    c=(64,64) w=72 h=72 area=4014 cornerR=36.9
-    c=(180,64) w=70 h=72 area=3983 cornerR=35.1
-    c=(298,64) w=72 h=72 area=4020 cornerR=36.8
-    c=(414,64) w=70 h=72 area=4003 cornerR=34.8
-    c=(64,180) w=80 h=80 area=6069 cornerR=19.6
-    c=(180,180) w=82 h=80 area=6126 cornerR=22.5
-    c=(298,180) w=80 h=80 area=6057 cornerR=20.0
-    c=(414,180) w=82 h=80 area=6108 cornerR=22.9
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/col_timing.py << 'PYEOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> from scipy import ndimage
-[?2004l[?2004h> 
-[?2004l[?2004h> bg = np.array([23,24,43])
-[?2004l[?2004h> centers_row0 = [64, 181, 298, 415]  # x centers, row 0
-[?2004l[?2004h> 
-[?2004l[?2004h> # For each frame, get bbox width of each row 0 circle
-[?2004l[?2004h> results = []
-[?2004l[?2004h> for fnum in range(0, 481, 4):
-[?2004l[?2004h>     img = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-[?2004l[?2004h>     diff = np.abs(img.astype(int) - bg).sum(axis=2)
-[?2004l[?2004h>     mask = diff > 50
-[?2004l[?2004h>     widths = []
-[?2004l[?2004h>     for cx in centers_row0:
-[?2004l[?2004h>         # Get the connected component near (cx, 64)
-[?2004l[?2004h>         # Use row mask near cx
-[?2004l[?2004h>         sub_mask = mask[:115, cx-55:cx+55]
-[?2004l[?2004h>         labels, n = ndimage.label(sub_mask)
-[?2004l[?2004h>         # Find the largest component containing center
-[?2004l[?2004h>         best_size = 0
-[?2004l[?2004h>         best_bbox = None
-[?2004l[?2004h>         for i in range(1, n+1):
-[?2004l[?2004h>             coords = np.where(labels == i)
-[?2004l[?2004h>             size = len(coords[0])
-[?2004l[?2004h>             if size > best_size:
-[?2004l[?2004h>                 best_size = size
-[?2004l[?2004h>                 ymin, ymax = coords[0].min(), coords[0].max()
-[?2004l[?2004h>                 xmin, xmax = coords[1].min(), coords[1].max()
-[?2004l[?2004h>                 best_bbox = (xmax-xmin+1, ymax-ymin+1, size)
-[?2004l[?2004h>         widths.append(best_bbox if best_bbox else (0,0,0))
-[?2004l[?2004h>     results.append((fnum, widths))
-[?2004l[?2004h> 
-[?2004l[?2004h> print('frame  c0(w,h,a)         c1(w,h,a)        c2(w,h,a)        c3(w,h,a)')
-[?2004l[?2004h> for fnum, w in results:
-[?2004l[?2004h>     if fnum % 24 == 0:
-[?2004l[?2004h>         print(f'  f{fnum:3d} t={fnum/24:5.2f}s', end=' ')
-[?2004l[?2004h>         for ww in w:
-[?2004l[?2004h>             print(f'({ww[0]},{ww[1]},{ww[2]:4d})', end=' ')
-[?2004l[?2004h>         print()
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/col_timing.py
-[?2004lTraceback (most recent call last):
-  File "/tmp/col_timing.py", line 11, in <module>
-    img = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/PIL/Image.py", line 3635, in open
-    fp = builtins.open(filename, "rb")
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/tmp/frames/g0000.png'
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ sed -i 's/range(0, 481, 4)/range(1, 481, 4)/' /tmp/col_timing.py && python3 /tmp/col_timing.py
-[?2004lframe  c0(w,h,a)         c1(w,h,a)        c2(w,h,a)        c3(w,h,a)
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ sed -i 's/if fnum % 24 == 0:/if (fnum-1) % 24 == 0:/' /tmp/col_timing.py && python3 /tmp/col_timing.py
-[?2004lframe  c0(w,h,a)         c1(w,h,a)        c2(w,h,a)        c3(w,h,a)
-  f  1 t= 0.04s (70,70,3967) (71,70,3970) (71,70,3974) (70,70,3972) 
-  f 25 t= 1.04s (70,70,3967) (71,70,3970) (71,70,3974) (70,70,3972) 
-  f 49 t= 2.04s (70,70,3967) (71,70,3970) (71,70,3974) (70,70,3972) 
-  f 73 t= 3.04s (70,70,4647) (72,70,4662) (71,70,4665) (70,70,4662) 
-  f 97 t= 4.04s (70,71,4901) (74,70,5043) (72,70,5022) (71,71,4903) 
-  f121 t= 5.04s (70,70,4900) (72,70,5038) (72,70,5037) (70,70,4900) 
-  f145 t= 6.04s (70,70,4900) (72,70,5038) (72,70,5037) (70,70,4900) 
-  f169 t= 7.04s (74,74,5360) (78,74,5550) (79,74,5536) (74,74,5365) 
-  f193 t= 8.04s (78,78,5668) (85,78,6053) (85,78,6032) (78,78,5676) 
-  f217 t= 9.04s (74,74,5377) (80,74,5589) (80,74,5595) (74,74,5371) 
-  f241 t=10.04s (70,70,4900) (72,70,5038) (72,70,5037) (70,70,4900) 
-  f265 t=11.04s (70,70,4900) (72,70,5038) (72,70,5037) (70,70,4900) 
-  f289 t=12.04s (70,70,4900) (72,70,5038) (72,70,5037) (70,70,4900) 
-  f313 t=13.04s (70,70,4673) (72,70,4704) (72,70,4701) (70,70,4680) 
-  f337 t=14.04s (70,70,4021) (72,70,4022) (71,70,4003) (70,70,4018) 
-  f361 t=15.04s (70,70,3967) (71,70,3970) (71,70,3974) (70,70,3972) 
-  f385 t=16.04s (70,70,3967) (71,70,3970) (71,70,3974) (70,70,3972) 
-  f409 t=17.04s (70,70,3967) (71,70,3970) (71,70,3974) (70,70,3972) 
-  f433 t=18.04s (70,70,3967) (71,70,3970) (71,70,3974) (70,70,3972) 
-  f457 t=19.04s (70,70,4653) (72,70,4660) (71,70,4667) (70,70,4662) 
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /app/src/project.tsx << 'EOF'
-[?2004l[?2004h> import {makeProject, createRef, all, waitFor} from '@revideo/core';
-[?2004l[?2004h> import {makeScene2D, Rect} from '@revideo/2d';
-[?2004l[?2004h> 
-[?2004l[?2004h> const scene = makeScene2D('scene', function* (view) {
-[?2004l[?2004h>   view.fill('#191a2d');
-[?2004l[?2004h> 
-[?2004l[?2004h>   const cx = [-176, -59, 58, 175];
-[?2004l[?2004h>   const cy = [-116, 0, 115];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const colors = [
-[?2004l[?2004h>     ['#ff3030', '#33d033', '#3399ff', '#ffcc00'],
-[?2004l[?2004h>     ['#ff33ff', '#00d0cd', '#ff8a00', '#66ff66'],
-[?2004l[?2004h>     ['#cc33ff', '#33ffcc', '#ff6666', '#99ccff'],
-[?2004l[?2004h>   ];
-[?2004l[?2004h> 
-[?2004l[?2004h>   // Peak sizes: corners 78, inner 85
-[?2004l[?2004h>   const peakSize = [78, 85, 85, 78];
-[?2004l[?2004h>   const peakRadius = [22, 26, 26, 22];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const refs: any[][] = [[], [], []];
-[?2004l[?2004h>   for (let r = 0; r < 3; r++) {
-[?2004l[?2004h>     for (let c = 0; c < 4; c++) {
-[?2004l[?2004h>       const ref = createRef<Rect>();
-[?2004l[?2004h>       view.add(
-[?2004l[?2004h>         <Rect
-[?2004l[?2004h>           ref={ref}
-[?2004l[?2004h>           x={cx[c]}
-[?2004l[?2004h>           y={cy[r]}
-[?2004l[?2004h>           width={70}
-[?2004l[?2004h>           height={70}
-[?2004l[?2004h>           radius={35}
-[?2004l[?2004h>           fill={colors[r][c]}
-[?2004l[?2004h>         />,
-[?2004l[?2004h>       );
-[?2004l[?2004h>       refs[r].push(ref);
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   function* animateRow(row: number) {
-[?2004l[?2004h>     const rs = refs[row];
-[?2004l[?2004h>     const phase = row === 0 ? 2 : 4;
-[?2004l[?2004h>     if (row === 2) return;
-[?2004l[?2004h> 
-[?2004l[?2004h>     // baseline hold (phase already elapsed via parallel waits)
-[?2004l[?2004h>     yield* waitFor(phase);
-[?2004l[?2004h>     // morph to first plateau (size 70, r=5)
-[?2004l[?2004h>     yield* all(...rs.map(r => r().radius(5, phase)));
-[?2004l[?2004h>     yield* waitFor(phase);
-[?2004l[?2004h>     // morph to peak (size peakSize[c], r=peakRadius[c])
-[?2004l[?2004h>     yield* all(
-[?2004l[?2004h>       ...rs.map((r, c) => r().size(peakSize[c], phase)),
-[?2004l[?2004h>       ...rs.map((r, c) => r().radius(peakRadius[c], phase)),
-[?2004l[?2004h>     );
-[?2004l[?2004h>     // morph back to first plateau
-[?2004l[?2004h>     yield* all(
-[?2004l[?2004h>       ...rs.map(r => r().size(70, phase)),
-[?2004l[?2004h>       ...rs.map(r => r().radius(5, phase)),
-[?2004l[?2004h>     );
-[?2004l[?2004h>     if (row === 0) {
-[?2004l[?2004h>       yield* waitFor(phase);
-[?2004l[?2004h>       // morph back to baseline
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(35, phase)));
-[?2004l[?2004h>       // hold baseline
-[?2004l[?2004h>       yield* waitFor(phase * 2);
-[?2004l[?2004h>       // start cycle again to first plateau
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(5, phase)));
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   yield* all(animateRow(0), animateRow(1), animateRow(2));
-[?2004l[?2004h> });
-[?2004l[?2004h> 
-[?2004l[?2004h> export default makeProject({
-[?2004l[?2004h>   scenes: [scene],
-[?2004l[?2004h>   settings: {
-[?2004l[?2004h>     shared: {
-[?2004l[?2004h>       size: {x: 480, y: 360},
-[?2004l[?2004h>     },
-[?2004l[?2004h>     rendering: {
-[?2004l[?2004h>       fps: 24,
-[?2004l[?2004h>     },
-[?2004l[?2004h>   },
-[?2004l[?2004h> });
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -3
-[?2004lRender progress, worker 0: 14% 
-Render progress, worker 0: 76% 
-Rendered video to output/video.mp4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm /tmp/oframes/* && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -1 && python3 /tmp/cmp.py
-[?2004lvideo:21190kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-min=1.80 max=3.81 mean=2.69
-  f0 t=0.00s diff=1.80
-  f24 t=1.00s diff=1.80
-  f48 t=2.00s diff=1.80
-  f72 t=3.00s diff=1.94
-  f96 t=4.00s diff=1.93
-  f120 t=5.00s diff=2.63
-  f144 t=6.00s diff=2.16
-  f168 t=7.00s diff=3.15
-  f192 t=8.00s diff=3.78
-  f216 t=9.00s diff=2.97
-  f240 t=10.00s diff=1.96
-  f264 t=11.00s diff=1.98
-  f288 t=12.00s diff=1.98
-  f312 t=13.00s diff=2.64
-  f336 t=14.00s diff=2.98
-  f360 t=15.00s diff=3.71
-  f384 t=16.00s diff=3.72
-  f408 t=17.00s diff=3.71
-  f432 t=18.00s diff=2.97
-  f456 t=19.00s diff=2.75
-  f480 t=20.00s diff=1.99
-#0: ref=[253  50  48] out=[255  48  47]
-#1: ref=[ 49 203  51] out=[ 48 208  50]
-#2: ref=[ 50 151 254] out=[ 50 152 249]
-#3: ref=[253 203   0] out=[253 204   0]
-#4: ref=[253  51 251] out=[253  51 251]
-#5: ref=[  0 204 201] out=[  0 206 203]
-#6: ref=[251 137   0] out=[254 137   0]
-#7: ref=[ 99 255 101] out=[ 99 255 101]
-#8: ref=[201  50 252] out=[201  50 252]
-#9: ref=[ 50 253 204] out=[ 50 253 204]
-#10: ref=[250 103 100] out=[252 102  98]
-#11: ref=[152 203 254] out=[152 203 254]
-bg: ref=[23 24 43] out=[23 24 43]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/compare_frames.py
-[?2004l
-=== frame 192 ===
-  ref:
-    c=(68,68) w=78 h=78 area=5658 cornerR=22.3
-    c=(181,68) w=85 h=78 area=6031 cornerR=26.4
-    c=(298,68) w=85 h=78 area=6011 cornerR=26.9
-    c=(410,68) w=78 h=78 area=5662 cornerR=22.2
-    c=(64,180) w=70 h=72 area=5040 cornerR=0.0
-    c=(182,180) w=72 h=72 area=5140 cornerR=7.2
-    c=(298,180) w=72 h=72 area=5178 cornerR=2.6
-    c=(414,180) w=70 h=72 area=5040 cornerR=0.0
-  out:
-    c=(64,64) w=80 h=80 area=5910 cornerR=23.9
-    c=(180,64) w=86 h=88 area=6883 cornerR=28.2
-    c=(298,64) w=86 h=86 area=6804 cornerR=26.3
-    c=(414,64) w=78 h=80 area=5840 cornerR=21.6
-    c=(64,180) w=72 h=72 area=5145 cornerR=6.7
-    c=(180,180) w=70 h=72 area=5022 cornerR=4.6
-    c=(298,180) w=72 h=72 area=5144 cornerR=6.8
-    c=(414,180) w=70 h=72 area=5024 cornerR=4.3
-
-=== frame 360 ===
-  ref:
-    c=(64,64) w=70 h=70 area=3967 cornerR=33.0
-    c=(181,64) w=71 h=70 area=3970 cornerR=34.1
-    c=(298,64) w=71 h=70 area=3974 cornerR=34.1
-    c=(414,64) w=70 h=70 area=3972 cornerR=32.9
-    c=(68,180) w=76 h=80 area=5798 cornerR=18.1
-    c=(412,180) w=76 h=82 area=5778 cornerR=23.0
-    c=(181,180) w=81 h=81 area=6041 cornerR=24.6
-    c=(298,180) w=81 h=81 area=6049 cornerR=24.4
-  out:
-    c=(64,64) w=72 h=72 area=4014 cornerR=36.9
-    c=(180,64) w=70 h=72 area=3983 cornerR=35.1
-    c=(298,64) w=72 h=72 area=4020 cornerR=36.8
-    c=(414,64) w=70 h=72 area=4003 cornerR=34.8
-    c=(64,180) w=80 h=80 area=5917 cornerR=23.7
-    c=(180,180) w=86 h=84 area=6693 cornerR=24.9
-    c=(298,180) w=84 h=84 area=6627 cornerR=22.4
-    c=(414,180) w=78 h=80 area=5838 cornerR=21.6
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ sed -i 's/const peakSize = \[78, 85, 85, 78\];/const peakSize = [78, 82, 82, 78];/; s/const peakRadius = \[22, 26, 26, 22\];/const peakRadius = [22, 24, 24, 22];/' /app/src/project.tsx
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ grep peakSize /app/src/project.tsx
-[?2004l  const peakSize = [78, 82, 82, 78];
-    // morph to peak (size peakSize[c], r=peakRadius[c])
-      ...rs.map((r, c) => r().size(peakSize[c], phase)),
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -3
-[?2004lRender progress, worker 0: 10% 
-Render progress, worker 0: 75% 
-Rendered video to output/video.mp4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm /tmp/oframes/* && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -1 && python3 /tmp/cmp.py
-[?2004lvideo:21112kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-min=1.80 max=3.69 mean=2.63
-  f0 t=0.00s diff=1.80
-  f24 t=1.00s diff=1.80
-  f48 t=2.00s diff=1.80
-  f72 t=3.00s diff=1.94
-  f96 t=4.00s diff=1.93
-  f120 t=5.00s diff=2.63
-  f144 t=6.00s diff=2.16
-  f168 t=7.00s diff=3.11
-  f192 t=8.00s diff=3.69
-  f216 t=9.00s diff=2.93
-  f240 t=10.00s diff=1.96
-  f264 t=11.00s diff=1.98
-  f288 t=12.00s diff=1.98
-  f312 t=13.00s diff=2.68
-  f336 t=14.00s diff=2.87
-  f360 t=15.00s diff=3.41
-  f384 t=16.00s diff=3.60
-  f408 t=17.00s diff=3.42
-  f432 t=18.00s diff=2.90
-  f456 t=19.00s diff=2.77
-  f480 t=20.00s diff=1.99
-#0: ref=[253  50  48] out=[255  48  47]
-#1: ref=[ 49 203  51] out=[ 48 208  50]
-#2: ref=[ 50 151 254] out=[ 50 152 249]
-#3: ref=[253 203   0] out=[253 204   0]
-#4: ref=[253  51 251] out=[253  51 251]
-#5: ref=[  0 204 201] out=[  0 206 203]
-#6: ref=[251 137   0] out=[254 137   0]
-#7: ref=[ 99 255 101] out=[ 99 255 101]
-#8: ref=[201  50 252] out=[201  50 252]
-#9: ref=[ 50 253 204] out=[ 50 253 204]
-#10: ref=[250 103 100] out=[252 102  98]
-#11: ref=[152 203 254] out=[152 203 254]
-bg: ref=[23 24 43] out=[23 24 43]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /app/src/project.tsx << 'EOF'
-[?2004l[?2004h> import {makeProject, createRef, all, waitFor} from '@revideo/core';
-[?2004l[?2004h> import {makeScene2D, Rect} from '@revideo/2d';
-[?2004l[?2004h> 
-[?2004l[?2004h> const scene = makeScene2D('scene', function* (view) {
-[?2004l[?2004h>   view.fill('#191a2d');
-[?2004l[?2004h> 
-[?2004l[?2004h>   const cx = [-176, -59, 58, 175];
-[?2004l[?2004h>   const cy = [-116, 0, 115];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const colors = [
-[?2004l[?2004h>     ['#ff3030', '#33d033', '#3399ff', '#ffcc00'],
-[?2004l[?2004h>     ['#ff33ff', '#00d0cd', '#ff8a00', '#66ff66'],
-[?2004l[?2004h>     ['#cc33ff', '#33ffcc', '#ff6666', '#99ccff'],
-[?2004l[?2004h>   ];
-[?2004l[?2004h> 
-[?2004l[?2004h>   // Per column peak sizes
-[?2004l[?2004h>   const peakWidth = [78, 85, 85, 78];
-[?2004l[?2004h>   const peakHeight = 78;
-[?2004l[?2004h>   const peakRadius = [22, 26, 26, 22];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const refs: any[][] = [[], [], []];
-[?2004l[?2004h>   for (let r = 0; r < 3; r++) {
-[?2004l[?2004h>     for (let c = 0; c < 4; c++) {
-[?2004l[?2004h>       const ref = createRef<Rect>();
-[?2004l[?2004h>       view.add(
-[?2004l[?2004h>         <Rect
-[?2004l[?2004h>           ref={ref}
-[?2004l[?2004h>           x={cx[c]}
-[?2004l[?2004h>           y={cy[r]}
-[?2004l[?2004h>           width={70}
-[?2004l[?2004h>           height={70}
-[?2004l[?2004h>           radius={35}
-[?2004l[?2004h>           fill={colors[r][c]}
-[?2004l[?2004h>         />,
-[?2004l[?2004h>       );
-[?2004l[?2004h>       refs[r].push(ref);
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   function* animateRow(row: number) {
-[?2004l[?2004h>     const rs = refs[row];
-[?2004l[?2004h>     const phase = row === 0 ? 2 : 4;
-[?2004l[?2004h>     if (row === 2) return;
-[?2004l[?2004h> 
-[?2004l[?2004h>     yield* waitFor(phase);
-[?2004l[?2004h>     // morph to first plateau (size 70, r=5)
-[?2004l[?2004h>     yield* all(...rs.map(r => r().radius(5, phase)));
-[?2004l[?2004h>     yield* waitFor(phase);
-[?2004l[?2004h>     // morph to peak
-[?2004l[?2004h>     yield* all(
-[?2004l[?2004h>       ...rs.map((r, c) => r().width(peakWidth[c], phase)),
-[?2004l[?2004h>       ...rs.map(r => r().height(peakHeight, phase)),
-[?2004l[?2004h>       ...rs.map((r, c) => r().radius(peakRadius[c], phase)),
-[?2004l[?2004h>     );
-[?2004l[?2004h>     // morph back to first plateau
-[?2004l[?2004h>     yield* all(
-[?2004l[?2004h>       ...rs.map(r => r().width(70, phase)),
-[?2004l[?2004h>       ...rs.map(r => r().height(70, phase)),
-[?2004l[?2004h>       ...rs.map(r => r().radius(5, phase)),
-[?2004l[?2004h>     );
-[?2004l[?2004h>     if (row === 0) {
-[?2004l[?2004h>       yield* waitFor(phase);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(35, phase)));
-[?2004l[?2004h>       yield* waitFor(phase * 2);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(5, phase)));
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   yield* all(animateRow(0), animateRow(1), animateRow(2));
-[?2004l[?2004h> });
-[?2004l[?2004h> 
-[?2004l[?2004h> export default makeProject({
-[?2004l[?2004h>   scenes: [scene],
-[?2004l[?2004h>   settings: {
-[?2004l[?2004h>     shared: {
-[?2004l[?2004h>       size: {x: 480, y: 360},
-[?2004l[?2004h>     },
-[?2004l[?2004h>     rendering: {
-[?2004l[?2004h>       fps: 24,
-[?2004l[?2004h>     },
-[?2004l[?2004h>   },
-[?2004l[?2004h> });
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -3
-[?2004lRender progress, worker 0: 12% 
-Render progress, worker 0: 76% 
-Rendered video to output/video.mp4
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ rm /tmp/oframes/* && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -1 && python3 /tmp/cmp.py
-[?2004lvideo:21152kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-min=1.80 max=3.96 mean=2.69
-  f0 t=0.00s diff=1.80
-  f24 t=1.00s diff=1.80
-  f48 t=2.00s diff=1.80
-  f72 t=3.00s diff=1.94
-  f96 t=4.00s diff=1.93
-  f120 t=5.00s diff=2.63
-  f144 t=6.00s diff=2.16
-  f168 t=7.00s diff=3.15
-  f192 t=8.00s diff=3.74
-  f216 t=9.00s diff=2.96
-  f240 t=10.00s diff=1.96
-  f264 t=11.00s diff=1.98
-  f288 t=12.00s diff=1.98
-  f312 t=13.00s diff=2.69
-  f336 t=14.00s diff=3.03
-  f360 t=15.00s diff=3.63
-  f384 t=16.00s diff=3.96
-  f408 t=17.00s diff=3.67
-  f432 t=18.00s diff=3.04
-  f456 t=19.00s diff=2.77
-  f480 t=20.00s diff=1.99
-#0: ref=[253  50  48] out=[255  48  47]
-#1: ref=[ 49 203  51] out=[ 48 208  50]
-#2: ref=[ 50 151 254] out=[ 50 152 249]
-#3: ref=[253 203   0] out=[253 204   0]
-#4: ref=[253  51 251] out=[253  51 251]
-#5: ref=[  0 204 201] out=[  0 206 203]
-#6: ref=[251 137   0] out=[254 137   0]
-#7: ref=[ 99 255 101] out=[ 99 255 101]
-#8: ref=[201  50 252] out=[201  50 252]
-#9: ref=[ 50 253 204] out=[ 50 253 204]
-#10: ref=[250 103 100] out=[252 102  98]
-#11: ref=[152 203 254] out=[152 203 254]
-bg: ref=[23 24 43] out=[23 24 43]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/compare_frames.py
-[?2004l
-=== frame 192 ===
-  ref:
-    c=(68,68) w=78 h=78 area=5658 cornerR=22.3
-    c=(181,68) w=85 h=78 area=6031 cornerR=26.4
-    c=(298,68) w=85 h=78 area=6011 cornerR=26.9
-    c=(410,68) w=78 h=78 area=5662 cornerR=22.2
-    c=(64,180) w=70 h=72 area=5040 cornerR=0.0
-    c=(182,180) w=72 h=72 area=5140 cornerR=7.2
-    c=(298,180) w=72 h=72 area=5178 cornerR=2.6
-    c=(414,180) w=70 h=72 area=5040 cornerR=0.0
-  out:
-    c=(64,64) w=80 h=80 area=5910 cornerR=23.9
-    c=(180,64) w=86 h=80 area=6260 cornerR=26.9
-    c=(298,64) w=86 h=80 area=6258 cornerR=26.9
-    c=(414,64) w=78 h=80 area=5840 cornerR=21.6
-    c=(64,180) w=72 h=72 area=5145 cornerR=6.7
-    c=(180,180) w=70 h=72 area=5022 cornerR=4.6
-    c=(298,180) w=72 h=72 area=5144 cornerR=6.8
-    c=(414,180) w=70 h=72 area=5024 cornerR=4.3
-
-=== frame 360 ===
-  ref:
-    c=(64,64) w=70 h=70 area=3967 cornerR=33.0
-    c=(181,64) w=71 h=70 area=3970 cornerR=34.1
-    c=(298,64) w=71 h=70 area=3974 cornerR=34.1
-    c=(414,64) w=70 h=70 area=3972 cornerR=32.9
-    c=(68,180) w=76 h=80 area=5798 cornerR=18.1
-    c=(412,180) w=76 h=82 area=5778 cornerR=23.0
-    c=(181,180) w=81 h=81 area=6041 cornerR=24.6
-    c=(298,180) w=81 h=81 area=6049 cornerR=24.4
-  out:
-    c=(64,64) w=72 h=72 area=4014 cornerR=36.9
-    c=(180,64) w=70 h=72 area=3983 cornerR=35.1
-    c=(298,64) w=72 h=72 area=4020 cornerR=36.8
-    c=(414,64) w=70 h=72 area=4003 cornerR=34.8
-    c=(64,180) w=80 h=80 area=5917 cornerR=23.7
-    c=(180,180) w=86 h=80 area=6252 cornerR=27.0
-    c=(298,180) w=84 h=80 area=6193 cornerR=24.8
-    c=(414,180) w=78 h=80 area=5838 cornerR=21.6
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/diff_map.py << 'PYEOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> for fnum in [192, 360]:
-[?2004l[?2004h>     ref = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png')).astype(int)
-[?2004l[?2004h>     out = np.array(Image.open(f'/tmp/oframes/o{fnum:04d}.png')).astype(int)
-[?2004l[?2004h>     diff = np.abs(ref - out).sum(axis=2)
-[?2004l[?2004h>     # Per-cell average diff (4x3 cells)
-[?2004l[?2004h>     print(f'\n=== frame {fnum} ===')
-[?2004l[?2004h>     cell_h = 360//3
-[?2004l[?2004h>     cell_w = 480//4
-[?2004l[?2004h>     for r in range(3):
-[?2004l[?2004h>         line = ''
-[?2004l[?2004h>         for c in range(4):
-[?2004l[?2004h>             cell = diff[r*cell_h:(r+1)*cell_h, c*cell_w:(c+1)*cell_w]
-[?2004l[?2004h>             line += f' {cell.mean():.2f}'
-[?2004l[?2004h>         print(f'  row {r}:{line}')
-[?2004l[?2004h>     # Max pixel diff and location
-[?2004l[?2004h>     print(f'  max pixel diff: {diff.max()} at {np.unravel_index(diff.argmax(), diff.shape)}')
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/diff_map.py
-[?2004l
-=== frame 192 ===
-  row 0: 22.36 19.94 23.46 31.43
-  row 1: 7.48 5.71 3.64 3.07
-  row 2: 6.75 5.12 3.85 1.31
-  max pixel diff: 474 at (np.int64(56), np.int64(375))
-
-=== frame 360 ===
-  row 0: 7.40 7.76 7.23 7.24
-  row 1: 24.77 19.00 19.74 20.23
-  row 2: 6.75 5.12 3.85 1.31
-  max pixel diff: 479 at (np.int64(154), np.int64(29))
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/look.py << 'PYEOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> ref = np.array(Image.open('/tmp/frames/g0192.png'))
-[?2004l[?2004h> out = np.array(Image.open('/tmp/oframes/o0192.png'))
-[?2004l[?2004h> # Look at row 56, columns 360-410
-[?2004l[?2004h> print('ref row 56 [360-415]:')
-[?2004l[?2004h> for c in range(360, 415):
-[?2004l[?2004h>     print(f'  c={c}: {ref[56,c]}', end='')
-[?2004l[?2004h>     if (c+1) % 5 == 0: print()
-[?2004l[?2004h> print('\nout row 56 [360-415]:')
-[?2004l[?2004h> for c in range(360, 415):
-[?2004l[?2004h>     print(f'  c={c}: {out[56,c]}', end='')
-[?2004l[?2004h>     if (c+1) % 5 == 0: print()
-[?2004l[?2004h> print()
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/look.py
-[?2004lref row 56 [360-415]:
-  c=360: [23 24 43]  c=361: [23 24 43]  c=362: [23 24 43]  c=363: [23 24 43]  c=364: [23 24 43]
-  c=365: [23 24 43]  c=366: [25 23 43]  c=367: [25 23 43]  c=368: [20 26 47]  c=369: [20 26 47]
-  c=370: [22 23 46]  c=371: [23 24 47]  c=372: [27 24 39]  c=373: [25 22 37]  c=374: [80 66 10]
-  c=375: [216 202 146]  c=376: [246 209   0]  c=377: [248 211   1]  c=378: [249 206   0]  c=379: [250 207   0]
-  c=380: [249 204   3]  c=381: [249 204   3]  c=382: [251 206   0]  c=383: [251 206   0]  c=384: [251 204   0]
-  c=385: [251 204   0]  c=386: [251 205   0]  c=387: [251 205   0]  c=388: [251 205   0]  c=389: [251 205   0]
-  c=390: [251 205   0]  c=391: [251 205   0]  c=392: [253 204   0]  c=393: [253 204   0]  c=394: [253 204   0]
-  c=395: [253 204   0]  c=396: [253 204   0]  c=397: [253 204   0]  c=398: [253 204   0]  c=399: [253 204   0]
-  c=400: [253 204   0]  c=401: [253 204   0]  c=402: [253 204   0]  c=403: [253 204   0]  c=404: [253 204   0]
-  c=405: [253 204   0]  c=406: [253 204   0]  c=407: [253 204   0]  c=408: [255 202   0]  c=409: [255 202   0]
-  c=410: [255 202   0]  c=411: [255 202   0]  c=412: [255 202   0]  c=413: [255 202   0]  c=414: [255 202   0]
-
-out row 56 [360-415]:
-  c=360: [23 24 43]  c=361: [23 24 43]  c=362: [23 24 43]  c=363: [23 24 43]  c=364: [23 24 43]
-  c=365: [23 24 43]  c=366: [23 24 43]  c=367: [23 24 43]  c=368: [23 24 43]  c=369: [23 24 43]
-  c=370: [23 24 43]  c=371: [23 24 43]  c=372: [23 24 43]  c=373: [23 24 43]  c=374: [23 24 43]
-  c=375: [23 24 43]  c=376: [231 188   0]  c=377: [249 206   9]  c=378: [254 201   0]  c=379: [254 201   0]
-  c=380: [253 203   2]  c=381: [253 203   2]  c=382: [251 204   0]  c=383: [251 204   0]  c=384: [251 204   0]
-  c=385: [251 204   0]  c=386: [251 204   0]  c=387: [251 204   0]  c=388: [251 204   0]  c=389: [251 204   0]
-  c=390: [251 204   0]  c=391: [251 204   0]  c=392: [251 204   0]  c=393: [251 204   0]  c=394: [251 204   0]
-  c=395: [251 204   0]  c=396: [251 204   0]  c=397: [251 204   0]  c=398: [251 204   0]  c=399: [251 204   0]
-  c=400: [251 204   0]  c=401: [251 204   0]  c=402: [251 204   0]  c=403: [251 204   0]  c=404: [251 204   0]
-  c=405: [251 204   0]  c=406: [251 204   0]  c=407: [251 204   0]  c=408: [251 204   0]  c=409: [251 204   0]
-  c=410: [251 204   0]  c=411: [251 204   0]  c=412: [251 204   0]  c=413: [251 204   0]  c=414: [251 204   0]
-
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/ascii_compare.py << 'PYEOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> 
-[?2004l[?2004h> fnum = 192
-[?2004l[?2004h> ref = np.array(Image.open(f'/tmp/frames/g{fnum:04d}.png'))
-[?2004l[?2004h> out = np.array(Image.open(f'/tmp/oframes/o{fnum:04d}.png'))
-[?2004l[?2004h> 
-[?2004l[?2004h> def render(img, title):
-[?2004l[?2004h>     print(f'\n=== {title} ===')
-[?2004l[?2004h>     h, w, _ = img.shape
-[?2004l[?2004h>     # downsample to 80x36 
-[?2004l[?2004h>     ch, cw = h // 18, w // 80
-[?2004l[?2004h>     for j in range(18):
-[?2004l[?2004h>         line = ''
-[?2004l[?2004h>         for i in range(80):
-[?2004l[?2004h>             px = img[j*ch+ch//2, i*cw+cw//2]
-[?2004l[?2004h>             if abs(int(px[0])-23) + abs(int(px[1])-24) + abs(int(px[2])-43) < 30:
-[?2004l[?2004h>                 line += '.'
-[?2004l[?2004h>             else:
-[?2004l[?2004h>                 line += '#'
-[?2004l[?2004h>         print(line)
-[?2004l[?2004h> 
-[?2004l[?2004h> render(ref, 'REF f192')
-[?2004l[?2004h> render(out, 'OUT f192')
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/ascii_compare.py
-[?2004l
-=== REF f192 ===
-................................................................................
-.....############.......#############......#############.......############.....
-.....#############.....##############......##############.....#############.....
-.....############.......#############......#############.......############.....
-.....#############.....##############......##############.....#############.....
-................................................................................
-................................................................................
-.....############.......############........############.......############.....
-.....############.......############........############.......############.....
-.....############.......############........############.......############.....
-.....############.......############........############.......############.....
-................................................................................
-................................................................................
-.......########...........#########..........#########...........########.......
-.....############.......############........############.......############.....
-.....###########.........###########........###########.........##########......
-................................................................................
-................................................................................
-
-=== OUT f192 ===
-................................................................................
-.....###########........############........###########.........###########.....
-....#############......##############.....###############......#############....
-....#############......##############.....###############......#############....
-....#############.......#############......#############.......############.....
-................................................................................
-................................................................................
-.....############.......############........############.......############.....
-.....############.......############........############.......############.....
-.....############.......############........############.......############.....
-....#############.......############........############.......############.....
-................................................................................
-................................................................................
-.....##########...........#########..........#########...........########.......
-.....############.......############........############.......############.....
-.....###########.........##########.........###########.........###########.....
-..........#.....................................................................
-................................................................................
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /tmp/check_bg.py << 'PYEOF'
-[?2004l[?2004h> from PIL import Image
-[?2004l[?2004h> import numpy as np
-[?2004l[?2004h> ref = np.array(Image.open('/tmp/frames/g0001.png'))
-[?2004l[?2004h> out = np.array(Image.open('/tmp/oframes/o0001.png'))
-[?2004l[?2004h> # Sample background corners
-[?2004l[?2004h> for p in [(0,0), (0,479), (359,0), (359,479), (10, 200)]:
-[?2004l[?2004h>     print(f'  {p}: ref={ref[p]} out={out[p]}')
-[?2004l[?2004h> # Sample many bg points
-[?2004l[?2004h> bg_ref = []
-[?2004l[?2004h> bg_out = []
-[?2004l[?2004h> for j in range(0, 360, 20):
-[?2004l[?2004h>     for i in range(0, 480, 20):
-[?2004l[?2004h>         # If both look like bg
-[?2004l[?2004h>         if abs(int(ref[j,i,0])-23) < 10 and abs(int(out[j,i,0])-20) < 10:
-[?2004l[?2004h>             bg_ref.append(ref[j,i])
-[?2004l[?2004h>             bg_out.append(out[j,i])
-[?2004l[?2004h> bg_ref = np.array(bg_ref).mean(axis=0)
-[?2004l[?2004h> bg_out = np.array(bg_out).mean(axis=0)
-[?2004l[?2004h> print(f'avg bg ref={bg_ref}')
-[?2004l[?2004h> print(f'avg bg out={bg_out}')
-[?2004l[?2004h> PYEOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ python3 /tmp/check_bg.py
-[?2004l  (0, 0): ref=[23 24 43] out=[23 24 43]
-  (0, 479): ref=[23 24 43] out=[23 24 43]
-  (359, 0): ref=[23 25 39] out=[23 25 39]
-  (359, 479): ref=[23 25 39] out=[23 25 39]
-  (10, 200): ref=[23 24 43] out=[23 24 43]
-avg bg ref=[23.14696486 24.11501597 43.15654952]
-avg bg out=[23.15654952 24.15335463 43.20447284]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat /app/src/project.tsx
-[?2004limport {makeProject, createRef, all, waitFor} from '@revideo/core';
-import {makeScene2D, Rect} from '@revideo/2d';
-
-const scene = makeScene2D('scene', function* (view) {
-  view.fill('#191a2d');
-
-  const cx = [-176, -59, 58, 175];
-  const cy = [-116, 0, 115];
-
-  const colors = [
-    ['#ff3030', '#33d033', '#3399ff', '#ffcc00'],
-    ['#ff33ff', '#00d0cd', '#ff8a00', '#66ff66'],
-    ['#cc33ff', '#33ffcc', '#ff6666', '#99ccff'],
-  ];
-
-  // Per column peak sizes
-  const peakWidth = [78, 85, 85, 78];
-  const peakHeight = 78;
-  const peakRadius = [22, 26, 26, 22];
-
-  const refs: any[][] = [[], [], []];
-  for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 4; c++) {
-      const ref = createRef<Rect>();
-      view.add(
-        <Rect
-          ref={ref}
-          x={cx[c]}
-          y={cy[r]}
-          width={70}
-          height={70}
-          radius={35}
-          fill={colors[r][c]}
-        />,
-      );
-      refs[r].push(ref);
-    }
-  }
-
-  function* animateRow(row: number) {
-    const rs = refs[row];
-    const phase = row === 0 ? 2 : 4;
-    if (row === 2) return;
-
-    yield* waitFor(phase);
-    // morph to first plateau (size 70, r=5)
-    yield* all(...rs.map(r => r().radius(5, phase)));
-    yield* waitFor(phase);
-    // morph to peak
-    yield* all(
-      ...rs.map((r, c) => r().width(peakWidth[c], phase)),
-      ...rs.map(r => r().height(peakHeight, phase)),
-      ...rs.map((r, c) => r().radius(peakRadius[c], phase)),
-    );
-    // morph back to first plateau
-    yield* all(
-      ...rs.map(r => r().width(70, phase)),
-      ...rs.map(r => r().height(70, phase)),
-      ...rs.map(r => r().radius(5, phase)),
-    );
-    if (row === 0) {
-      yield* waitFor(phase);
-      yield* all(...rs.map(r => r().radius(35, phase)));
-      yield* waitFor(phase * 2);
-      yield* all(...rs.map(r => r().radius(5, phase)));
-    }
-  }
-
-  yield* all(animateRow(0), animateRow(1), animateRow(2));
-});
-
-export default makeProject({
-  scenes: [scene],
-  settings: {
-    shared: {
-      size: {x: 480, y: 360},
-    },
-    rendering: {
-      fps: 24,
-    },
-  },
-});
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cat > /app/src/project.tsx << 'EOF'
-[?2004l[?2004h> import {makeProject, createRef, all, waitFor} from '@revideo/core';
-[?2004l[?2004h> import {makeScene2D, Rect} from '@revideo/2d';
-[?2004l[?2004h> 
-[?2004l[?2004h> const scene = makeScene2D('scene', function* (view) {
-[?2004l[?2004h>   view.fill('#191a2d');
-[?2004l[?2004h> 
-[?2004l[?2004h>   const cx = [-176, -59, 58, 175];
-[?2004l[?2004h>   const cy = [-116, 0, 115];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const colors = [
-[?2004l[?2004h>     ['#ff3030', '#33d033', '#3399ff', '#ffcc00'],
-[?2004l[?2004h>     ['#ff33ff', '#00d0cd', '#ff8a00', '#66ff66'],
-[?2004l[?2004h>     ['#cc33ff', '#33ffcc', '#ff6666', '#99ccff'],
-[?2004l[?2004h>   ];
-[?2004l[?2004h> 
-[?2004l[?2004h>   const peakSize = 80;
-[?2004l[?2004h>   const peakRadius = 22;
-[?2004l[?2004h>   const plateauSize = 70;
-[?2004l[?2004h>   const plateauRadius = 5;
-[?2004l[?2004h>   const baseSize = 70;
-[?2004l[?2004h>   const baseRadius = 35;
-[?2004l[?2004h> 
-[?2004l[?2004h>   const refs: any[][] = [[], [], []];
-[?2004l[?2004h>   for (let r = 0; r < 3; r++) {
-[?2004l[?2004h>     for (let c = 0; c < 4; c++) {
-[?2004l[?2004h>       const ref = createRef<Rect>();
-[?2004l[?2004h>       view.add(
-[?2004l[?2004h>         <Rect
-[?2004l[?2004h>           ref={ref}
-[?2004l[?2004h>           x={cx[c]}
-[?2004l[?2004h>           y={cy[r]}
-[?2004l[?2004h>           width={baseSize}
-[?2004l[?2004h>           height={baseSize}
-[?2004l[?2004h>           radius={baseRadius}
-[?2004l[?2004h>           fill={colors[r][c]}
-[?2004l[?2004h>         />,
-[?2004l[?2004h>       );
-[?2004l[?2004h>       refs[r].push(ref);
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   function* animateRow(row: number) {
-[?2004l[?2004h>     const rs = refs[row];
-[?2004l[?2004h>     const phase = row === 0 ? 2 : 4;
-[?2004l[?2004h>     if (row === 2) return;
-[?2004l[?2004h> 
-[?2004l[?2004h>     yield* waitFor(phase);
-[?2004l[?2004h>     yield* all(...rs.map(r => r().radius(plateauRadius, phase)));
-[?2004l[?2004h>     yield* waitFor(phase);
-[?2004l[?2004h>     yield* all(
-[?2004l[?2004h>       ...rs.map(r => r().size(peakSize, phase)),
-[?2004l[?2004h>       ...rs.map(r => r().radius(peakRadius, phase)),
-[?2004l[?2004h>     );
-[?2004l[?2004h>     yield* all(
-[?2004l[?2004h>       ...rs.map(r => r().size(plateauSize, phase)),
-[?2004l[?2004h>       ...rs.map(r => r().radius(plateauRadius, phase)),
-[?2004l[?2004h>     );
-[?2004l[?2004h>     if (row === 0) {
-[?2004l[?2004h>       yield* waitFor(phase);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(baseRadius, phase)));
-[?2004l[?2004h>       yield* waitFor(phase * 2);
-[?2004l[?2004h>       yield* all(...rs.map(r => r().radius(plateauRadius, phase)));
-[?2004l[?2004h>     }
-[?2004l[?2004h>   }
-[?2004l[?2004h> 
-[?2004l[?2004h>   yield* all(animateRow(0), animateRow(1), animateRow(2));
-[?2004l[?2004h> });
-[?2004l[?2004h> 
-[?2004l[?2004h> export default makeProject({
-[?2004l[?2004h>   scenes: [scene],
-[?2004l[?2004h>   settings: {
-[?2004l[?2004h>     shared: {
-[?2004l[?2004h>       size: {x: 480, y: 360},
-[?2004l[?2004h>     },
-[?2004l[?2004h>     rendering: {
-[?2004l[?2004h>       fps: 24,
-[?2004l[?2004h>     },
-[?2004l[?2004h>   },
-[?2004l[?2004h> });
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -3 && rm /tmp/oframes/* && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -1 && python3 /tmp/cmp.py
-[?2004lRender progress, worker 0: 12% 
-Render progress, worker 0: 76% 
-Rendered video to output/video.mp4
-video:20964kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-min=1.80 max=3.72 mean=2.62
-  f0 t=0.00s diff=1.80
-  f24 t=1.00s diff=1.80
-  f48 t=2.00s diff=1.80
-  f72 t=3.00s diff=1.94
-  f96 t=4.00s diff=1.93
-  f120 t=5.00s diff=2.63
-  f144 t=6.00s diff=2.16
-  f168 t=7.00s diff=3.08
-  f192 t=8.00s diff=3.72
-  f216 t=9.00s diff=2.92
-  f240 t=10.00s diff=1.96
-  f264 t=11.00s diff=1.98
-  f288 t=12.00s diff=1.98
-  f312 t=13.00s diff=2.72
-  f336 t=14.00s diff=2.79
-  f360 t=15.00s diff=3.26
-  f384 t=16.00s diff=3.63
-  f408 t=17.00s diff=3.34
-  f432 t=18.00s diff=2.84
-  f456 t=19.00s diff=2.82
-  f480 t=20.00s diff=1.99
-#0: ref=[253  50  48] out=[255  48  47]
-#1: ref=[ 49 203  51] out=[ 48 208  50]
-#2: ref=[ 50 151 254] out=[ 50 152 249]
-#3: ref=[253 203   0] out=[253 204   0]
-#4: ref=[253  51 251] out=[253  51 251]
-#5: ref=[  0 204 201] out=[  0 206 203]
-#6: ref=[251 137   0] out=[254 137   0]
-#7: ref=[ 99 255 101] out=[ 99 255 101]
-#8: ref=[201  50 252] out=[201  50 252]
-#9: ref=[ 50 253 204] out=[ 50 253 204]
-#10: ref=[250 103 100] out=[252 102  98]
-#11: ref=[152 203 254] out=[152 203 254]
-bg: ref=[23 24 43] out=[23 24 43]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ sed -i 's/const peakSize = 80;/const peakSize = 82;/' /app/src/project.tsx
-[?2004l[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ cd /app && npm run render 2>&1 | tail -2 && rm /tmp/oframes/* && ffmpeg -y -i /app/output/video.mp4 -vf fps=24 /tmp/oframes/o%04d.png 2>&1 | tail -1 && python3 /tmp/cmp.py 2>&1 | head -25
-[?2004lRender progress, worker 0: 74% 
-Rendered video to output/video.mp4
-video:21092kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-min=1.80 max=3.77 mean=2.61
-  f0 t=0.00s diff=1.80
-  f24 t=1.00s diff=1.80
-  f48 t=2.00s diff=1.80
-  f72 t=3.00s diff=1.94
-  f96 t=4.00s diff=1.93
-  f120 t=5.00s diff=2.63
-  f144 t=6.00s diff=2.16
-  f168 t=7.00s diff=3.10
-  f192 t=8.00s diff=3.77
-  f216 t=9.00s diff=2.94
-  f240 t=10.00s diff=1.96
-  f264 t=11.00s diff=1.98
-  f288 t=12.00s diff=1.98
-  f312 t=13.00s diff=2.65
-  f336 t=14.00s diff=2.74
-  f360 t=15.00s diff=3.34
-  f384 t=16.00s diff=3.30
-  f408 t=17.00s diff=3.33
-  f432 t=18.00s diff=2.79
-  f456 t=19.00s diff=2.75
-  f480 t=20.00s diff=1.99
-#0: ref=[253  50  48] out=[255  48  47]
-#1: ref=[ 49 203  51] out=[ 48 208  50]
-#2: ref=[ 50 151 254] out=[ 50 152 249]
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ls -la /app/output/video.mp4 /app/src/project.tsx
-[?2004l-rw-r--r-- 1 agent agent 302474 May 20 21:14 [0m[01;35m/app/output/video.mp4[0m
--rw-rw-r-- 1 agent agent   1945 May 20 21:13 /app/src/project.tsx
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ ffprobe -v error -show_format /app/output/video.mp4 2>&1 | head -10
-[?2004l[FORMAT]
-filename=/app/output/video.mp4
-nb_streams=2
-nb_programs=0
-format_name=mov,mp4,m4a,3gp,3g2,mj2
-format_long_name=QuickTime / MOV
-start_time=0.000000
-duration=20.063000
-size=302474
-bit_rate=120609
-[?2004h[01;32magent@modal[00m:[01;34m/app[00m$ 

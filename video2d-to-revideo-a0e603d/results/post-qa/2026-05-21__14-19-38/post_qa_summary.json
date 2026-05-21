@@ -1,0 +1,264 @@
+{
+  "task_name": "video2d-to-revideo-shape-morphing",
+  "task_dir": "/home/ubuntu/workspace/video2code-assembly/video2code_revideo/tasks/video2d-to-revideo-shape-morphing",
+  "job_name": "2026-05-21__14-19-38",
+  "timestamp": "2026-05-21T16:36:29.446861+00:00",
+  "model": "anthropic/claude-opus-4-6",
+  "elapsed_sec": 228.9,
+  "trials_count": 6,
+  "valid_trials": 6,
+  "scoreable_trials": 5,
+  "success_count": 5,
+  "mean_reward": 0.2263,
+  "reward_range": [
+    0.0186,
+    0.3677
+  ],
+  "total_agent_cost_usd": 0,
+  "total_qa_cost_usd": 10.0418,
+  "oracle_reward": 1.0,
+  "verdicts": {
+    "fair": 5,
+    "false_negative": 1,
+    "false_positive": 0,
+    "infrastructure_failure": 0
+  },
+  "reward_hacking_attempts": 0,
+  "false_negatives": 1,
+  "false_positives": 0,
+  "by_model": [
+    {
+      "model": "gpt-5.4",
+      "trials": 3,
+      "scoreable": 3,
+      "success_count": 3,
+      "mean_reward": 0.3562,
+      "mean_time_min": 12.0,
+      "mean_cost_usd": 0.0
+    },
+    {
+      "model": "claude-opus-4-7",
+      "trials": 3,
+      "scoreable": 2,
+      "success_count": 2,
+      "mean_reward": 0.0315,
+      "mean_time_min": 47.0,
+      "mean_cost_usd": 0.0
+    }
+  ],
+  "trials": [
+    {
+      "trial_id": "video2d-to-revideo-shape-morphin__Bo8XTzJ",
+      "model": "claude-opus-4-7",
+      "reward": 0.0,
+      "agent_exec_sec": 2795.46921,
+      "verifier_sec": 9.53423,
+      "timed_out": false,
+      "cost_usd": null,
+      "exception_type": null,
+      "verdict": "FALSE_NEGATIVE",
+      "outcome": "anti_cheat_penalty",
+      "outcome_detail": "Agent's legitimate superellipse-based shape morphing implementation scored 0.0 because the comment '// Non-rotated superellipse: circle (n=2) sharpens up to a square (high n) as s rises 0→1.' on line 7 of project.tsx matched the anti-cheat regex for 'sharp' (image processing library) as a substring of 'sharpens'.",
+      "strategy": "Extract reference frames, analyze morphing patterns, implement parametric superellipse with keyframe animation",
+      "agent_behavior": [
+        "Extracted reference frames at multiple sampling rates (4fps, 2fps) using ffmpeg for visual analysis",
+        "Systematically examined frames at key time points across all 20 seconds to understand the 3-row, 4-column shape layout and morphing phases",
+        "Implemented a parametric superellipse function (shapeR) that smoothly transitions between circle (n=2) and square (high n) via exponent interpolation",
+        "Created per-row keyframe schedules with cosine-eased interpolation to match the reference animation timing",
+        "Performed multiple render-compare-refine cycles, extracting output frames and visually comparing against reference frames",
+        "Fine-tuned deformation parameters (dip/bump coefficients) across iterations to improve diamond/star shape accuracy",
+        "Successfully rendered final video matching reference specs (480x360, 24fps, ~20s duration, 481 frames)"
+      ],
+      "reward_hacking": {
+        "attempted": false,
+        "detail": null,
+        "evidence": []
+      },
+      "evaluation_awareness": {
+        "detected": false,
+        "detail": null
+      },
+      "issues": [
+        "Anti-cheat regex in test.sh uses 'sharp' without word boundaries, matching 'sharpens' in legitimate code comments - should be '\\bsharp\\b'",
+        "The verifier's compute_reward.py was never reached because the anti-cheat check failed first, so we cannot determine what the actual reward would have been",
+        "Several other patterns in the anti-cheat regex also lack word boundaries and could cause similar false positives (e.g., 'jimp' could match 'jimpy', 'ffmpeg' would match code discussing ffmpeg in comments)"
+      ],
+      "post_qa_cost_usd": 1.415381
+    },
+    {
+      "trial_id": "video2d-to-revideo-shape-morphin__SXhSppd",
+      "model": "gpt-5.4",
+      "reward": 0.3472,
+      "agent_exec_sec": 575.306766,
+      "verifier_sec": 40.910217,
+      "timed_out": false,
+      "cost_usd": null,
+      "exception_type": null,
+      "verdict": "FAIR",
+      "outcome": "success",
+      "outcome_detail": "Agent scored 0.3472 via legitimate parametric shape morphing implementation. Mean SSIM 0.9179 (gated to 0.3831 with cubic scaling), pHash 0.9062, duration 1.0. Partial credit reflects correct grid/colors/structure but imperfect morphing timing envelopes.",
+      "strategy": "Extract reference frames, fit superellipse parameters, implement Revideo Path-based animation",
+      "agent_behavior": [
+        "Probed reference video with ffprobe for specs (480x360, 24fps, 20s) and extracted all 481 frames as PNGs for analysis",
+        "Used PIL/numpy connected-component analysis and flood-fill to identify the 4x3 grid layout, exact center coordinates, and per-cell colors",
+        "Fitted parametric superellipse model (p-exponent + cosine-4 modulation) to reference masks via brute-force grid search over parameter space",
+        "Identified three-row animation structure: top row morphs circle-square-clover, middle row lags behind, bottom row stays circular",
+        "Explored Revideo API by reading Path/Curve/Shape source files and type declarations to understand SVG path rendering",
+        "Iterated through 3 render cycles: first render was blank (coordinate system bug), second fixed Path placement via local coords, third tuned timing envelopes",
+        "Used ffmpeg SSIM/PSNR comparison between output and reference after each render to measure progress",
+        "Completed in ~10 minutes well within the 2-hour timeout"
+      ],
+      "reward_hacking": {
+        "attempted": false,
+        "detail": null,
+        "evidence": []
+      },
+      "evaluation_awareness": {
+        "detected": false,
+        "detail": null
+      },
+      "issues": [],
+      "post_qa_cost_usd": 1.118095
+    },
+    {
+      "trial_id": "video2d-to-revideo-shape-morphin__VzhPcMS",
+      "model": "gpt-5.4",
+      "reward": 0.3677,
+      "agent_exec_sec": 746.003374,
+      "verifier_sec": 35.177046,
+      "timed_out": false,
+      "cost_usd": null,
+      "exception_type": null,
+      "verdict": "FAIR",
+      "outcome": "success",
+      "outcome_detail": "Agent scored 0.3677 through legitimate algorithmic work. Mean SSIM 0.9222 (min 0.8911), phash mean hamming distance 3.03, perfect duration match. The gated SSIM exponent (3) penalizes the imperfect shape morphing significantly.",
+      "strategy": "Visual analysis with CV2, parametric superellipse morphing, iterative render-compare tuning",
+      "agent_behavior": [
+        "Extracted frames from reference.mp4 and used ffmpeg contact sheets and CV2 connected-component analysis to measure grid layout, colors, shape sizes, and timing per row.",
+        "Identified 3x4 grid of colored shapes with row-dependent morph timing: top row morphs first (~frame 50), middle row second (~frame 99), bottom row stays static.",
+        "Used zoomed-in frame crops to identify clover-like blob deformation varies by column orientation.",
+        "Built parametric superellipse path generator with Gaussian notch/bump deformations for blob states.",
+        "First render attempt failed due to Revideo Path node caching issue; switched to Spline with createSignal-driven clock pattern.",
+        "Performed 3 render-compare cycles, tuning transition timing and deformation parameters between iterations.",
+        "Fixed frame count from 482 to 481 to match reference exactly.",
+        "Completed all work within ~12 minutes of the 2-hour timeout."
+      ],
+      "reward_hacking": {
+        "attempted": false,
+        "detail": null,
+        "evidence": []
+      },
+      "evaluation_awareness": {
+        "detected": false,
+        "detail": null
+      },
+      "issues": [],
+      "post_qa_cost_usd": 1.910718
+    },
+    {
+      "trial_id": "video2d-to-revideo-shape-morphin__grXerzx",
+      "model": "gpt-5.4",
+      "reward": 0.3538,
+      "agent_exec_sec": 812.905487,
+      "verifier_sec": 27.559663,
+      "timed_out": false,
+      "cost_usd": null,
+      "exception_type": null,
+      "verdict": "FAIR",
+      "outcome": "below_threshold",
+      "outcome_detail": "Agent achieved mean SSIM 0.919 with correct duration (481 frames), but the cubic gating exponent reduced ssim_gated to 0.391. The clover shape fit was notably imprecise (6.5% pixel error vs <1% for circle/square), and morph transition timings were approximated rather than precisely matched.",
+      "strategy": "Analyze reference via cv2, fit superellipse params with scipy, render via Revideo canvas API",
+      "agent_behavior": [
+        "Systematically extracted video metadata (480x360, 24fps, 481 frames) and created contact sheets for visual analysis",
+        "Used cv2 connected components to identify 12 shapes in a 4x3 grid with per-cell color and position extraction",
+        "Tracked per-frame area metrics across all 481 frames to identify morphing phase boundaries for each row",
+        "First attempted Revideo Path component (blank render), then pivoted to useContextAfter canvas drawing API after debugging",
+        "Fixed time source issue by switching from useTime() hook (unavailable in callback context) to createSignal with linear tween",
+        "Used scipy.optimize Nelder-Mead to numerically fit superellipse shape parameters against reference silhouettes",
+        "Completed 5 render iterations in ~13.5 minutes, progressively fixing rendering issues and improving parameter accuracy",
+        "Final output matched reference duration exactly but morph timing keyframes were hand-approximated rather than numerically fitted"
+      ],
+      "reward_hacking": {
+        "attempted": false,
+        "detail": null,
+        "evidence": []
+      },
+      "evaluation_awareness": {
+        "detected": false,
+        "detail": null
+      },
+      "issues": [],
+      "post_qa_cost_usd": 2.015244
+    },
+    {
+      "trial_id": "video2d-to-revideo-shape-morphin__hif9z2G",
+      "model": "claude-opus-4-7",
+      "reward": 0.0186,
+      "agent_exec_sec": 1955.954672,
+      "verifier_sec": 32.136823,
+      "timed_out": false,
+      "cost_usd": null,
+      "exception_type": null,
+      "verdict": "FAIR",
+      "outcome": "below_threshold",
+      "outcome_detail": "Agent produced a working Revideo animation with correct specs but achieved only 0.0186 reward. SSIM of 0.8016 barely passes the 0.70 gate (gated to 0.0389 via cubic scaling), and pHash similarity was 0.4781, indicating significant visual differences in shape geometry, colors, and morph timing compared to the reference.",
+      "strategy": "Extract reference frames, analyze visually, implement parametric shape morphing in Revideo",
+      "agent_behavior": [
+        "Probed reference video metadata (480x360, 24fps, 20s) and extracted frames at multiple rates (4fps, 8fps, 1fps) for analysis",
+        "Spent extensive time (lines 1-118, ~8 minutes) viewing individual frames and montages at every second to understand the 3-phase circle-to-square-to-wavy morphing animation",
+        "Created zoomed closeups of specific shapes to study the wavy/diamond morph geometry in detail",
+        "Read Revideo API docs (Path, Spline, signal types, tween functions) to understand available components before coding",
+        "Wrote initial implementation using Path component with parametric SVG polygon generation (96-120 vertices), keyframed timelines per row, and smoothstep easing",
+        "Rendered and visually compared output frames side-by-side with reference frames, iterated on wavy shape formula and timeline keyframes multiple times",
+        "Made a final cleanup edit removing an unused import before the last render",
+        "Used ~32.5 minutes of the 2-hour timeout; completed all 3 self-defined tasks (analyze, write scene, render/verify)"
+      ],
+      "reward_hacking": {
+        "attempted": false,
+        "detail": null,
+        "evidence": []
+      },
+      "evaluation_awareness": {
+        "detected": false,
+        "detail": null
+      },
+      "issues": [],
+      "post_qa_cost_usd": 1.858623
+    },
+    {
+      "trial_id": "video2d-to-revideo-shape-morphin__xbifFb4",
+      "model": "claude-opus-4-7",
+      "reward": 0.0444,
+      "agent_exec_sec": 3726.110804,
+      "verifier_sec": 31.931013,
+      "timed_out": false,
+      "cost_usd": null,
+      "exception_type": null,
+      "verdict": "FAIR",
+      "outcome": "below_threshold",
+      "outcome_detail": "Agent produced a rendering with correct duration (60/60 frames) and approximate shape layout, but morphing timing and shape geometry diverge significantly from reference (PSNR ~20.56 dB, SSIM gated 0.0709, phash 0.626), resulting in a near-zero score.",
+      "strategy": "Visual frame analysis with iterative parametric shape tuning over 30+ render cycles",
+      "agent_behavior": [
+        "Extracted reference frames at multiple resolutions (4fps and 24fps) and examined them visually to understand the animation structure.",
+        "Identified the 4x3 grid layout, shape morphing phases (circle to square to concave/clover), and per-row timing differences.",
+        "Implemented a polygon-based shape system using Line with computed points: arcs for corners and straight/bowed segments for sides.",
+        "Used ffmpeg pixel sampling to extract exact colors from the reference video at grid center positions.",
+        "Iterated through 30+ render-and-compare cycles, adjusting radius, corner rounding, bow depth, morph timing ramps, and color values.",
+        "Used PSNR as the primary optimization metric, achieving final average PSNR of ~20.56 dB.",
+        "Bottom row was set to constant circles (m=0) which may not match the reference morphing pattern exactly.",
+        "Spent 62 minutes total, making productive use of the 2-hour timeout with no wasted cycles."
+      ],
+      "reward_hacking": {
+        "attempted": false,
+        "detail": null,
+        "evidence": []
+      },
+      "evaluation_awareness": {
+        "detected": false,
+        "detail": null
+      },
+      "issues": [],
+      "post_qa_cost_usd": 1.723732
+    }
+  ]
+}

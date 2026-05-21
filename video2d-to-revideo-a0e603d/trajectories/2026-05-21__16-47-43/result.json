@@ -1,0 +1,58 @@
+{
+    "id": "b76b81cd-3c15-4ecb-8023-f58430cc1d9a",
+    "started_at": "2026-05-21T16:47:43.822377",
+    "finished_at": "2026-05-21T17:33:02.143850",
+    "n_total_trials": 6,
+    "stats": {
+        "n_trials": 6,
+        "n_errors": 0,
+        "evals": {
+            "claude-code__claude-opus-4-7__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.3055
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.3386": [
+                            "video2d-to-revideo-shape-morphin__p2VhvmH"
+                        ],
+                        "0.4904": [
+                            "video2d-to-revideo-shape-morphin__dPZB5h5"
+                        ],
+                        "0.0875": [
+                            "video2d-to-revideo-shape-morphin__7UKtivx"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            },
+            "codex__gpt-5.4__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.09983333333333333
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.2995": [
+                            "video2d-to-revideo-shape-morphin__iiWRe5a"
+                        ],
+                        "0.0": [
+                            "video2d-to-revideo-shape-morphin__brjwmBm",
+                            "video2d-to-revideo-shape-morphin__4J8289j"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

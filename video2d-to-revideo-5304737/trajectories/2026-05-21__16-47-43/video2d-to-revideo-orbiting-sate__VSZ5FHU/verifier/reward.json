@@ -1,0 +1,17 @@
+{
+  "score": 0.0,
+  "subscores": [
+    {
+      "subtask": "dump_literal_gate",
+      "score": 0.0
+    }
+  ],
+  "additional_data": {
+    "gate_failed": "dump_literal_gate",
+    "info": {
+      "threshold": 580,
+      "agent_literals": 4514,
+      "triggered": true
+    }
+  }
+}

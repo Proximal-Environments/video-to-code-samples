@@ -1,0 +1,111 @@
+{
+    "id": "ea57e7d8-63fb-44a1-bd04-f94d32c53f24",
+    "task_name": "video2d-to-revideo-orbiting-satellites",
+    "trial_name": "video2d-to-revideo-orbiting-sate__T74bmif",
+    "trial_uri": "file:///home/ubuntu/workspace/video2code-assembly/video2code_revideo/tasks/video2d-to-revideo-orbiting-satellites/jobs/2026-05-21__16-47-43/video2d-to-revideo-orbiting-sate__T74bmif",
+    "task_id": {
+        "path": "."
+    },
+    "source": null,
+    "task_checksum": "33194a56bf235191e2da1d9a998f5d2a684b80b13c115bd9ed153ecf2d4b28fc",
+    "config": {
+        "task": {
+            "path": ".",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "video2d-to-revideo-orbiting-sate__T74bmif",
+        "trials_dir": "jobs/2026-05-21__16-47-43",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "claude-code",
+            "import_path": null,
+            "model_name": "anthropic/claude-opus-4-7",
+            "override_timeout_sec": 7200.0,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "temperature": 1.0,
+                "reasoning_effort": "high",
+                "disallowed_tools": "WebSearch WebFetch"
+            },
+            "env": {}
+        },
+        "environment": {
+            "type": "modal",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {
+                "registry_secret": "gcr-secret",
+                "sandbox_timeout_secs": 11400
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [
+            "/app/"
+        ],
+        "job_id": "79118d49-cbda-4be1-8896-80922fd71973"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "2.1.146",
+        "model_info": {
+            "name": "claude-opus-4-7",
+            "provider": "anthropic"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 4620281,
+        "n_cache_tokens": 4522578,
+        "n_output_tokens": 52891,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.1056
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-21T16:48:04.844930Z",
+    "finished_at": "2026-05-21T17:03:47.639497Z",
+    "environment_setup": {
+        "started_at": "2026-05-21T16:48:09.763330Z",
+        "finished_at": "2026-05-21T16:48:19.308424Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-21T16:48:19.308437Z",
+        "finished_at": "2026-05-21T16:48:38.662582Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-21T16:48:38.662639Z",
+        "finished_at": "2026-05-21T17:02:46.544669Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-21T17:02:58.131385Z",
+        "finished_at": "2026-05-21T17:03:24.758716Z"
+    }
+}

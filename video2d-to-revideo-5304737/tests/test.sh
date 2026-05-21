@@ -19,8 +19,8 @@ fail_with() {
 
 # Source-level anti-cheat on project.tsx (the deliverable).
 # Block: file I/O, exec/eval, subprocess, video reading, data extraction
-if grep -qE 'readFileSync|readFile|writeFileSync|createReadStream|\bfs\.|child_process|execSync|spawnSync|spawn\(|exec\(|\.fork\(|eval\(|Function\(|require\(.fs|import.*from.*fs|VideoCapture|ffmpeg|fluent-ffmpeg|sharp|jimp|Jimp|\bdecode\b|\bencode\b|base64|Buffer\.from|atob|btoa' /app/src/project.tsx; then
-    grep -nE 'readFileSync|readFile|writeFileSync|createReadStream|\bfs\.|child_process|execSync|spawnSync|spawn\(|exec\(|\.fork\(|eval\(|Function\(|require\(.fs|import.*from.*fs|VideoCapture|ffmpeg|fluent-ffmpeg|sharp|jimp|Jimp|\bdecode\b|\bencode\b|base64|Buffer\.from|atob|btoa' /app/src/project.tsx \
+if grep -qE 'readFileSync|readFile|writeFileSync|createReadStream|\bfs\.|child_process|execSync|spawnSync|spawn\(|exec\(|\.fork\(|eval\(|Function\(|require\(.fs|import.*from.*fs|VideoCapture|ffmpeg|fluent-ffmpeg|\bsharp\b|jimp|Jimp|\bdecode\b|\bencode\b|base64|Buffer\.from|atob|btoa' /app/src/project.tsx; then
+    grep -nE 'readFileSync|readFile|writeFileSync|createReadStream|\bfs\.|child_process|execSync|spawnSync|spawn\(|exec\(|\.fork\(|eval\(|Function\(|require\(.fs|import.*from.*fs|VideoCapture|ffmpeg|fluent-ffmpeg|\bsharp\b|jimp|Jimp|\bdecode\b|\bencode\b|base64|Buffer\.from|atob|btoa' /app/src/project.tsx \
         > "$VERIFIER_DIR/cheat-matches.txt" 2>&1 || true
     fail_with "cheat_pattern_detected"
 fi

@@ -1,0 +1,41 @@
+{
+  "score": 0.0119,
+  "subscores": [
+    {
+      "subtask": "ssim_gated",
+      "score": 0.0542
+    },
+    {
+      "subtask": "phash_similarity",
+      "score": 0.2193
+    },
+    {
+      "subtask": "duration",
+      "score": 1.0
+    }
+  ],
+  "additional_data": {
+    "ssim_info": {
+      "mean_ssim": 0.8135,
+      "min_ssim": 0.7958,
+      "max_ssim": 0.9379,
+      "frames_compared": 57,
+      "gate": 0.7,
+      "exponent": 3,
+      "gated": 0.0542,
+      "temporal_offset": -3
+    },
+    "phash_info": {
+      "mean_hamming": 24.98,
+      "max_hamming": 34,
+      "frames_compared": 57
+    },
+    "duration_info": {
+      "ref_frames": 60,
+      "agent_frames": 60,
+      "ratio": 1.0,
+      "penalty": 1.0
+    },
+    "temporal_offset": -3
+  }
+}

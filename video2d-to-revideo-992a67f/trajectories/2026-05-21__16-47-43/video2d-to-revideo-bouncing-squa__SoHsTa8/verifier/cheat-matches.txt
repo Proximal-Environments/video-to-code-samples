@@ -1,0 +1,1 @@
+21:  const raw = globalThis.atob(ENCODED_COEFFICIENTS);
