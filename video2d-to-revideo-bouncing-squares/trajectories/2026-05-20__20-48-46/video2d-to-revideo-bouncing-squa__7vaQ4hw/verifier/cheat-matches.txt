@@ -1,0 +1,2 @@
+98:      ...refs.map((r, i) => r().position.x(history[f+1][i].x - W/2, 1/FPS)),
+99:      ...refs.map((r, i) => r().position.y(history[f+1][i].y - H/2, 1/FPS)),

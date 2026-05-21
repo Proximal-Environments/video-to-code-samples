@@ -1,0 +1,62 @@
+{
+    "id": "766ad84c-ad47-4c30-aefc-5fd7827e8448",
+    "started_at": "2026-05-20T20:48:46.275725",
+    "finished_at": "2026-05-20T22:50:04.899029",
+    "n_total_trials": 6,
+    "stats": {
+        "n_trials": 6,
+        "n_errors": 2,
+        "evals": {
+            "terminus-2__claude-opus-4-7__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.04636666666666667
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-revideo-orbiting-sate__9Lu2Mgg",
+                            "video2d-to-revideo-orbiting-sate__w9moEKL"
+                        ],
+                        "0.1391": [
+                            "video2d-to-revideo-orbiting-sate__pZsK5hm"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            },
+            "terminus-2__gpt-5.4__adhoc": {
+                "n_trials": 2,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-revideo-orbiting-sate__5v3LpJL",
+                            "video2d-to-revideo-orbiting-sate__Pyn7d6C"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "VerifierTimeoutError": [
+                        "video2d-to-revideo-orbiting-sate__fnP9Nre"
+                    ],
+                    "AgentTimeoutError": [
+                        "video2d-to-revideo-orbiting-sate__5v3LpJL"
+                    ]
+                }
+            }
+        }
+    }
+}

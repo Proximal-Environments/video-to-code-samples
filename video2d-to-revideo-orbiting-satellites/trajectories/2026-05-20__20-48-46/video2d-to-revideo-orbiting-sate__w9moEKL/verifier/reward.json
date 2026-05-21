@@ -1,0 +1,17 @@
+{
+  "score": 0.0,
+  "subscores": [
+    {
+      "subtask": "non_nice_float_gate",
+      "score": 0.0
+    }
+  ],
+  "additional_data": {
+    "gate_failed": "non_nice_float_gate",
+    "info": {
+      "limit": 30,
+      "agent_non_nice": 36,
+      "triggered": true
+    }
+  }
+}

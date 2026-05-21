@@ -1,0 +1,192 @@
+{
+    "id": "d25fb53d-3efe-41eb-91c8-beb01eaa46cb",
+    "task_name": "video2d-to-revideo-bouncing-squares",
+    "trial_name": "video2d-to-revideo-bouncing-squa__qfn2k2h",
+    "trial_uri": "file:///home/ubuntu/workspace/video2code-assembly/video2code_revideo/tasks/video2d-to-revideo-bouncing-squares/jobs/2026-05-20__20-48-46/video2d-to-revideo-bouncing-squa__qfn2k2h",
+    "task_id": {
+        "path": "."
+    },
+    "source": null,
+    "task_checksum": "992a67f38afa04b993d7e136acbb5fb54917af6be22b523b6a988334da99c82e",
+    "config": {
+        "task": {
+            "path": ".",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "video2d-to-revideo-bouncing-squa__qfn2k2h",
+        "trials_dir": "jobs/2026-05-20__20-48-46",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "terminus-2",
+            "import_path": null,
+            "model_name": "openai/gpt-5.4",
+            "override_timeout_sec": 7200.0,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "use_responses_api": true,
+                "reasoning_effort": "high"
+            },
+            "env": {}
+        },
+        "environment": {
+            "type": "modal",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {
+                "registry_secret": "gcr-secret",
+                "sandbox_timeout_secs": 11400
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [
+            "/app/"
+        ],
+        "job_id": "6f744bf6-0fd6-4c0f-b1e3-025f0bfe7e00"
+    },
+    "agent_info": {
+        "name": "terminus-2",
+        "version": "2.0.0",
+        "model_info": {
+            "name": "gpt-5.4",
+            "provider": "openai"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 5800571,
+        "n_cache_tokens": 0,
+        "n_output_tokens": 165207,
+        "cost_usd": 4.259436500000002,
+        "rollout_details": [],
+        "metadata": {
+            "n_episodes": 77,
+            "api_request_times_msec": [
+                6658.550977706909,
+                15495.230197906494,
+                31538.477897644043,
+                99039.97898101807,
+                59995.18942832947,
+                92460.6409072876,
+                155978.34062576294,
+                46690.97018241882,
+                89549.62205886841,
+                5028.724670410156,
+                5167.7563190460205,
+                5128.896236419678,
+                28498.247623443604,
+                128062.9723072052,
+                60333.877086639404,
+                58199.52440261841,
+                11062.359094619751,
+                12350.977659225464,
+                17713.676691055298,
+                19869.107007980347,
+                19943.769216537476,
+                35827.20947265625,
+                52473.742723464966,
+                8467.853784561157,
+                15942.186832427979,
+                96494.50421333313,
+                60427.01697349548,
+                18247.726678848267,
+                56304.607629776,
+                15745.427131652832,
+                15967.190265655518,
+                17165.73739051819,
+                80340.51418304443,
+                35790.189266204834,
+                60522.94301986694,
+                85614.81285095215,
+                47351.760149002075,
+                23189.0709400177,
+                25123.73375892639,
+                51941.12229347229,
+                48632.32207298279,
+                40888.888359069824,
+                35456.02083206177,
+                57176.698446273804,
+                12787.658214569092,
+                16346.214532852173,
+                35573.18902015686,
+                9009.18173789978,
+                6095.375776290894,
+                13994.645357131958,
+                24212.438821792603,
+                36844.74277496338,
+                12067.033529281616,
+                6841.979026794434,
+                12237.718343734741,
+                25075.456619262695,
+                18422.788858413696,
+                7394.203424453735,
+                16662.97459602356,
+                43322.64447212219,
+                36139.85586166382,
+                16505.765914916992,
+                9491.153001785278,
+                10773.555517196655,
+                6275.648593902588,
+                24905.23910522461,
+                20212.64624595642,
+                104916.35489463806,
+                19620.527744293213,
+                49751.09100341797,
+                18736.13977432251,
+                8763.640642166138,
+                14746.991634368896,
+                27130.46383857727,
+                37284.57498550415,
+                32248.661518096924,
+                6355.562925338745
+            ],
+            "summarization_count": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-20T20:48:55.430921Z",
+    "finished_at": "2026-05-20T21:51:57.362548Z",
+    "environment_setup": {
+        "started_at": "2026-05-20T20:48:58.108943Z",
+        "finished_at": "2026-05-20T20:49:08.116453Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-20T20:49:08.116474Z",
+        "finished_at": "2026-05-20T20:49:20.561226Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-20T20:49:20.561300Z",
+        "finished_at": "2026-05-20T21:50:54.973112Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-20T21:51:08.020659Z",
+        "finished_at": "2026-05-20T21:51:32.733674Z"
+    }
+}

@@ -1,0 +1,60 @@
+{
+    "id": "6f744bf6-0fd6-4c0f-b1e3-025f0bfe7e00",
+    "started_at": "2026-05-20T20:48:46.265765",
+    "finished_at": "2026-05-20T23:30:01.880711",
+    "n_total_trials": 6,
+    "stats": {
+        "n_trials": 6,
+        "n_errors": 2,
+        "evals": {
+            "terminus-2__claude-opus-4-7__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-revideo-bouncing-squa__7vaQ4hw",
+                            "video2d-to-revideo-bouncing-squa__AFL3mCG",
+                            "video2d-to-revideo-bouncing-squa__8NofBZp"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            },
+            "terminus-2__gpt-5.4__adhoc": {
+                "n_trials": 2,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video2d-to-revideo-bouncing-squa__qfn2k2h",
+                            "video2d-to-revideo-bouncing-squa__UhhHtTB"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "video2d-to-revideo-bouncing-squa__qCsoUeu",
+                        "video2d-to-revideo-bouncing-squa__UhhHtTB"
+                    ]
+                }
+            }
+        }
+    }
+}

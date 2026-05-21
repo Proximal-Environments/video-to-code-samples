@@ -1,0 +1,18 @@
+{
+  "score": 0.7632,
+  "subscores": [
+    {
+      "subtask": "ssim_gated",
+      "score": 0.771
+    },
+    {
+      "subtask": "phash_similarity",
+      "score": 0.99
+    },
+    {
+      "subtask": "duration",
+      "score": 1.0
+    }
+  ],
+  "additional_data": {}
+}

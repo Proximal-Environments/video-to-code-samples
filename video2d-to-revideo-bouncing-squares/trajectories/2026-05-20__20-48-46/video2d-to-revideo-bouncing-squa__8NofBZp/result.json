@@ -1,0 +1,177 @@
+{
+    "id": "50e4acab-1c90-4819-b0ae-2987606b295d",
+    "task_name": "video2d-to-revideo-bouncing-squares",
+    "trial_name": "video2d-to-revideo-bouncing-squa__8NofBZp",
+    "trial_uri": "file:///home/ubuntu/workspace/video2code-assembly/video2code_revideo/tasks/video2d-to-revideo-bouncing-squares/jobs/2026-05-20__20-48-46/video2d-to-revideo-bouncing-squa__8NofBZp",
+    "task_id": {
+        "path": "."
+    },
+    "source": null,
+    "task_checksum": "992a67f38afa04b993d7e136acbb5fb54917af6be22b523b6a988334da99c82e",
+    "config": {
+        "task": {
+            "path": ".",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "video2d-to-revideo-bouncing-squa__8NofBZp",
+        "trials_dir": "jobs/2026-05-20__20-48-46",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "terminus-2",
+            "import_path": null,
+            "model_name": "anthropic/claude-opus-4-7",
+            "override_timeout_sec": 7200.0,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {},
+            "env": {}
+        },
+        "environment": {
+            "type": "modal",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {
+                "registry_secret": "gcr-secret",
+                "sandbox_timeout_secs": 11400
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [
+            "/app/"
+        ],
+        "job_id": "6f744bf6-0fd6-4c0f-b1e3-025f0bfe7e00"
+    },
+    "agent_info": {
+        "name": "terminus-2",
+        "version": "2.0.0",
+        "model_info": {
+            "name": "claude-opus-4-7",
+            "provider": "anthropic"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 3508797,
+        "n_cache_tokens": 3404054,
+        "n_output_tokens": 44138,
+        "cost_usd": 3.4580894999999994,
+        "rollout_details": [],
+        "metadata": {
+            "n_episodes": 65,
+            "api_request_times_msec": [
+                4212.047338485718,
+                4650.646448135376,
+                5340.520143508911,
+                5992.290019989014,
+                9773.895740509033,
+                7755.810260772705,
+                7615.462303161621,
+                11367.56181716919,
+                8367.945194244385,
+                12013.978481292725,
+                2548.1820106506348,
+                12074.254274368286,
+                8276.643514633179,
+                8719.25973892212,
+                10251.030683517456,
+                12010.127544403076,
+                16732.14888572693,
+                11818.731546401978,
+                3475.322961807251,
+                3404.428720474243,
+                4013.9951705932617,
+                7143.972396850586,
+                27253.49235534668,
+                3522.514820098877,
+                5668.500661849976,
+                10512.702465057373,
+                8597.187995910645,
+                11309.25989151001,
+                19710.00051498413,
+                12861.050367355347,
+                7202.793598175049,
+                3903.2726287841797,
+                2948.7318992614746,
+                8031.7277908325195,
+                12298.629999160767,
+                21953.261613845825,
+                7548.768043518066,
+                32918.566942214966,
+                7687.582969665527,
+                10264.304161071777,
+                8949.768781661987,
+                12933.448314666748,
+                14284.884452819824,
+                9313.716888427734,
+                14076.308250427246,
+                8717.617511749268,
+                4853.393793106079,
+                13039.551258087158,
+                13328.058004379272,
+                15239.45426940918,
+                7118.303537368774,
+                18245.226621627808,
+                17569.931268692017,
+                5641.4148807525635,
+                22277.944564819336,
+                19731.37593269348,
+                10672.385215759277,
+                11987.49589920044,
+                24604.23707962036,
+                8804.112672805786,
+                11953.459978103638,
+                16005.65505027771,
+                8366.298198699951,
+                7855.116128921509,
+                8262.803316116333
+            ],
+            "summarization_count": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-20T20:48:58.111048Z",
+    "finished_at": "2026-05-20T21:19:36.706584Z",
+    "environment_setup": {
+        "started_at": "2026-05-20T20:49:00.778755Z",
+        "finished_at": "2026-05-20T20:49:08.554899Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-20T20:49:08.554907Z",
+        "finished_at": "2026-05-20T20:49:23.607482Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-20T20:49:23.607558Z",
+        "finished_at": "2026-05-20T21:18:32.663249Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-20T21:18:41.993918Z",
+        "finished_at": "2026-05-20T21:19:09.945341Z"
+    }
+}
